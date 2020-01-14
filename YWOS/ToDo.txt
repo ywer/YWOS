@@ -1,0 +1,17 @@
+﻿todo list:
+
+Daten für Systemstatus sammeln und anzeigen
+
+Setting menü mit einstellbaren werten
+reset menu
+reset über Infomenu je nach menu hinzufügen (doppel enter)
+Show Only modus hinzufügen
+reset über befehl hinzufügen
+
+
+
+
+erledigt:
+HauptMenu mit funktion
+
+
