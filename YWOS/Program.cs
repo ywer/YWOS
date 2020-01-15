@@ -120,6 +120,10 @@ namespace IngameScript
             public string ScriptName { get; set; }
 
             public int Prio { get; set; }
+
+            public int ID { get; set; }
+
+            
         }
 
         class Warnings
@@ -129,6 +133,10 @@ namespace IngameScript
             public string ScriptName { get; set; }
 
             public int Prio { get; set; }
+
+            public int ID { get; set; }
+
+            
         }
 
         #endregion
@@ -376,13 +384,21 @@ namespace IngameScript
                 string Type = Channellist[Index].Type;
                 if (Type == "Info")
                 {
+                    if(Site == "Info")
+                    {
+                        hier
 
+                    }else if(Site == "Warning")
+                    {
+                        hier
+
+                    }
 
 
                 }
                 else if (Type == "Menu")
                 {
-                    GetData();
+                    
                     string MenuFull = Channellist[Index].Menus;
                     string MenuName = Channellist[Index].Name;
                     //Echo(MenuFull);
@@ -459,9 +475,72 @@ namespace IngameScript
         }
 
 
-        public void GetData()
+        public void GetData(string Type)
         {
-            hier
+            if(Type == "Warn")
+            {
+                hier
+            }
+            else if(Type == "Info")
+            {
+                hier
+            }
+
+
+        }
+
+
+        public void RegisterData(string Type , string Data, string Source, int ID, int Prio)
+        {
+            string Ext = "";
+            if(Source != "")
+            {
+                Ext = Source;
+            }
+
+            if(Type == "Warn")
+            {
+                int Index = WarnMenu.FindIndex(a => a.ID == ID);
+                int Index2 = WarnMenu.FindIndex(a => a.ScriptName == Source);
+                    if(Index != -1 & Index2 != -1)
+                {
+                    WarnMenu.RemoveAt(Index);
+                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    return;
+
+                }
+                else
+                {
+                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    return;
+
+                }
+
+            }
+            else if (Type == "Info")
+            {
+                int Index3 = InfoMenu.FindIndex(a => a.ID == ID);
+                int Index4 = InfoMenu.FindIndex(a => a.ScriptName == Source);
+                if (Index3 != -1 & Index4 != -1)
+                {
+                    WarnMenu.RemoveAt(Index3);
+                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    return;
+
+                }
+                else
+                {
+                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    return;
+
+                }
+
+
+
+            }
+
+
+
         }
 
 
