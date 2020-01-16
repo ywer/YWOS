@@ -8,7 +8,7 @@ reset über Infomenu je nach menu hinzufügen (doppel enter)
 Show Only modus hinzufügen
 reset über befehl hinzufügen
 
-Screen Auswahl für Infos 
+Screen Auswahl für Infos  <---- eine seite per info/Warning
 
 
 erledigt:
