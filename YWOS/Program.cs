@@ -27,9 +27,9 @@ namespace IngameScript
 
         public Program()
         {
-            string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|ResetAll";
+            string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
             string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
-
+            string ResetMenu = "Reset Warnings|Reset Info|Reset All";
 
             Channellist.Add(new Channels { Name = "MainMenu", Menus = MMenus, Type = "Menu", MenuCount = 0});
             Channellist.Add(new Channels { Name = "Info", Menus = "", Type = "Info", MenuCount = 0 });
@@ -41,8 +41,10 @@ namespace IngameScript
             Channellist.Add(new Channels { Name = "Inventory", Menus = "", Type = "Info", MenuCount = 0 });
 
             Channellist.Add(new Channels { Name = "Settings", Menus = "LEER", Type = "Menu", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Reset", Menus = "LEER", Type = "Menu", MenuCount = 0 });
-
+            Channellist.Add(new Channels { Name = "Reset", Menus = ResetMenu, Type = "Menu", MenuCount = 3 });
+            Channellist.Add(new Channels { Name = "Reset Warnings", Menus = "", Type = "Setting", MenuCount = 1 });
+            Channellist.Add(new Channels { Name = "Reset Info", Menus = "", Type = "Setting", MenuCount = 1 });
+            Channellist.Add(new Channels { Name = "Reset All", Menus = "", Type = "Setting", MenuCount = 1 });
             int C2 = 0;
 
             do
@@ -62,15 +64,25 @@ namespace IngameScript
                 C2++;
             } while (C2 < Channellist.Count);
 
-            WarnMenu.Add(new Warnings { ID = 1, Message = "1Testfuck", Prio = 2, ScriptName = "" });
-            WarnMenu.Add(new Warnings { ID = 2, Message = "2Testfuck2", Prio = 2, ScriptName = "" });
-            InfoMenu.Add(new Info { ID = 3, Message = "1Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "" });
-            InfoMenu.Add(new Info { ID = 4, Message = "2Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "" });
+            RegisterData("Info", "1Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript1", 3, 2);
+            RegisterData("Info", "2Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript2", 2, 2);
+            RegisterData("Info", "3Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript3", 1, 4);
+            RegisterData("Warn", "4Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript4", 4, 5);
+            RegisterData("Warn", "5Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript5", 5, 5);
+            RegisterData("Warn", "6Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript6", 6, 5);
+            RegisterData("Warn", "7Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscrip7", 7, 5);
+            RegisterData("Warn", "7uff", "Testscrip7", 7, 5);
+
+            /*
+            WarnMenu.Add(new Warnings { ID = 1, Message = "1Testfuck", Prio = 2, ScriptName = "test3" });
+            WarnMenu.Add(new Warnings { ID = 2, Message = "2Testfuck2", Prio = 2, ScriptName = "teest4" });
+            InfoMenu.Add(new Info { ID = 3, Message = "1Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test1" });
+            InfoMenu.Add(new Info { ID = 4, Message = "2Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test2" });
             WarnMenu.Add(new Warnings { ID = 5, Message = "2Testfuck", Prio = 2, ScriptName = "" });
             WarnMenu.Add(new Warnings { ID = 6, Message = "3Testfuck2", Prio = 2, ScriptName = "" });
-            InfoMenu.Add(new Info { ID = 7, Message = "3Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "" });
-            InfoMenu.Add(new Info { ID = 8, Message = "4Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "" });
-
+            InfoMenu.Add(new Info { ID = 7, Message = "3Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test5" });
+            InfoMenu.Add(new Info { ID = 8, Message = "4Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test 6" });
+            */
 
         }
 
@@ -98,7 +110,10 @@ namespace IngameScript
         string Site = "";
         int MaxWarnSites = 0;
         int MaxInfSites = 0;
-        int ConstandMaxsites = 999;
+        
+        int ResetAll = 0;
+        int ResetWarning = 0;
+        int ResetInfo = 0;
         
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
@@ -286,8 +301,22 @@ namespace IngameScript
             int Index = Channellist.FindIndex(a => a.Name == Site);
             if (Index != -1)
             {
-                string Type = Channellist[Index].Type;
-                int MenuCount = Channellist[Index].MenuCount;
+                int MenuCount = 0;
+               string Type = Channellist[Index].Type;
+
+                if (Site == "Warning")
+                {
+                    MenuCount = MaxWarnSites;
+                }
+                else if(Site == "Info")
+                {
+                    MenuCount = MaxInfSites;
+                }
+                else if(Type == "Menu")
+                {
+                    MenuCount = Channellist[Index].MenuCount;
+                }
+
 
                 if (Direct == "UP")
                 {
@@ -295,6 +324,7 @@ namespace IngameScript
                     if (MyPos > 0)
                     {
                         MyPos--;
+                        Echo(MyPos.ToString());
                         ShowMenu();
                         return;
                     }
@@ -306,9 +336,11 @@ namespace IngameScript
                 }
                 else if (Direct == "Down")
                 {
+                    Echo("Menu COunt " + MenuCount);
                     if (MyPos < MenuCount - 1)
                     {
                         MyPos++;
+                        Echo(MyPos.ToString());
                         ShowMenu();
                         return;
 
@@ -345,13 +377,38 @@ namespace IngameScript
                             //Echo("Menus: " + Channellist[Index2].Menus);
                             string[] MyMenu = Temp.Split('|');
                             Site = MyMenu[MyPos];
-                           Echo("Site: " + Site);
+                          // Echo("Site: " + Site);
                             MyPos = 0;
                             ShowMenu();
                             return;
                         }
                     }
                     else if (Type == "Info")
+                    {
+                        /*
+                        if (Deletecount == 0)
+                        {
+                            Deletecount = 1;
+                            ShowMenu();
+                            return;
+                        }
+                        else
+                        {
+                            if (MyPos < InfoMenu.Count)
+                            {
+                                Deletecount = 0;
+
+                                    InfoMenu.RemoveAt(MyPos);
+                                    MaxInfSites--;
+                                    ShowMenu();
+                                    return;
+                                
+
+                            }
+                        }
+
+
+                    }else if(Type == "Warning")
                     {
                         if (Deletecount == 0)
                         {
@@ -361,14 +418,45 @@ namespace IngameScript
                         }
                         else
                         {
-                            InfoMenu.RemoveAt(MyPos);
-                            ShowMenu();
+                            if (WarnMenu[MyPos]  != null)
+                            {
+                                Deletecount = 0;
+                                WarnMenu.RemoveAt(MyPos);
+                                MaxWarnSites--;
+                                ShowMenu();
+                                return;
+                            }
+                        }
+                     */   
+                    }else if(Type == "Setting")
+                    {
+                        if(ResetWarning == 1)
+                        {
+                            WarnMenu.Clear();
+                            ResetWarning = 0;
+                            
+                            ChangePos("Back");
+                            return;
+                        }else if(ResetInfo == 1)
+                        {
+                            InfoMenu.Clear();
+                            ResetInfo = 0;
+                            ChangePos("Back");
                             return;
                         }
+                        else if(ResetAll == 1)
+                        {
+                            InfoMenu.Clear();
+                            WarnMenu.Clear();
+                            ResetAll = 0;
+                            ChangePos("Back");
+
+                            return;
 
 
+                        }
                     }
-
+                    
 
                 }
 
@@ -394,107 +482,8 @@ namespace IngameScript
             }
 
 
-            //-------------------Warnings-------------------------
-            MaxWarnSites = 0;
-            string[] WarnOut = new string[ConstandMaxsites];
-            int WMax = WarnMenu.Count;
-            Echo("Wmax " + WMax.ToString());
-            int WCount = 0;
-            Out = "Warnings: " + Environment.NewLine;
-            int WmaxMath = WMax - 1;
-            if (WMax > 0)
-            {
-                if (WMax <= 11)
-                {
-                    Echo("Wmax < 11");
-                    do
-                    {
-                        Echo("Wcount = " + WCount);
-                        WarnOut[0] = WarnOut[0] + "ScriptName: " + WarnMenu[WCount].ScriptName + " Prio: " + WarnMenu[WCount].Prio  + " M:" + WarnMenu[WCount].Message + Environment.NewLine;
+            
 
-                        WCount++;
-                    } while (WCount < WmaxMath);
-                }
-                else
-                {
-                    Echo("Wmax > 11");
-                    int WCount2 = 0;
-                    int WCount3 = 0;
-                    int WCount4 = 0;
-                    do
-                    {
-                        WarnOut[WCount3] = WarnOut[WCount3] + "ScriptName: " + WarnMenu[WCount2].ScriptName + " Prio: " + WarnMenu[WCount2].Prio + " M:" + WarnMenu[WCount].Message + Environment.NewLine;
-                        WCount2++;
-                        WCount4++;
-                        Echo("Wcount2 = " + WCount2);
-                        if (WCount4 == 11)
-                        {
-                            MaxWarnSites++;
-                            WCount3++;
-                            continue;
-                        }
-                        if (WCount2 == WmaxMath)
-                        {
-                            break;
-
-                        }
-
-
-                    } while (WCount4 < 15);
-
-                }
-            }
-
-            Echo("Going to Info");
-
-            //----------------------INFOS------------
-            MaxWarnSites = 0;
-            string[] InfoOut = new string[ConstandMaxsites];
-            int IMax = InfoMenu.Count;
-            int ICount = 0;
-            int ImaxMath = IMax - 1;
-            Out = "Infos: " + Environment.NewLine;
-            if (IMax > 0)
-            {
-                if (IMax <= 11)
-                {
-                    do
-                    {
-                        InfoOut[0] = InfoOut[0] + "ScriptName: " + InfoMenu[ICount].ScriptName + " Prio: " + InfoMenu[ICount].Prio + " M: " + InfoMenu[ICount].Message + Environment.NewLine;
-
-                        ICount++;
-                    } while (ICount < ImaxMath);
-                }
-                else
-                {
-                    int ICount2 = 0;
-                    int ICount3 = 0;
-                    int ICount4 = 0;
-                    do
-                    {
-                        InfoOut[ICount3] = InfoOut[ICount3] + "ScriptName: " + InfoMenu[ICount2].ScriptName + " Prio: " + InfoMenu[ICount2].Prio + " M: " + InfoMenu[ICount].Message + Environment.NewLine;
-                        ICount2++;
-                        ICount4++;
-
-                        if (ICount4 == 11)
-                        {
-                            MaxInfSites++;
-                            ICount3++;
-                            continue;
-                        }
-                        if (ICount2 == ImaxMath)
-                        {
-                            break;
-
-                        }
-
-
-                    } while (ICount4 < 15);
-
-                }
-            }
-
-            Echo("Going output");
 
 
 
@@ -507,21 +496,19 @@ namespace IngameScript
                 {
                     if (Site == "Info")
                     {
-                        if (InfoMenu.Count > 0)
+                       List<string> InfoOut2 = GetData("Info");
+                        MaxInfSites = InfoOut2.Count;
+
+                        if (InfoOut2.Count != 0)
                         {
-                            if(InfoMenu.Count == 1)
-                            {
-                                Out = InfoOut[0] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPos + "/" + MaxWarnSites + "]";
-                            }
-                            else
-                            {
-                                Out = InfoOut[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPos + "/" + MaxWarnSites + "]";
-                            }
+                            int MyPosmath = MyPos + 1;
+                                Out = "Infos: " + Environment.NewLine + InfoOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath  + "/" + MaxInfSites + "]" + Environment.NewLine;
+                            
                             
                         }
                         else
                         {
-                            Out = "No Info";
+                            Out = "No Info" + Environment.NewLine + Environment.NewLine ;
                         }
 
                         
@@ -531,13 +518,17 @@ namespace IngameScript
                     }
                     else if (Site == "Warning")
                     {
-                        if (InfoMenu.Count > 0)
+                        List<string> WarnOut2 = GetData("Warning");
+                        MaxWarnSites = WarnOut2.Count;
+
+                        if (WarnMenu.Count != 0)
                         {
-                            Out = WarnOut[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPos + "/" + MaxWarnSites + "]";
+                            int MyPosmath = MyPos + 1;
+                            Out = "Warnings: " + Environment.NewLine + WarnOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxWarnSites + "]" + Environment.NewLine;
                         }
                         else
                         {
-                            Out = "No Warnings";
+                            Out = "No Warnings" + Environment.NewLine + Environment.NewLine;
                         }
 
                         DirectShow(Out);
@@ -577,8 +568,36 @@ namespace IngameScript
                         return;
 
                     }
-                    //Ausgabe zeigt eine Warnung/info zuwenig an Eine Seite pro Info oder zeilen besser teilen
-                    hier
+                    
+                    
+                }else if(Type == "Setting")
+                {
+                    Out = "";
+                    if(Site == "Reset All")
+                    {
+                        Out = "Enter to Delete all Infos/Warnings, Back to go back to Menu";
+                        ResetAll = 1;
+                        DirectShow(Out);
+
+                    }else if(Site == "Reset Warnings")
+                    {
+                        Out = "Enter to Delete all Warnings, Back to go back to Menu";
+                        ResetWarning = 1;
+                        DirectShow(Out);
+
+                    }
+                    else if(Site == "Reset Info")
+                    {
+                        ResetInfo = 1;
+                        Out = "Enter to Delete all Infos, Back to go back to Menu";
+                        DirectShow(Out);
+                       
+
+                    }
+
+
+
+
                 }
 
             }
@@ -616,7 +635,7 @@ namespace IngameScript
             }
             else
             {
-                Show = Show + "Keine Warnungen";
+                Show = Show + "Keine Warnungen" ;
             }
 
 
@@ -629,22 +648,104 @@ namespace IngameScript
         }
 
 
-        public void GetData(string Type)
+        public List<string> GetData(string Type)
         {
-            if(Type == "Warn")
+            //-------------------Warnings-------------------------
+            
+            
+            if (Type == "Warning")
             {
-                
+                MaxWarnSites = 0;
+                List<string> List = new List<string>();
+                string[] WarnOut = new string[99];
+                int WMax = WarnMenu.Count;
+               // Echo("Wmax " + WMax.ToString());
+                int WCount = 0;
+
+                int WmaxMath = WMax - 1;
+                if (WMax > 0)
+                {
+
+                    
+                    int WCount2 = 0;
+                    int WCount3 = 0;
+                    int WCount4 = 0;
+                    do
+                    {
+                        List.Add("ScriptName: " + WarnMenu[WCount2].ScriptName + Environment.NewLine + " Prio: " + WarnMenu[WCount2].Prio + Environment.NewLine + " Message: " + Environment.NewLine + WarnMenu[WCount].Message + Environment.NewLine);
+                        //WarnOut[WCount3] =  "ScriptName: " + WarnMenu[WCount2].ScriptName + Environment.NewLine +  " Prio: " + WarnMenu[WCount2].Prio + Environment.NewLine + " Message: " + Environment.NewLine + WarnMenu[WCount].Message + Environment.NewLine;
+                        WCount2++;
+                        WCount4++;
+                       // Echo("Wcount2 = " + WCount2);
+                        if (WCount4 == 11)
+                        {
+                            MaxWarnSites++;
+                            WCount3++;
+                            continue;
+                        }
+                        if (WCount2 == WMax)
+                        {
+                            break;
+
+                        }
+
+
+                    } while (WCount4 < 15);
+
+
+                    return List;
+
+                }
             }
-            else if(Type == "Info")
+
+            // Echo("Going to Info");
+
+            //----------------------INFOS------------
+
+            if (Type == "Info")
             {
-                
-            }
-            else if(Type == "Setting")
-            {
+                List<string> List2 = new List<string>();
+                MaxWarnSites = 0;
+               
+                int IMax = InfoMenu.Count;
+                int ICount = 0;
+                int ImaxMath = IMax - 1;
+
+                if (IMax > 0)
+                {
+
+                    int ICount2 = 0;
+                    int ICount3 = 0;
+                    int ICount4 = 0;
+                    do
+                    {
+                        List2.Add("ScriptName: " + InfoMenu[ICount2].ScriptName + Environment.NewLine + " Prio: " + InfoMenu[ICount2].Prio + Environment.NewLine + " M: " + Environment.NewLine + InfoMenu[ICount].Message + Environment.NewLine);
+                        //InfoOut[ICount3] =  "ScriptName: " + InfoMenu[ICount2].ScriptName + Environment.NewLine + " Prio: " + InfoMenu[ICount2].Prio + Environment.NewLine + " M: " + Environment.NewLine + InfoMenu[ICount].Message + Environment.NewLine;
+                        ICount2++;
+                        ICount4++;
+
+                        if (ICount4 == 11)
+                        {
+                            MaxInfSites++;
+                            ICount3++;
+                            continue;
+                        }
+                        if (ICount2 == IMax)
+                        {
+                            break;
+
+                        }
+
+
+                    } while (ICount4 < 15);
+
+                    return List2;
+                }
 
             }
+            
 
-
+            return null;
         }
 
 
@@ -670,6 +771,7 @@ namespace IngameScript
                 else
                 {
                     WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    MaxWarnSites++;
                     return;
 
                 }
@@ -681,14 +783,15 @@ namespace IngameScript
                 int Index4 = InfoMenu.FindIndex(a => a.ScriptName == Source);
                 if (Index3 != -1 & Index4 != -1)
                 {
-                    WarnMenu.RemoveAt(Index3);
-                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    InfoMenu.RemoveAt(Index3);
+                    InfoMenu.Add(new Info() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
                     return;
 
                 }
                 else
                 {
-                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    InfoMenu.Add(new Info() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
+                    MaxInfSites++;
                     return;
 
                 }
