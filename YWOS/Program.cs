@@ -385,7 +385,7 @@ namespace IngameScript
                     }
                     else if (Type == "Info")
                     {
-                        /*
+                        
                         if (Deletecount == 0)
                         {
                             Deletecount = 1;
@@ -400,6 +400,7 @@ namespace IngameScript
 
                                     InfoMenu.RemoveAt(MyPos);
                                     MaxInfSites--;
+                                MyPos = 0;
                                     ShowMenu();
                                     return;
                                 
@@ -423,11 +424,12 @@ namespace IngameScript
                                 Deletecount = 0;
                                 WarnMenu.RemoveAt(MyPos);
                                 MaxWarnSites--;
+                                MyPos = 0;
                                 ShowMenu();
                                 return;
                             }
                         }
-                     */   
+                        
                     }else if(Type == "Setting")
                     {
                         if(ResetWarning == 1)
@@ -496,15 +498,18 @@ namespace IngameScript
                 {
                     if (Site == "Info")
                     {
-                       List<string> InfoOut2 = GetData("Info");
-                        MaxInfSites = InfoOut2.Count;
-
-                        if (InfoOut2.Count != 0)
+                       string[] InfoOut2 = GetData("Info");
+                        MaxInfSites = InfoOut2.Length;
+                        
+                        if (MaxInfSites > 0)
                         {
-                            int MyPosmath = MyPos + 1;
-                                Out = "Infos: " + Environment.NewLine + InfoOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath  + "/" + MaxInfSites + "]" + Environment.NewLine;
-                            
-                            
+                            if (InfoOut2[1] != "LEER")
+                            {
+                                int MyPosmath = MyPos + 1;
+
+                                Out = "Infos: " + Environment.NewLine + InfoOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxInfSites + "]" + Environment.NewLine;
+                            }
+
                         }
                         else
                         {
@@ -518,19 +523,26 @@ namespace IngameScript
                     }
                     else if (Site == "Warning")
                     {
-                        List<string> WarnOut2 = GetData("Warning");
-                        MaxWarnSites = WarnOut2.Count;
 
-                        if (WarnMenu.Count != 0)
+                        string[] WarnOut2 = GetData("Warning");
+                        MaxWarnSites = WarnOut2.Length;
+                        
+                        if (MaxWarnSites > 0)
                         {
-                            int MyPosmath = MyPos + 1;
-                            Out = "Warnings: " + Environment.NewLine + WarnOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxWarnSites + "]" + Environment.NewLine;
+                            if (WarnOut2[1] != "LEER")
+                            {
+                                int MyPosmath = MyPos + 1;
+
+                                Out = "Warnings: " + Environment.NewLine + WarnOut2[MyPos] + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxWarnSites + "]" + Environment.NewLine;
+
+
+                            }
                         }
                         else
                         {
                             Out = "No Warnings" + Environment.NewLine + Environment.NewLine;
                         }
-
+                        
                         DirectShow(Out);
                         return;
                     }
@@ -648,13 +660,14 @@ namespace IngameScript
         }
 
 
-        public List<string> GetData(string Type)
+        public string[] GetData(string Type)
         {
             //-------------------Warnings-------------------------
-            
+            fehler hier irgendwo index out of range
             
             if (Type == "Warning")
             {
+
                 MaxWarnSites = 0;
                 List<string> List = new List<string>();
                 string[] WarnOut = new string[99];
@@ -665,7 +678,7 @@ namespace IngameScript
                 int WmaxMath = WMax - 1;
                 if (WMax > 0)
                 {
-
+                    /*
                     
                     int WCount2 = 0;
                     int WCount3 = 0;
@@ -691,10 +704,13 @@ namespace IngameScript
 
 
                     } while (WCount4 < 15);
-
-
-                    return List;
-
+                    
+                    string[] Out = List.ToArray();
+                    return Out;
+                    */
+                    string[] Out1 = new string[1];
+                    Out1[1] = "LEER";
+                    return Out1;
                 }
             }
 
@@ -713,7 +729,7 @@ namespace IngameScript
 
                 if (IMax > 0)
                 {
-
+                    /*
                     int ICount2 = 0;
                     int ICount3 = 0;
                     int ICount4 = 0;
@@ -738,14 +754,20 @@ namespace IngameScript
 
 
                     } while (ICount4 < 15);
-
-                    return List2;
+                    
+                    string[] Out2 = List2.ToArray();
+                    return Out2;
+                    */
+                    string[] Out2 = new string[1];
+                    Out2[1] = "LEER";
+                    return Out2;
                 }
 
             }
-            
+            string[] Out3 = new string[1];
+            Out3[1] = "LEER";
 
-            return null;
+            return Out3;
         }
 
 
