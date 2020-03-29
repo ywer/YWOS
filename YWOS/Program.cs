@@ -27,6 +27,94 @@ namespace IngameScript
 
         public Program()
         {
+            List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
+            GridTerminalSystem.GetBlocks(allBlocks);
+
+            foreach (IMyTerminalBlock Block in allBlocks)
+            {
+
+                if (Block is IMyTextPanel)
+                {
+
+                    if (Block.CustomName.Contains(LCDName))
+                    {
+
+
+                        InfoLCDList.Add((IMyTextPanel)Block);
+
+                    }
+
+                    if (Block.CustomName.Contains(WarningLCDName))
+                    {
+
+
+                        WarnLCDList.Add((IMyTextPanel)Block);
+
+                    }
+
+                    if (Block.CustomName.Contains(Controller))
+                    {
+                        ControllerList.Add((IMyButtonPanel)Block);
+
+                    }
+
+
+                    if (Block.CustomName.Contains(MenuLCD))
+                    {
+
+
+                        MLCD = Block as IMyTextPanel;
+
+                    }
+                }
+
+                if (Block is IMyReactor)
+                {
+                    AllMyReactors.Add((IMyReactor)Block);
+                }
+
+                if (Block is IMyLargeMissileTurret)
+                {
+                    MyMissleTurrets.Add((IMyLargeMissileTurret)Block);
+
+                }
+
+                if (Block is IMyLargeGatlingTurret)
+                {
+                    MyGatlingTurrets.Add((IMyLargeGatlingTurret)Block);
+                }
+
+                if(Block is IMyLargeInteriorTurret)
+                {
+                    MyIntTurrets.Add((IMyLargeInteriorTurret)Block);
+                }
+
+
+                if (Block is IMyGasTank)
+                {
+                    MyFuelTanks.Add((IMyGasTank)Block);
+
+
+                }
+                if (Block is IMyBatteryBlock)
+                {
+                    MyBatteries.Add((IMyBatteryBlock)Block);
+                }
+                if (Block is IMySolarPanel)
+                {
+                    MySolar.Add((IMySolarPanel)Block);
+                }
+                if (Block is IMyPowerProducer)
+                {
+                    MyPowerProd.Add((IMyPowerProducer)Block);
+                }
+
+
+
+
+            }
+
+
             string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
             string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
             string ResetMenu = "Reset Warnings|Reset Info|Reset All";
@@ -95,7 +183,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.221;
+        double Version = 0.222;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -119,6 +207,8 @@ namespace IngameScript
         List<IMyBatteryBlock> MyBatteries = new List<IMyBatteryBlock>();
         List<IMySolarPanel> MySolar = new List<IMySolarPanel>();
         List<IMyPowerProducer> MyPowerProd = new List<IMyPowerProducer>();
+        List<IMyLargeInteriorTurret> MyIntTurrets = new List<IMyLargeInteriorTurret>();
+        List<IMyGasTank> MyFuelTanks = new List<IMyGasTank>();
         string[] Steps = new string[20];
         List<Inf> InfoM = new List<Inf>();
         List<Inf> InfoMTemp = new List<Inf>();
@@ -216,88 +306,6 @@ namespace IngameScript
                 Echo("Nicht Implementiert");
 
             }
-            List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
-            GridTerminalSystem.GetBlocks(allBlocks);
-
-            foreach (IMyTerminalBlock Block in allBlocks)
-            {
-
-                if (Block is IMyTextPanel)
-                {
-
-                    if (Block.CustomName.Contains(LCDName))
-                    {
-
-
-                        InfoLCDList.Add((IMyTextPanel)Block);
-
-                    }
-
-                    if (Block.CustomName.Contains(WarningLCDName))
-                    {
-
-
-                        WarnLCDList.Add((IMyTextPanel)Block);
-
-                    }
-
-                    if (Block.CustomName.Contains(Controller))
-                    {
-                        ControllerList.Add((IMyButtonPanel)Block);
-
-                    }
-
-
-                    if (Block.CustomName.Contains(MenuLCD))
-                    {
-
-
-                        MLCD = Block as IMyTextPanel;
-
-                    }
-                }
-
-                if (Block is IMyReactor)
-                {
-                    AllMyReactors.Add((IMyReactor)Block);
-                }
-
-                if (Block is IMyLargeMissileTurret)
-                {
-                    MyMissleTurrets.Add((IMyLargeMissileTurret)Block);
-
-                }
-
-                if (Block is IMyLargeGatlingTurret)
-                {
-                    MyGatlingTurrets.Add((IMyLargeGatlingTurret)Block);
-                }
-
-                if (Block is IMyGasTank)
-                {
-
-
-
-                }
-                if(Block is IMyBatteryBlock)
-                {
-                    MyBatteries.Add((IMyBatteryBlock)Block);
-                }
-                if(Block is IMySolarPanel)
-                {
-                    MySolar.Add((IMySolarPanel)Block);
-                }
-                if(Block is IMyPowerProducer)
-                {
-                    MyPowerProd.Add((IMyPowerProducer)Block);
-                }
-
-
-
-
-            }
-
-
 
             ShowMenu();
 
@@ -486,6 +494,7 @@ namespace IngameScript
         public void ShowMenu()
         {
             string Out = "";
+
             if (Site == "")
             {
                 Site = "MainMenu";
@@ -560,8 +569,14 @@ namespace IngameScript
                         float OutputSolarPower = 0;
                         float BatMaxLoad = 0;
                         float BatCurrentLoad = 0;
+                        int MaxReac = 0;
+                        float BatOutput = 0;
+                        float BatInput = 0;
+                        int BatCount = 0;
 
-                        int MaxReac = AllMyReactors.Count;
+
+
+                         MaxReac = AllMyReactors.Count;
                         foreach (IMyReactor Rea in AllMyReactors)
                         {
                             PowerUsed = PowerUsed + Rea.CurrentOutput;
@@ -583,14 +598,17 @@ namespace IngameScript
                         }
 
 
+                        BatCount = MyBatteries.Count;
                         foreach (IMyBatteryBlock Bat in MyBatteries)
                         {
                             BatMaxLoad = BatMaxLoad + Bat.MaxInput;
                             BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
+                            BatInput = BatInput + Bat.CurrentInput;
+                            BatOutput = BatOutput + Bat.CurrentOutput;
 
                         }
 
-                        Out = "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine + "Batterys:" + Environment.NewLine + "Current/Max" + BatCurrentLoad + "/" + BatMaxLoad + Environment.NewLine;
+                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine +  Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine +Environment.NewLine + "Batterys:" +Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Current/Max" + BatCurrentLoad + "/" + BatMaxLoad + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
 
 
 
@@ -598,10 +616,96 @@ namespace IngameScript
 
 
 
-
+                        return;
 
                     }
+                    else if(Site == "Weapons")
+                    {
+                        int MissTurretsActive = 0;
+                        int GatTurretsActive = 0;
+                        int IntTurretsActive = 0;
+                        int GatAIEnabled = 0;
+                        int GatIsShooting = 0;
+                        int IntIsShooting = 0;
+                        int MissIsShooting = 0;
+                        int IntAIEnabled = 0;
+                        int MissAIEnabled = 0;
+                        foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
+                        {
+                            if (Gat.Enabled)
+                            {
+                                GatTurretsActive++;
+                             }
+                            if(Gat.AIEnabled)
+                            {
+                                GatAIEnabled++;
+                            }
+                            if(Gat.IsShooting)
+                            {
+                                GatIsShooting++;
+                            }
 
+
+                        }
+
+                        foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
+                        {
+                            if(Miss.Enabled)
+                            {
+                                MissTurretsActive++;
+                            }
+                            if (Miss.AIEnabled)
+                            {
+                                MissAIEnabled++;
+                            }
+                            if (Miss.IsShooting)
+                            {
+                                MissIsShooting++;
+                            }
+
+                        }
+
+                        foreach(IMyLargeInteriorTurret Int in MyIntTurrets)
+                        {
+                            if(Int.Enabled)
+                            {
+                                IntTurretsActive++;
+                            }
+                            if (Int.AIEnabled)
+                            {
+                                IntAIEnabled++;
+                            }
+                            if (Int.IsShooting)
+                            {
+                                IntIsShooting++;
+                            }
+
+                        }
+
+                        Out = "Weapons: " + Environment.NewLine + "Int. Turrets: " + Environment.NewLine + "Aktive/Max: " + IntTurretsActive + "/" + MyIntTurrets.Count + Environment.NewLine + "Ai Enabled: " + IntAIEnabled + "/" + MyIntTurrets.Count + Environment.NewLine + "Shooting: " + IntIsShooting + "/" + MyIntTurrets.Count + Environment.NewLine + Environment.NewLine + "Gatling Guns: " + Environment.NewLine + "Aktive/Max: " + GatTurretsActive + "/" + MyGatlingTurrets.Count + Environment.NewLine + "Ai Enabled: " + GatAIEnabled + "/" + MyGatlingTurrets.Count + Environment.NewLine + "Shooting: " + GatIsShooting + "/" + MyGatlingTurrets.Count + Environment.NewLine + Environment.NewLine + "Missle Turrets: " + Environment.NewLine + "Aktive/Max: " + MissTurretsActive + "/" + MyMissleTurrets.Count + Environment.NewLine + "Ai Enabled: " + MissAIEnabled + "/" + MyMissleTurrets.Count + Environment.NewLine + "Shooting: " + MissIsShooting + "/" + MyMissleTurrets.Count + Environment.NewLine + Environment.NewLine;
+
+                        DirectShow(Out);
+                        return;
+                    }
+                    if(Site == "Fuel")
+                    {
+                        float MaxFuel = 0;
+                        double CurrentFuel = 0;
+
+
+                        Out = "";
+                        foreach(IMyGasTank Fuel in MyFuelTanks)
+                        {
+                            MaxFuel = MaxFuel + Fuel.Capacity;
+                            CurrentFuel = CurrentFuel + Fuel.FilledRatio;
+                                
+                        }
+
+                        Out = "Fuel: " + Environment.NewLine + "Tanks: " + MyFuelTanks.Count + Environment.NewLine + "Fuel " + CurrentFuel + Environment.NewLine + "Max Fuel: " + MaxFuel + Environment.NewLine; 
+
+                        DirectShow(Out);
+                        return;
+                    }
 
                 }
                 else if (Type == "Menu")

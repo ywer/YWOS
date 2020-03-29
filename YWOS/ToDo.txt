@@ -9,6 +9,10 @@ reset über befehl hinzufügen
 Screen Auswahl für Infos  <---- eine seite per info/Warning ,mit auswahl für mehrere bildschirme für die selbe info (gehtn ur mit infos für eine seite,weil  keine bedienung)
 Text Eingabe über text panel?
 Todo liste für ingame?
+funktion für Blöcke nachträglich erfassen
+
+
+
 
 erledigt:
 HauptMenu mit funktion
