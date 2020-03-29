@@ -27,7 +27,6 @@ namespace IngameScript
 
         public Program()
         {
-            //MessageHandling MES = new MessageHandling();
             string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
             string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
             string ResetMenu = "Reset Warnings|Reset Info|Reset All";
@@ -56,12 +55,12 @@ namespace IngameScript
                 {
                     string MenusList = Channellist[C2].Menus;
                     string[] M1 = MenusList.Split('|');
-                   // Echo(M1.Length.ToString());
+                   
                     Channellist[C2].MenuCount = M1.Length;
 
 
                 }
-               // Echo("C2: " + C2.ToString());
+               
 
                 C2++;
             } while (C2 < Channellist.Count);
@@ -75,27 +74,7 @@ namespace IngameScript
             RegisterMessage(1, 1, "test2", "ywerInc2");
             RegisterMessage(1, 1, "test3", "ywerInc3");
 
-           
-            /*
-            RegisterData("Info", "1Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript1", 3, 2);
-            RegisterData("Info", "2Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript2", 2, 2);
-            RegisterData("Info", "3Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript3", 1, 4);
-            RegisterData("Warn", "4Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript4", 4, 5);
-            RegisterData("Warn", "5Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript5", 5, 5);
-            RegisterData("Warn", "6Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscript6", 6, 5);
-            RegisterData("Warn", "7Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih", "Testscrip7", 7, 5);
-            RegisterData("Warn", "7uff", "Testscrip7", 7, 5);
-            */
-            /*
-            WarnMenu.Add(new Warnings { ID = 1, Message = "1Testfuck", Prio = 2, ScriptName = "test3" });
-            WarnMenu.Add(new Warnings { ID = 2, Message = "2Testfuck2", Prio = 2, ScriptName = "teest4" });
-            InfoMenu.Add(new Info { ID = 3, Message = "1Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test1" });
-            InfoMenu.Add(new Info { ID = 4, Message = "2Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test2" });
-            WarnMenu.Add(new Warnings { ID = 5, Message = "2Testfuck", Prio = 2, ScriptName = "" });
-            WarnMenu.Add(new Warnings { ID = 6, Message = "3Testfuck2", Prio = 2, ScriptName = "" });
-            InfoMenu.Add(new Info { ID = 7, Message = "3Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test5" });
-            InfoMenu.Add(new Info { ID = 8, Message = "4Bla blaojiguhjgkhgpüok oijhdgo okiofjgoijdgü ijufgih ", Prio = 6, ScriptName = "test 6" });
-            */
+
 
         }
 
@@ -121,8 +100,7 @@ namespace IngameScript
         int deep = 0;
         int Deletecount = 0;
         string Site = "";
-        int MaxWarnSites = 0;
-        int MaxInfSites = 0;
+
 
         
 
@@ -132,8 +110,6 @@ namespace IngameScript
         
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
-        //List<Info> InfoMenu = new List<Info>();
-        //List<Warnings> WarnMenu = new List<Warnings>();
         List<IMyTextPanel> InfoLCDList = new List<IMyTextPanel>();
         List<IMyTextPanel> WarnLCDList = new List<IMyTextPanel>();
         List<IMyButtonPanel> ControllerList = new List<IMyButtonPanel>();
@@ -141,8 +117,15 @@ namespace IngameScript
         List<IMyLargeMissileTurret> MyMissleTurrets = new List<IMyLargeMissileTurret>();
         List<IMyLargeGatlingTurret> MyGatlingTurrets = new List<IMyLargeGatlingTurret>();
         string[] Steps = new string[20];
+        List<Inf> InfoM = new List<Inf>();
+        List<Inf> InfoMTemp = new List<Inf>();
+        List<Warn> WarnM = new List<Warn>();
+        List<Warn> WarnMTemp = new List<Warn>();
+        string LastWSource = "";
+        string LastISource = "";
+        int IID = 0;
+        int WID = 0;
 
-       
         class Channels
         {
             public string Name { get; set; }
@@ -155,8 +138,8 @@ namespace IngameScript
 
         }
 
-        /*
-        class Info
+
+        class Inf
         {
             public string Message { get; set; }
 
@@ -166,10 +149,11 @@ namespace IngameScript
 
             public int ID { get; set; }
 
-            
+
         }
 
-        class Warnings
+
+        class Warn
         {
             public string Message { get; set; }
 
@@ -179,9 +163,11 @@ namespace IngameScript
 
             public int ID { get; set; }
 
-            
+
         }
-        */
+
+
+
         #endregion
 
 
@@ -191,9 +177,6 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
-           // MessageHandling MES = new MessageHandling();
-
-
             string Status = argument;
 
             if (Status == "Reset")
@@ -275,12 +258,6 @@ namespace IngameScript
                 {
                     AllMyReactors.Add((IMyReactor)Block);
                 }
-                /*
-                if(Block is IMyOxygenGenerator)
-                {
-                    AllMyGasGen.Add((IMyOxygenGenerator)Block);
-                }
-                */
 
                 if (Block is IMyLargeMissileTurret)
                 {
@@ -316,7 +293,6 @@ namespace IngameScript
 
         public void ChangePos(String Direction)
         {
-           // MessageHandling MES = new MessageHandling();
             string Direct = Direction;
             int Index = Channellist.FindIndex(a => a.Name == Site);
             if (Index != -1)
@@ -344,7 +320,7 @@ namespace IngameScript
                     if (MyPos > 0)
                     {
                         MyPos--;
-                        Echo(MyPos.ToString());
+                        
                         ShowMenu();
                         return;
                     }
@@ -356,11 +332,11 @@ namespace IngameScript
                 }
                 else if (Direct == "Down")
                 {
-                    Echo("Menu COunt " + MenuCount);
+                    
                     if (MyPos < MenuCount - 1)
                     {
                         MyPos++;
-                        Echo(MyPos.ToString());
+                        
                         ShowMenu();
                         return;
 
@@ -391,13 +367,13 @@ namespace IngameScript
                         {
                             Steps[deep] = Site;
 
-                            //Echo("MYPOS: " + MyPos.ToString());
+                            
                             deep++;
                             string Temp = Channellist[Index2].Menus;
-                            //Echo("Menus: " + Channellist[Index2].Menus);
+                            
                             string[] MyMenu = Temp.Split('|');
                             Site = MyMenu[MyPos];
-                          // Echo("Site: " + Site);
+                          
                             MyPos = 0;
                             ShowMenu();
                             return;
@@ -416,13 +392,9 @@ namespace IngameScript
                         {
                             if (MyPos < ReturnMaxMessages(0))
                             {
-                                Echo("InfoDelete");
+                                
                                 Deletecount = 0;
                                 int Del2 = DeleteMessage(0,MyPos);
-                                Echo("Del2: " + Del2);
-                                Echo("MyPos: " + MyPos);
-                                // InfoMenu.RemoveAt(MyPos);
-                                //MaxInfSites--;
                                 MyPos = 0;
                                     ShowMenu();
                                     return;
@@ -436,9 +408,9 @@ namespace IngameScript
                     {
                         if (Deletecount == 0)
                         {
-                            Echo("WarnDelete");
-                            Echo("MyPos: " + MyPos);
-                            Echo("MAX: " + ReturnMaxMessages(1));
+                            
+                           
+                            
                             Deletecount = 1;
                             ShowMenu();
                             return;
@@ -449,10 +421,6 @@ namespace IngameScript
                             {
                                 Deletecount = 0;
                                 int Del = DeleteMessage(1,MyPos);
-                                Echo("DelWarn: " + Del);
-                                Echo("MyPosWarn: " + MyPos);
-                                //WarnMenu.RemoveAt(MyPos);
-                                //MaxWarnSites--;
                                 MyPos = 0;
                                 ShowMenu();
                                 return;
@@ -503,7 +471,6 @@ namespace IngameScript
 
         public void ShowMenu()
         {
-            //MessageHandling MES = new MessageHandling();
             string Out = "";
             if (Site == "")
             {
@@ -527,10 +494,8 @@ namespace IngameScript
                 {
                     if (Site == "Info")
                     {
-                        //string[] InfoOut2 = GetData("Info");
-                        //MaxInfSites = InfoOut2.Length;
                         int MaxI = ReturnMaxMessages(0);
-                        Echo("Max I " + MaxI);
+                        
                         if (MaxI > 0)
                         {
                             string IMessage = ReturnMessage(0, MyPos);
@@ -552,11 +517,8 @@ namespace IngameScript
                     }
                     else if (Site == "Warning")
                     {
-
-                        //string[] WarnOut2 = GetData("Warning");
-                        //MaxWarnSites = WarnOut2.Length;
                         int MaxW = ReturnMaxMessages(1);
-                        Echo("Max W " + MaxW);
+                        
                         if (MaxW > 0)
                         {
 
@@ -583,7 +545,7 @@ namespace IngameScript
                     
                     string MenuFull = Channellist[Index].Menus;
                     string MenuName = Channellist[Index].Name;
-                    //Echo(MenuFull);
+                    
                     string[] Menu = MenuFull.Split('|');
                     if (Menu.Length > 0)
                     {
@@ -632,12 +594,8 @@ namespace IngameScript
                         ResetInfo = 1;
                         Out = "Enter to Delete all Infos, Back to go back to Menu";
                         DirectShow(Out);
-                       
 
                     }
-
-
-
 
                 }
 
@@ -648,15 +606,11 @@ namespace IngameScript
                 ShowMenu();
                 return;
             }
-
-
-
         }
 
 
         public void DirectShow(string Show)
         {
-            //MessageHandling MES = new MessageHandling();
             int Max = 0;
             int Index = Channellist.FindIndex(a => a.Name == Site);
             int Math = MyPos + 1;
@@ -680,7 +634,6 @@ namespace IngameScript
                 Show = Show + "Keine Warnungen" ;
             }
 
-
             if (MLCD != null)
             {
                 MLCD.WriteText(Show, false);
@@ -689,215 +642,8 @@ namespace IngameScript
             return;
         }
 
-        /*
-        public string[] GetData(string Type)
-        {
-            //-------------------Warnings-------------------------
-            //fehler hier irgendwo index out of range
-            
-            if (Type == "Warning")
-            {
-                
-                MaxWarnSites = 0;
-                List<string> List = new List<string>();
-                string[] WarnOut = new string[99];
-                int WMax = WarnMenu.Count;
-               // Echo("Wmax " + WMax.ToString());
-                int WCount = 0;
-
-                int WmaxMath = WMax - 1;
-                
-                if (WMax > 0)
-                {
-                    
-                    
-                    int WCount2 = 0;
-                    int WCount3 = 0;
-                    int WCount4 = 0;
-                    do
-                    {
-                        List.Add("ScriptName: " + WarnMenu[WCount2].ScriptName + Environment.NewLine + " Prio: " + WarnMenu[WCount2].Prio + Environment.NewLine + " Message: " + Environment.NewLine + WarnMenu[WCount].Message + Environment.NewLine);
-                        //WarnOut[WCount3] =  "ScriptName: " + WarnMenu[WCount2].ScriptName + Environment.NewLine +  " Prio: " + WarnMenu[WCount2].Prio + Environment.NewLine + " Message: " + Environment.NewLine + WarnMenu[WCount].Message + Environment.NewLine;
-                        WCount2++;
-                        WCount4++;
-                       // Echo("Wcount2 = " + WCount2);
-                        if (WCount4 == 11)
-                        {
-                            MaxWarnSites++;
-                            WCount3++;
-                            continue;
-                        }
-                        if (WCount2 == WMax)
-                        {
-                            break;
-
-                        }
-
-
-                    } while (WCount4 < 15);
-                    
-                    string[] Out = List.ToArray();
-                    return Out;
-                    
-                    string[] Out1 = new string[1];
-                    Out1[0] = "LEER";
-                    return Out1;
-                }
-            }
-
-            // Echo("Going to Info");
-
-            //----------------------INFOS------------
-
-            if (Type == "Info")
-            {
-                List<string> List2 = new List<string>();
-                MaxWarnSites = 0;
-               
-                int IMax = InfoMenu.Count;
-                int ICount = 0;
-                int ImaxMath = IMax - 1;
-
-                if (IMax > 0)
-                {
-                    /*
-                    int ICount2 = 0;
-                    int ICount3 = 0;
-                    int ICount4 = 0;
-                    do
-                    {
-                        List2.Add("ScriptName: " + InfoMenu[ICount2].ScriptName + Environment.NewLine + " Prio: " + InfoMenu[ICount2].Prio + Environment.NewLine + " M: " + Environment.NewLine + InfoMenu[ICount].Message + Environment.NewLine);
-                        //InfoOut[ICount3] =  "ScriptName: " + InfoMenu[ICount2].ScriptName + Environment.NewLine + " Prio: " + InfoMenu[ICount2].Prio + Environment.NewLine + " M: " + Environment.NewLine + InfoMenu[ICount].Message + Environment.NewLine;
-                        ICount2++;
-                        ICount4++;
-
-                        if (ICount4 == 11)
-                        {
-                            MaxInfSites++;
-                            ICount3++;
-                            continue;
-                        }
-                        if (ICount2 == IMax)
-                        {
-                            break;
-
-                        }
-
-
-                    } while (ICount4 < 15);
-                    
-                    string[] Out2 = List2.ToArray();
-                    return Out2;
-                    
-                    string[] Out2 = new string[1];
-                    Out2[0] = "LEER";
-                    return Out2;
-                }
-
-            }
-            string[] Out3 = new string[1];
-            Out3[0] = "LEER";
-
-            return Out3;
-        }
-        */
-        /*
-        public void RegisterData(string Type , string Data, string Source, int ID, int Prio)
-        {
-            string Ext = "";
-            if(Source != "")
-            {
-                Ext = Source;
-            }
-
-            if(Type == "Warn")
-            {
-                int Index = WarnMenu.FindIndex(a => a.ID == ID);
-                int Index2 = WarnMenu.FindIndex(a => a.ScriptName == Source);
-                    if(Index != -1 & Index2 != -1)
-                {
-                    WarnMenu.RemoveAt(Index);
-                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
-                    return;
-
-                }
-                else
-                {
-                    WarnMenu.Add(new Warnings() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
-                    MaxWarnSites++;
-                    return;
-
-                }
-
-            }
-            else if (Type == "Info")
-            {
-                int Index3 = InfoMenu.FindIndex(a => a.ID == ID);
-                int Index4 = InfoMenu.FindIndex(a => a.ScriptName == Source);
-                if (Index3 != -1 & Index4 != -1)
-                {
-                    InfoMenu.RemoveAt(Index3);
-                    InfoMenu.Add(new Info() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
-                    return;
-
-                }
-                else
-                {
-                    InfoMenu.Add(new Info() { ID = ID, Message = Data, Prio = Prio, ScriptName = Ext });
-                    MaxInfSites++;
-                    return;
-
-                }
-
-
-
-            }
-
-
-
-        }
-        */
-
-        //----------------------------------------------- NEU----------------------------------
-
-        class Inf
-        {
-            public string Message { get; set; }
-
-            public string ScriptName { get; set; }
-
-            public int Prio { get; set; }
-
-            public int ID { get; set; }
-
-
-        }
-
-
-        class Warn
-        {
-            public string Message { get; set; }
-
-            public string ScriptName { get; set; }
-
-            public int Prio { get; set; }
-
-            public int ID { get; set; }
-
-
-        }
-
-        #region Stuff2
-        List<Inf> InfoM = new List<Inf>();
-        List<Inf> InfoMTemp = new List<Inf>();
-        List<Warn> WarnM = new List<Warn>();
-        List<Warn> WarnMTemp = new List<Warn>();
-        string LastWSource = "";
-        string LastISource = "";
-        int IID = 0;
-        int WID = 0;
-        #endregion
-
+       
+       
 
         public void RegisterMessage(int MType, int Prio, string Message, string Source)
         {
@@ -1001,9 +747,6 @@ namespace IngameScript
             //0 - Erfolg
             //1 Fehler 
 
-            Echo("Delete");
-            Echo("Type: " + MType);
-
             if (MType == 0)
             {
 
@@ -1015,23 +758,18 @@ namespace IngameScript
                 InfoM.AddRange(InfoMTemp);
                 InfoMTemp.Clear();
                 return 0;
-                //counter rückwärts, alles in nem array rein und neu ins die liste
-
-
 
             }
             else if(MType == 1)
             {
                 WarnM.RemoveAt(ID);
-                Echo("Deleted at: " + ID);
+                
                 WID--;
                 WarnMTemp.AddRange(WarnM);
                 WarnM.Clear();
                 WarnM.Clear();
                 WarnM.AddRange(WarnMTemp);
                 WarnMTemp.Clear();
-                //counter rückwärts, alles in nem array rein und neu ins die liste
-
                 return 0;
 
             }
@@ -1040,10 +778,6 @@ namespace IngameScript
 
                 return 1;
             }
-
-
-
-
         }
 
         public void DeleteWarnings()
@@ -1094,9 +828,6 @@ namespace IngameScript
             {
                 return null;
             }
-
-
-
         }
 
         public int ReturnMaxMessages(int MType)
@@ -1114,8 +845,6 @@ namespace IngameScript
             {
                 MAX = WarnM.Count;
             }
-
-
             return MAX;
         }
 
