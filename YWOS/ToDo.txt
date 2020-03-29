@@ -3,15 +3,14 @@
 Daten für Systemstatus sammeln und anzeigen
 
 Setting menü mit einstellbaren werten
-reset menu
-reset über Infomenu je nach menu hinzufügen (doppel enter)
-Show Only modus hinzufügen
+Show Only modus hinzufügen(über menü)
 reset über befehl hinzufügen
 
-Screen Auswahl für Infos  <---- eine seite per info/Warning
-
+Screen Auswahl für Infos  <---- eine seite per info/Warning ,mit auswahl für mehrere bildschirme für die selbe info (gehtn ur mit infos für eine seite,weil  keine bedienung)
+Text Eingabe über text panel?
+Todo liste für ingame?
 
 erledigt:
 HauptMenu mit funktion
-
-
+reset menu
+reset über Infomenu je nach menu hinzufügen (doppel enter)

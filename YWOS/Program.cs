@@ -95,7 +95,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.22;
+        double Version = 0.221;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -116,6 +116,9 @@ namespace IngameScript
         List<IMyReactor> AllMyReactors = new List<IMyReactor>();
         List<IMyLargeMissileTurret> MyMissleTurrets = new List<IMyLargeMissileTurret>();
         List<IMyLargeGatlingTurret> MyGatlingTurrets = new List<IMyLargeGatlingTurret>();
+        List<IMyBatteryBlock> MyBatteries = new List<IMyBatteryBlock>();
+        List<IMySolarPanel> MySolar = new List<IMySolarPanel>();
+        List<IMyPowerProducer> MyPowerProd = new List<IMyPowerProducer>();
         string[] Steps = new string[20];
         List<Inf> InfoM = new List<Inf>();
         List<Inf> InfoMTemp = new List<Inf>();
@@ -276,7 +279,18 @@ namespace IngameScript
 
 
                 }
-
+                if(Block is IMyBatteryBlock)
+                {
+                    MyBatteries.Add((IMyBatteryBlock)Block);
+                }
+                if(Block is IMySolarPanel)
+                {
+                    MySolar.Add((IMySolarPanel)Block);
+                }
+                if(Block is IMyPowerProducer)
+                {
+                    MyPowerProd.Add((IMyPowerProducer)Block);
+                }
 
 
 
@@ -537,6 +551,56 @@ namespace IngameScript
                         DirectShow(Out);
                         return;
                     }
+                    else if(Site == "Energy")
+                    {
+                        float MaxPower = 0;
+                        float PowerUsed = 0;
+                        int ReacIsRunning = 0;
+                        float MaxSolarPower = 0;
+                        float OutputSolarPower = 0;
+                        float BatMaxLoad = 0;
+                        float BatCurrentLoad = 0;
+
+                        int MaxReac = AllMyReactors.Count;
+                        foreach (IMyReactor Rea in AllMyReactors)
+                        {
+                            PowerUsed = PowerUsed + Rea.CurrentOutput;
+                            MaxPower = MaxPower + Rea.MaxOutput;
+
+                            if (Rea.Enabled)
+                            {
+                                ReacIsRunning++;
+                            }
+
+                        }
+
+
+                        foreach (IMySolarPanel Sola in MySolar)
+                        {
+                            MaxSolarPower = MaxSolarPower + Sola.MaxOutput;
+                            OutputSolarPower = OutputSolarPower + Sola.CurrentOutput;
+
+                        }
+
+
+                        foreach (IMyBatteryBlock Bat in MyBatteries)
+                        {
+                            BatMaxLoad = BatMaxLoad + Bat.MaxInput;
+                            BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
+
+                        }
+
+                        Out = "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine + "Batterys:" + Environment.NewLine + "Current/Max" + BatCurrentLoad + "/" + BatMaxLoad + Environment.NewLine;
+
+
+
+                        DirectShow(Out);
+
+
+
+
+
+                    }
 
 
                 }
@@ -596,6 +660,7 @@ namespace IngameScript
                         DirectShow(Out);
 
                     }
+
 
                 }
 
