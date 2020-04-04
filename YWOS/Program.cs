@@ -109,60 +109,56 @@ namespace IngameScript
                     MyPowerProd.Add((IMyPowerProducer)Block);
                 }
 
-
+                if(Block is IMyCargoContainer)
+                {
+                    MyCargoContainers.Add((IMyCargoContainer)Block);
+                }
 
 
             }
 
 
-            string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
-            string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
-            string ResetMenu = "Reset Warnings|Reset Info|Reset All";
+           // string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
+           // string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
+           // string ResetMenu = "Reset Warnings|Reset Info|Reset All";
+
+            //Main
+            Channellist.Add(new Channels { MainChannel = "MainMenu",Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Info" },new Sub() { SubValue = "Warning"}, new Sub() { SubValue = "SystemStatus"}, new Sub() { SubValue = "Settings"}, new Sub() { SubValue = "Reset"} } });
+            Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+            //systemstatus
+            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "Wapons"}, new Sub() { SubValue = "Fuel"}, new Sub() { SubValue = "Inventory"} } });
+            Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "Weapons", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "Inventory", Type = "Info" });
+            //Settings
+            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" } } });
+            Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
+            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "Test1", SettingRange = "AN|AUS|1|2|3|4|5", SettingStatus = "AN" }, new Options() { Setting = "Test2", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test3", SettingRange = "AN|AUS", SettingStatus = "AN" }, new Options() { Setting = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
+            //reset
+            Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
+            Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
+            Channellist.Add(new Channels { MainChannel = "Reset Info", Type = "Reset" });
+            Channellist.Add(new Channels { MainChannel = "Reset All", Type = "Reset" });
 
 
-            Channellist.Add(new Channels { Name = "MainMenu", Menus = MMenus, Type = "Menu", MenuCount = 0});
-            Channellist.Add(new Channels { Name = "Info", Menus = "", Type = "Info", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Warning", Menus = "", Type = "Info", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "SystemStatus", Menus = SystemStatusM, Type = "Menu", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Energy", Menus = "", Type = "Info", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Weapons", Menus = "", Type = "Info", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Fuel", Menus = "", Type = "Info", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Inventory", Menus = "", Type = "Info", MenuCount = 0 });
-
-            Channellist.Add(new Channels { Name = "Settings", Menus = "LEER", Type = "Menu", MenuCount = 0 });
-            Channellist.Add(new Channels { Name = "Reset", Menus = ResetMenu, Type = "Menu", MenuCount = 3 });
-            Channellist.Add(new Channels { Name = "Reset Warnings", Menus = "", Type = "Setting", MenuCount = 1 });
-            Channellist.Add(new Channels { Name = "Reset Info", Menus = "", Type = "Setting", MenuCount = 1 });
-            Channellist.Add(new Channels { Name = "Reset All", Menus = "", Type = "Setting", MenuCount = 1 });
-            int C2 = 0;
-
-            do
+            foreach(Channels Sub in Channellist)
             {
-                string MType = Channellist[C2].Type;
-                if(MType == "Menu")
-                {
-                    string MenusList = Channellist[C2].Menus;
-                    string[] M1 = MenusList.Split('|');
-                   
-                    Channellist[C2].MenuCount = M1.Length;
+                Sub.MenuCount = Sub.Subs.Count();
 
-
-                }
-               
-
-                C2++;
-            } while (C2 < Channellist.Count);
-
-
+            }
             
+
             RegisterMessage(0, 1, "test4", "ywerInc4");
             RegisterMessage(0, 1, "test5", "ywerInc5");
             RegisterMessage(0, 1, "test6", "ywerInc6");
             RegisterMessage(1, 1, "test1", "ywerInc1");
             RegisterMessage(1, 1, "test2", "ywerInc2");
             RegisterMessage(1, 1, "test3", "ywerInc3");
-
-
 
         }
 
@@ -183,7 +179,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.222;
+        double Version = 0.223;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -198,6 +194,8 @@ namespace IngameScript
         
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
+       // List<SubChannel> SubChannelList = new List<SubChannel>();
+        List<Set> SettingsList = new List<Set>();
         List<IMyTextPanel> InfoLCDList = new List<IMyTextPanel>();
         List<IMyTextPanel> WarnLCDList = new List<IMyTextPanel>();
         List<IMyButtonPanel> ControllerList = new List<IMyButtonPanel>();
@@ -209,7 +207,8 @@ namespace IngameScript
         List<IMyPowerProducer> MyPowerProd = new List<IMyPowerProducer>();
         List<IMyLargeInteriorTurret> MyIntTurrets = new List<IMyLargeInteriorTurret>();
         List<IMyGasTank> MyFuelTanks = new List<IMyGasTank>();
-        string[] Steps = new string[20];
+        List<IMyCargoContainer> MyCargoContainers = new List<IMyCargoContainer>();
+        string[] Steps = new string[20]; 
         List<Inf> InfoM = new List<Inf>();
         List<Inf> InfoMTemp = new List<Inf>();
         List<Warn> WarnM = new List<Warn>();
@@ -219,6 +218,7 @@ namespace IngameScript
         int IID = 0;
         int WID = 0;
 
+        /*
         class Channels
         {
             public string Name { get; set; }
@@ -228,6 +228,40 @@ namespace IngameScript
             public string Menus { get; set; }
 
             public int MenuCount { get; set; }
+
+        }
+        */
+
+        class Channels
+        {
+            public string MainChannel { get; set; }
+
+            public string Type { get; set; }
+
+            public int MenuCount { get; set; }
+
+            public List<Sub> Subs { get; set; } = new List<Sub>();
+
+        }
+
+        public class Sub
+        {
+            public string SubValue { get; set; }
+            
+        }
+
+        class Set
+        {
+            public string Channel { get; set; }
+
+            public List<Options> Sets { get; set; } = new List<Options>();
+        }
+
+        class Options
+        {
+            public string Setting { get; set; }
+            public string SettingStatus { get; set; }
+            public string SettingRange { get; set; }
 
         }
 
@@ -316,7 +350,7 @@ namespace IngameScript
         public void ChangePos(String Direction)
         {
             string Direct = Direction;
-            int Index = Channellist.FindIndex(a => a.Name == Site);
+            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
             if (Index != -1)
             {
                 int MenuCount = 0;
@@ -326,13 +360,18 @@ namespace IngameScript
                 {
                     MenuCount = ReturnMaxMessages(1);
                 }
-                else if(Site == "Info")
+                else if (Site == "Info")
                 {
                     MenuCount = ReturnMaxMessages(0);
                 }
-                else if(Type == "Menu")
+                else if (Type == "Menu")
                 {
                     MenuCount = Channellist[Index].MenuCount;
+                }
+                else if (Type == "Setting")
+                {
+                    int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
+                    MenuCount = SettingsList[Index93].Sets.Count;
                 }
 
 
@@ -383,18 +422,20 @@ namespace IngameScript
                 {
                     if (Type == "Menu")
                     {
-                        int Index2 = Channellist.FindIndex(a => a.Name == Site);
 
+                        int Index2 = Channellist.FindIndex(a => a.MainChannel == Site);
+                        Echo("Site: " + Site);
                         if (Index2 != -1)
                         {
                             Steps[deep] = Site;
+                            
 
-                            
+
                             deep++;
-                            string Temp = Channellist[Index2].Menus;
-                            
-                            string[] MyMenu = Temp.Split('|');
-                            Site = MyMenu[MyPos];
+                            string Temp = Channellist[Index2].Subs[MyPos].SubValue;
+                            Echo("Site new : " + Temp);
+
+                            Site = Temp;
                           
                             MyPos = 0;
                             ShowMenu();
@@ -449,7 +490,7 @@ namespace IngameScript
                             }
                         }
                         
-                    }else if(Type == "Setting")
+                    }else if(Type == "Reset")
                     {
                         if(ResetWarning == 1)
                         {
@@ -475,6 +516,31 @@ namespace IngameScript
                             return;
 
 
+                        }
+                    }else if(Type == "Setting")
+                    {
+                        int Index91 = 0;
+                       Index91 = SettingsList.FindIndex(a => a.Channel == Site);
+                        if (Index91 != -1)
+                        {
+                            string SetValue = SettingsList[Index91].Sets[MyPos].SettingRange;
+
+                            string[] Value = SetValue.Split('|');
+
+                            string Current = SettingsList[Index91].Sets[MyPos].SettingStatus;
+
+                            int temp = Array.IndexOf(Value, Current);
+
+                            temp++;
+
+                            if(temp > Value.Length - 1)
+                            { 
+                                temp = 0;
+                            }
+
+                            SettingsList[Index91].Sets[MyPos].SettingStatus = Value[temp];
+
+                        return;
                         }
                     }
                     
@@ -503,13 +569,8 @@ namespace IngameScript
             }
 
 
-            
+            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
 
-
-
-
-
-            int Index = Channellist.FindIndex(a => a.Name == Site);
             if (Index != -1)
             {
                 string Type = Channellist[Index].Type;
@@ -687,7 +748,7 @@ namespace IngameScript
                         DirectShow(Out);
                         return;
                     }
-                    if(Site == "Fuel")
+                    else if(Site == "Fuel")
                     {
                         float MaxFuel = 0;
                         double CurrentFuel = 0;
@@ -705,30 +766,49 @@ namespace IngameScript
 
                         DirectShow(Out);
                         return;
+                    }else if(Site == "Inventory")
+                    {
+                        MyFixedPoint MaxCargo = 0;
+                        MyFixedPoint UsedCargo = 0;
+                        IMyInventory test = null;
+                        Out = "";
+
+                        foreach(IMyCargoContainer Cargo in MyCargoContainers)
+                        {
+                            
+                          test =  Cargo.GetInventory();
+                            MaxCargo = MaxCargo + test.MaxVolume;
+                            UsedCargo = UsedCargo + test.CurrentVolume;
+                        }
+                        Out = "Cargo: " + Environment.NewLine +"Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine;
+                        DirectShow(Out);
+                        return;
                     }
 
                 }
                 else if (Type == "Menu")
                 {
+
+    
+
+
+                    string MenuName = Channellist[Index].MainChannel;
                     
-                    string MenuFull = Channellist[Index].Menus;
-                    string MenuName = Channellist[Index].Name;
                     
-                    string[] Menu = MenuFull.Split('|');
-                    if (Menu.Length > 0)
+                    if (Channellist[Index].Subs.Count > 0)
                     {
                         Out = MenuName + ":" + Environment.NewLine;
                         int C1 = 0;
-                        foreach (string Men in Menu)
+                        foreach (Sub MSub in Channellist[Index].Subs)
                         {
                             if (C1 == MyPos)
                             {
-                                string Uff = Menu[C1] + "<---";
+                                string Uff = MSub.SubValue + "<---";
                                 Out = Out + Uff + Environment.NewLine;
                             }
                             else
                             {
-                                Out = Out + Men + Environment.NewLine;
+                                Out = Out + MSub.SubValue + Environment.NewLine;
 
                             }
 
@@ -741,7 +821,7 @@ namespace IngameScript
                     }
                     
                     
-                }else if(Type == "Setting")
+                }else if(Type == "Reset")
                 {
                     Out = "";
                     if(Site == "Reset All")
@@ -766,8 +846,54 @@ namespace IngameScript
                     }
 
 
-                }
+                }else if(Type == "Setting")
+                {
+                    Out = Site + Environment.NewLine;
+                    int Index92 = SettingsList.FindIndex(a => a.Channel == Site);
+                    int C2 = 0;
+                    if (Index92 != -1)
+                    {
+                        if (SettingsList[Index92].Sets.Count > 0)
+                        {
+                            
+                            foreach (Options Setting in SettingsList[Index92].Sets)
+                            {
+                                //Out = Out  + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
 
+                                if (C2 == MyPos)
+                                {
+                                    string Uff = Setting.Setting + " = " + Setting.SettingStatus + "<---";
+                                    Out = Out + Uff + Environment.NewLine;
+                                }
+                                else
+                                {
+                                    Out = Out + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
+
+                                }
+
+
+                                C2++;
+                            }
+
+
+
+                            DirectShow(Out);
+                            return;
+                        }
+                        else
+                        {
+                            Out = "No Settings Aviable";
+                            DirectShow(Out);
+                        }
+                    }
+                    else
+                    {
+                        Out = "Something is Wrong";
+                            DirectShow(Out);
+                    }
+
+                }
+                return;
             }
             else
             {
@@ -780,17 +906,36 @@ namespace IngameScript
 
         public void DirectShow(string Show)
         {
-            int Max = 0;
-            int Index = Channellist.FindIndex(a => a.Name == Site);
+            
+            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
             int Math = MyPos + 1;
 
             if (Index != -1)
             {
                 string Type = Channellist[Index].Type;
-                if (Type != "Info")
+
+                 if (Type != "Info")
                 {
-                    Max = Channellist[Index].MenuCount;
-                    Show = Show + Environment.NewLine + "Position[" + Math + "/" + Max + "]" + Environment.NewLine;
+                                
+
+                int MenuCount = 0;
+               
+
+                if (Site == "Warning")
+                {
+                    MenuCount = ReturnMaxMessages(1);
+                }
+                else if (Type == "Menu")
+                {
+                    MenuCount = Channellist[Index].MenuCount;
+                }
+                else if (Type == "Setting")
+                {
+                    int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
+                    MenuCount = SettingsList[Index93].Sets.Count;
+                }
+                    
+                    Show = Show + Environment.NewLine + "Position[" + Math + "/" + MenuCount + "]" + Environment.NewLine;
                 }
             }
 
