@@ -16,6 +16,11 @@ automatische  erfassung vvon zb pistons ,automatisch menüpunkt hinzufügen,wo m
 inventarscreen in % füllstand anzeigen
 Batterien in % anzeigen
 
+Externe nachrichten annahme(Von anderen scripten)
+
+
+!!! Addierung bei generatoren beheben!!
+!! Prozentrechnung reparieren!!
 
 
 

@@ -138,7 +138,7 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
-            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "Test1", SettingRange = "AN|AUS|1|2|3|4|5", SettingStatus = "AN" }, new Options() { Setting = "Test2", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test3", SettingRange = "AN|AUS", SettingStatus = "AN" }, new Options() { Setting = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
+            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" }, new Options() { Setting = "Test3",Description = "Test3", SettingRange = "AN|AUS", SettingStatus = "AN" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
             //reset
             Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
             Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
@@ -179,7 +179,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.223;
+        double Version = 0.224;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -217,6 +217,46 @@ namespace IngameScript
         string LastISource = "";
         int IID = 0;
         int WID = 0;
+
+        //battery
+        float MaxPower = 0;
+        float PowerUsed = 0;
+        int ReacIsRunning = 0;
+        float MaxSolarPower = 0;
+        float OutputSolarPower = 0;
+        float BatMaxLoad = 0;
+        float BatCurrentLoad = 0;
+        int MaxReac = 0;
+        float BatOutput = 0;
+        float BatInput = 0;
+        int BatCount = 0;
+        float BatteryPercent = 0;
+
+        //Weapons
+        int MissTurretsActive = 0;
+        int GatTurretsActive = 0;
+        int IntTurretsActive = 0;
+        int GatAIEnabled = 0;
+        int GatIsShooting = 0;
+        int IntIsShooting = 0;
+        int MissIsShooting = 0;
+        int IntAIEnabled = 0;
+        int MissAIEnabled = 0;
+
+        //Fuel
+        float MaxFuel = 0;
+        float MaxFuelFloat = 0;
+        float CurrentFuelFloat = 0;
+        double CurrentFuel = 0;
+        float FuelPercent = 0;
+
+        //Cargo
+        MyFixedPoint MaxCargo = 0;
+        MyFixedPoint UsedCargo = 0;
+        IMyInventory test = null;
+        float CargoPercent = 0;
+
+
 
         /*
         class Channels
@@ -260,6 +300,8 @@ namespace IngameScript
         class Options
         {
             public string Setting { get; set; }
+
+            public string Description { get; set; }
             public string SettingStatus { get; set; }
             public string SettingRange { get; set; }
 
@@ -340,11 +382,193 @@ namespace IngameScript
                 Echo("Nicht Implementiert");
 
             }
-
+            DoEveryTime();
             ShowMenu();
 
 
 
+        }
+
+
+        public void DoEveryTime()
+        {
+
+
+
+            //Energy
+            MaxReac = AllMyReactors.Count;
+            foreach (IMyReactor Rea in AllMyReactors)
+            {
+                PowerUsed = PowerUsed + Rea.CurrentOutput;
+                MaxPower = MaxPower + Rea.MaxOutput;
+
+                if (Rea.Enabled)
+                {
+                    ReacIsRunning++;
+                }
+
+            }
+
+
+            foreach (IMySolarPanel Sola in MySolar)
+            {
+                MaxSolarPower = MaxSolarPower + Sola.MaxOutput;
+                OutputSolarPower = OutputSolarPower + Sola.CurrentOutput;
+
+            }
+
+            
+            BatCount = MyBatteries.Count;
+            foreach (IMyBatteryBlock Bat in MyBatteries)
+            {
+                BatMaxLoad = BatMaxLoad + Bat.MaxInput;
+                BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
+                int Current = Convert.ToInt32(BatCurrentLoad);
+                int Max = Convert.ToInt32(BatMaxLoad);
+
+                float one = BatMaxLoad / 100;
+                BatteryPercent = BatCurrentLoad / one;
+
+                BatInput = BatInput + Bat.CurrentInput;
+                BatOutput = BatOutput + Bat.CurrentOutput;
+
+            }
+
+            int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
+            int Index96 = 0;
+            int Index97 = 0;
+            if(Index95 != -1)
+            {
+               Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
+                Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
+            }
+            if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
+            {
+                string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
+                float MinAllFloat = Convert.ToSingle(MinAll);
+
+                if (MinAllFloat <= BatteryPercent)
+                {
+                    foreach(IMyReactor Rea in AllMyReactors)
+                    {
+                        Rea.Enabled = true;
+
+                    }
+
+                }
+             }
+
+            if (SettingsList[Index95].Sets[Index97].SettingStatus != "OFF")
+            {
+                string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
+                float MinOneFloat = Convert.ToSingle(MinOne);
+
+                if (MinOneFloat <= BatteryPercent)
+                {
+                    Random random = new Random();
+                    int Ran = random.Next(AllMyReactors.Count -1);
+
+                    AllMyReactors[Ran].Enabled = true;
+                }
+            }
+
+
+            //Energy End
+
+            //Weapons
+            foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
+            {
+                if (Gat.Enabled)
+                {
+                    GatTurretsActive++;
+                }
+                if (Gat.AIEnabled)
+                {
+                    GatAIEnabled++;
+                }
+                if (Gat.IsShooting)
+                {
+                    GatIsShooting++;
+                }
+
+
+            }
+
+            foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
+            {
+                if (Miss.Enabled)
+                {
+                    MissTurretsActive++;
+                }
+                if (Miss.AIEnabled)
+                {
+                    MissAIEnabled++;
+                }
+                if (Miss.IsShooting)
+                {
+                    MissIsShooting++;
+                }
+
+            }
+
+            foreach (IMyLargeInteriorTurret Int in MyIntTurrets)
+            {
+                if (Int.Enabled)
+                {
+                    IntTurretsActive++;
+                }
+                if (Int.AIEnabled)
+                {
+                    IntAIEnabled++;
+                }
+                if (Int.IsShooting)
+                {
+                    IntIsShooting++;
+                }
+
+            }
+
+            //Weapons end
+
+            //fuel
+
+
+
+            
+            foreach (IMyGasTank Fuel in MyFuelTanks)
+            {
+                MaxFuel = MaxFuel + Fuel.Capacity;
+                CurrentFuel = CurrentFuel + Fuel.FilledRatio;
+
+            }
+            int Temp1 = Convert.ToInt32(MaxFuel);
+             MaxFuelFloat = Convert.ToSingle(Temp1);
+            int Temp2 = Convert.ToInt32(CurrentFuel);
+            CurrentFuelFloat = Convert.ToSingle(Temp2);
+
+            float OneFuel = MaxFuelFloat / 100;
+            FuelPercent = CurrentFuelFloat / OneFuel;
+            //fuel end
+
+
+            //Cargo
+            MyFixedPoint MaxCargo = 0;
+            MyFixedPoint UsedCargo = 0;
+            IMyInventory test = null;
+            
+
+            foreach (IMyCargoContainer Cargo in MyCargoContainers)
+            {
+
+                test = Cargo.GetInventory();
+                MaxCargo = MaxCargo + test.MaxVolume;
+                UsedCargo = UsedCargo + test.CurrentVolume;
+            }
+
+            //Cargo End
+
+
+            return;
         }
 
         public void ChangePos(String Direction)
@@ -424,7 +648,7 @@ namespace IngameScript
                     {
 
                         int Index2 = Channellist.FindIndex(a => a.MainChannel == Site);
-                        Echo("Site: " + Site);
+                        
                         if (Index2 != -1)
                         {
                             Steps[deep] = Site;
@@ -433,7 +657,7 @@ namespace IngameScript
 
                             deep++;
                             string Temp = Channellist[Index2].Subs[MyPos].SubValue;
-                            Echo("Site new : " + Temp);
+                            
 
                             Site = Temp;
                           
@@ -623,53 +847,9 @@ namespace IngameScript
                     }
                     else if(Site == "Energy")
                     {
-                        float MaxPower = 0;
-                        float PowerUsed = 0;
-                        int ReacIsRunning = 0;
-                        float MaxSolarPower = 0;
-                        float OutputSolarPower = 0;
-                        float BatMaxLoad = 0;
-                        float BatCurrentLoad = 0;
-                        int MaxReac = 0;
-                        float BatOutput = 0;
-                        float BatInput = 0;
-                        int BatCount = 0;
 
 
-
-                         MaxReac = AllMyReactors.Count;
-                        foreach (IMyReactor Rea in AllMyReactors)
-                        {
-                            PowerUsed = PowerUsed + Rea.CurrentOutput;
-                            MaxPower = MaxPower + Rea.MaxOutput;
-
-                            if (Rea.Enabled)
-                            {
-                                ReacIsRunning++;
-                            }
-
-                        }
-
-
-                        foreach (IMySolarPanel Sola in MySolar)
-                        {
-                            MaxSolarPower = MaxSolarPower + Sola.MaxOutput;
-                            OutputSolarPower = OutputSolarPower + Sola.CurrentOutput;
-
-                        }
-
-
-                        BatCount = MyBatteries.Count;
-                        foreach (IMyBatteryBlock Bat in MyBatteries)
-                        {
-                            BatMaxLoad = BatMaxLoad + Bat.MaxInput;
-                            BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
-                            BatInput = BatInput + Bat.CurrentInput;
-                            BatOutput = BatOutput + Bat.CurrentOutput;
-
-                        }
-
-                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine +  Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine +Environment.NewLine + "Batterys:" +Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Current/Max" + BatCurrentLoad + "/" + BatMaxLoad + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
+                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine +  Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine +Environment.NewLine + "Batterys:" +Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
 
 
 
@@ -682,66 +862,7 @@ namespace IngameScript
                     }
                     else if(Site == "Weapons")
                     {
-                        int MissTurretsActive = 0;
-                        int GatTurretsActive = 0;
-                        int IntTurretsActive = 0;
-                        int GatAIEnabled = 0;
-                        int GatIsShooting = 0;
-                        int IntIsShooting = 0;
-                        int MissIsShooting = 0;
-                        int IntAIEnabled = 0;
-                        int MissAIEnabled = 0;
-                        foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
-                        {
-                            if (Gat.Enabled)
-                            {
-                                GatTurretsActive++;
-                             }
-                            if(Gat.AIEnabled)
-                            {
-                                GatAIEnabled++;
-                            }
-                            if(Gat.IsShooting)
-                            {
-                                GatIsShooting++;
-                            }
 
-
-                        }
-
-                        foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
-                        {
-                            if(Miss.Enabled)
-                            {
-                                MissTurretsActive++;
-                            }
-                            if (Miss.AIEnabled)
-                            {
-                                MissAIEnabled++;
-                            }
-                            if (Miss.IsShooting)
-                            {
-                                MissIsShooting++;
-                            }
-
-                        }
-
-                        foreach(IMyLargeInteriorTurret Int in MyIntTurrets)
-                        {
-                            if(Int.Enabled)
-                            {
-                                IntTurretsActive++;
-                            }
-                            if (Int.AIEnabled)
-                            {
-                                IntAIEnabled++;
-                            }
-                            if (Int.IsShooting)
-                            {
-                                IntIsShooting++;
-                            }
-
-                        }
 
                         Out = "Weapons: " + Environment.NewLine + "Int. Turrets: " + Environment.NewLine + "Aktive/Max: " + IntTurretsActive + "/" + MyIntTurrets.Count + Environment.NewLine + "Ai Enabled: " + IntAIEnabled + "/" + MyIntTurrets.Count + Environment.NewLine + "Shooting: " + IntIsShooting + "/" + MyIntTurrets.Count + Environment.NewLine + Environment.NewLine + "Gatling Guns: " + Environment.NewLine + "Aktive/Max: " + GatTurretsActive + "/" + MyGatlingTurrets.Count + Environment.NewLine + "Ai Enabled: " + GatAIEnabled + "/" + MyGatlingTurrets.Count + Environment.NewLine + "Shooting: " + GatIsShooting + "/" + MyGatlingTurrets.Count + Environment.NewLine + Environment.NewLine + "Missle Turrets: " + Environment.NewLine + "Aktive/Max: " + MissTurretsActive + "/" + MyMissleTurrets.Count + Environment.NewLine + "Ai Enabled: " + MissAIEnabled + "/" + MyMissleTurrets.Count + Environment.NewLine + "Shooting: " + MissIsShooting + "/" + MyMissleTurrets.Count + Environment.NewLine + Environment.NewLine;
 
@@ -750,37 +871,16 @@ namespace IngameScript
                     }
                     else if(Site == "Fuel")
                     {
-                        float MaxFuel = 0;
-                        double CurrentFuel = 0;
 
 
-                        Out = "";
-                        foreach(IMyGasTank Fuel in MyFuelTanks)
-                        {
-                            MaxFuel = MaxFuel + Fuel.Capacity;
-                            CurrentFuel = CurrentFuel + Fuel.FilledRatio;
-                                
-                        }
-
-                        Out = "Fuel: " + Environment.NewLine + "Tanks: " + MyFuelTanks.Count + Environment.NewLine + "Fuel " + CurrentFuel + Environment.NewLine + "Max Fuel: " + MaxFuel + Environment.NewLine; 
+                        Out = "Fuel: " + Environment.NewLine + "Tanks: " + MyFuelTanks.Count + Environment.NewLine + "Fuel " + CurrentFuel + Environment.NewLine + "Max Fuel: " + Environment.NewLine + MaxFuel + Environment.NewLine + "Filling in Percent: " + FuelPercent + Environment.NewLine; 
 
                         DirectShow(Out);
                         return;
                     }else if(Site == "Inventory")
                     {
-                        MyFixedPoint MaxCargo = 0;
-                        MyFixedPoint UsedCargo = 0;
-                        IMyInventory test = null;
-                        Out = "";
 
-                        foreach(IMyCargoContainer Cargo in MyCargoContainers)
-                        {
-                            
-                          test =  Cargo.GetInventory();
-                            MaxCargo = MaxCargo + test.MaxVolume;
-                            UsedCargo = UsedCargo + test.CurrentVolume;
-                        }
-                        Out = "Cargo: " + Environment.NewLine +"Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine;
+                        Out = "Cargo: " + Environment.NewLine +"Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine ;
                         DirectShow(Out);
                         return;
                     }
@@ -862,12 +962,12 @@ namespace IngameScript
 
                                 if (C2 == MyPos)
                                 {
-                                    string Uff = Setting.Setting + " = " + Setting.SettingStatus + "<---";
+                                    string Uff = Setting.Description + " = " + Setting.SettingStatus + "<---";
                                     Out = Out + Uff + Environment.NewLine;
                                 }
                                 else
                                 {
-                                    Out = Out + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
+                                    Out = Out + Setting.Description + " = " + Setting.SettingStatus + Environment.NewLine;
 
                                 }
 
