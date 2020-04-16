@@ -14,14 +14,15 @@ funktion für Blöcke nachträglich erfassen
 automatische  erfassung vvon zb pistons ,automatisch menüpunkt hinzufügen,wo man diese umschalten und ausschalten kann
 
 inventarscreen in % füllstand anzeigen
-Batterien in % anzeigen
+Batterien in % anzeigen (Füllstand über Balken???)
 
 Externe nachrichten annahme(Von anderen scripten)
 
+Seiten zu menüs hinzufügen,wenn mehr als x zeilen
 
 !!! Addierung bei generatoren beheben!!
-!! Prozentrechnung reparieren!!
 
+Liste für Connectoren und was angedockt ist
 
 
 
@@ -32,3 +33,5 @@ reset menu
 reset über Infomenu je nach menu hinzufügen (doppel enter)
 channeliste dynamischer machen, mit 2. liste für unterchannel
 Setting menü mit einstellbaren werten
+Turn Generator off Over (für einen/erstmalö nicht für einen) und alle) einstellung setting 
+!! Prozentrechnung reparieren!!  max Batterien Füllung 17 MWh

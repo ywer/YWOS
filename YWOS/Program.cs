@@ -138,13 +138,14 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
-            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" }, new Options() { Setting = "Test3",Description = "Test3", SettingRange = "AN|AUS", SettingStatus = "AN" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
+            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "40" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" },
+                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
             //reset
             Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
             Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
             Channellist.Add(new Channels { MainChannel = "Reset Info", Type = "Reset" });
             Channellist.Add(new Channels { MainChannel = "Reset All", Type = "Reset" });
-
+            
 
             foreach(Channels Sub in Channellist)
             {
@@ -152,13 +153,14 @@ namespace IngameScript
 
             }
             
-
+            /*
             RegisterMessage(0, 1, "test4", "ywerInc4");
             RegisterMessage(0, 1, "test5", "ywerInc5");
             RegisterMessage(0, 1, "test6", "ywerInc6");
             RegisterMessage(1, 1, "test1", "ywerInc1");
             RegisterMessage(1, 1, "test2", "ywerInc2");
             RegisterMessage(1, 1, "test3", "ywerInc3");
+            */
 
         }
 
@@ -179,7 +181,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.224;
+        double Version = 0.225;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -231,6 +233,7 @@ namespace IngameScript
         float BatInput = 0;
         int BatCount = 0;
         float BatteryPercent = 0;
+        int BatteryPercentInt = 0;
 
         //Weapons
         int MissTurretsActive = 0;
@@ -342,7 +345,7 @@ namespace IngameScript
 
 
 
-        #region Menu/Main
+        #region Main
 
         public void Main(string argument, UpdateType updateSource)
         {
@@ -393,7 +396,42 @@ namespace IngameScript
         public void DoEveryTime()
         {
 
+            //battery
+            MaxPower = 0;
+             PowerUsed = 0;
+             ReacIsRunning = 0;
+             MaxSolarPower = 0;
+             OutputSolarPower = 0;
+             BatMaxLoad = 0;
+            BatCurrentLoad = 0;
+            MaxReac = 0;
+            BatOutput = 0;
+            BatInput = 0;
+            BatCount = 0;
+            BatteryPercent = 0;
+            BatteryPercentInt = 0;
 
+            //Weapons
+            MissTurretsActive = 0;
+             GatTurretsActive = 0;
+            IntTurretsActive = 0;
+            GatAIEnabled = 0;
+            GatIsShooting = 0;
+            IntIsShooting = 0;
+            MissIsShooting = 0;
+            IntAIEnabled = 0;
+            MissAIEnabled = 0;
+
+            //Fuel
+            MaxFuel = 0;
+            MaxFuelFloat = 0;
+            CurrentFuelFloat = 0;
+            CurrentFuel = 0;
+            FuelPercent = 0;
+
+            //Cargo
+
+            CargoPercent = 0;
 
             //Energy
             MaxReac = AllMyReactors.Count;
@@ -421,33 +459,41 @@ namespace IngameScript
             BatCount = MyBatteries.Count;
             foreach (IMyBatteryBlock Bat in MyBatteries)
             {
-                BatMaxLoad = BatMaxLoad + Bat.MaxInput;
+                BatMaxLoad = BatMaxLoad + Bat.MaxStoredPower;
                 BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
-                int Current = Convert.ToInt32(BatCurrentLoad);
-                int Max = Convert.ToInt32(BatMaxLoad);
 
-                float one = BatMaxLoad / 100;
-                BatteryPercent = BatCurrentLoad / one;
 
                 BatInput = BatInput + Bat.CurrentInput;
                 BatOutput = BatOutput + Bat.CurrentOutput;
 
             }
+            int Current = Convert.ToInt32(BatCurrentLoad);
+            int Max = Convert.ToInt32(BatMaxLoad);
+
+            float one = (BatMaxLoad / 100);
+            BatteryPercent = (BatCurrentLoad / one);
+            BatteryPercentInt = Convert.ToInt32(BatteryPercent);
+
+
+
 
             int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
             int Index96 = 0;
             int Index97 = 0;
-            if(Index95 != -1)
+            int Index98 = 0;
+            if (Index95 != -1)
             {
                Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
                 Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
+                Index98 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MaxAll");
             }
             if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
             {
                 string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
                 float MinAllFloat = Convert.ToSingle(MinAll);
 
-                if (MinAllFloat <= BatteryPercent)
+
+                if (BatteryPercent < MinAllFloat)
                 {
                     foreach(IMyReactor Rea in AllMyReactors)
                     {
@@ -463,7 +509,7 @@ namespace IngameScript
                 string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
                 float MinOneFloat = Convert.ToSingle(MinOne);
 
-                if (MinOneFloat <= BatteryPercent)
+                if (BatteryPercent < MinOneFloat)
                 {
                     Random random = new Random();
                     int Ran = random.Next(AllMyReactors.Count -1);
@@ -471,6 +517,23 @@ namespace IngameScript
                     AllMyReactors[Ran].Enabled = true;
                 }
             }
+
+            if (SettingsList[Index95].Sets[Index98].SettingStatus != "OFF")
+            {
+                string MaxAll = SettingsList[Index95].Sets[Index98].SettingStatus;
+                float MaxAllFloat = Convert.ToSingle(MaxAll);
+      
+                if (BatteryPercent > MaxAllFloat)
+                {
+                    foreach (IMyReactor Rea in AllMyReactors)
+                    {
+                        Rea.Enabled = false;
+
+                    }
+
+                }
+            }
+
 
 
             //Energy End
@@ -546,15 +609,15 @@ namespace IngameScript
             int Temp2 = Convert.ToInt32(CurrentFuel);
             CurrentFuelFloat = Convert.ToSingle(Temp2);
 
-            float OneFuel = MaxFuelFloat / 100;
-            FuelPercent = CurrentFuelFloat / OneFuel;
+            float OneFuel = MaxFuel / 100;
+            FuelPercent = (CurrentFuelFloat / OneFuel);
             //fuel end
 
 
             //Cargo
-            MyFixedPoint MaxCargo = 0;
-            MyFixedPoint UsedCargo = 0;
-            IMyInventory test = null;
+             MaxCargo = 0;
+             UsedCargo = 0;
+             test = null;
             
 
             foreach (IMyCargoContainer Cargo in MyCargoContainers)
@@ -849,6 +912,8 @@ namespace IngameScript
                     {
 
 
+
+
                         Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine +  Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine +Environment.NewLine + "Batterys:" +Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
 
 
@@ -882,6 +947,13 @@ namespace IngameScript
 
                         Out = "Cargo: " + Environment.NewLine +"Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine ;
                         DirectShow(Out);
+                        return;
+                    }
+                    else if(Site == "BatteryInfo")
+                    {
+
+
+
                         return;
                     }
 
@@ -1003,7 +1075,10 @@ namespace IngameScript
             }
         }
 
+        #endregion
 
+
+        #region Menu
         public void DirectShow(string Show)
         {
             
@@ -1276,6 +1351,34 @@ namespace IngameScript
 
         #endregion
 
+
+        #region Func
+
+        public string ReturnIndicator(int Percent)
+        {
+            string Out = "[";
+            Double Mathe = 0;
+
+            Mathe = (Percent / 10);
+            Mathe = Math.Round(Mathe);
+
+            int I = 0;
+
+            do
+            {
+                Out = Out + "|";
+
+
+
+            } while (I < Mathe);
+
+            Out = Out + "]";
+
+            return Out;
+        }
+
+
+        #endregion
 
     }
 }
