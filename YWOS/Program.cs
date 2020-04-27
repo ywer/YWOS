@@ -138,8 +138,9 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
-            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "40" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "OFF" },
-                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
+            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
+                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } , new Options() { Setting = "Test5", Description = "Test5", SettingRange = "AN|AUS", SettingStatus = "AUS" },
+                new Options() { Setting = "Test6", Description = "Test6", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test7", Description = "Test7", SettingRange = "AN|AUS", SettingStatus = "AUS" },new Options() { Setting = "Test8", Description = "Test8", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
             //reset
             Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
             Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
@@ -186,9 +187,11 @@ namespace IngameScript
         int deep = 0;
         int Deletecount = 0;
         string Site = "";
-
-
-        
+        int Page = 0;
+        int MaxPages = 0;
+        int MenuCount = 0;
+        List<MValue> SiteValue = new List<MValue>();
+        int New = 0;
 
         int ResetAll = 0;
         int ResetWarning = 0;
@@ -338,7 +341,19 @@ namespace IngameScript
 
         }
 
+        class MValue
+        {
+            public int Max { get; set; }
 
+            public string Value { get; set; }
+
+            public List<Rows> RowValue { get; set; } = new List<Rows>();
+        }
+
+        public class Rows
+        {
+            public string Row { get; set; }
+        }
 
         #endregion
 
@@ -633,6 +648,12 @@ namespace IngameScript
 
             return;
         }
+        #endregion
+
+
+        #region Menu
+
+
 
         public void ChangePos(String Direction)
         {
@@ -658,19 +679,35 @@ namespace IngameScript
                 else if (Type == "Setting")
                 {
                     int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
-                    MenuCount = SettingsList[Index93].Sets.Count;
+                    MenuCount = SiteValue[Page].Max;
                 }
 
 
                 if (Direct == "UP")
                 {
-
-                    if (MyPos > 0)
+                    MyPos--;
+                    if (MyPos > -1)
                     {
-                        MyPos--;
+                        //MyPos--;
                         
                         ShowMenu();
                         return;
+                    }
+                    else
+                    {
+                        
+                        MyPos++;
+                        if(MaxPages >0)
+                        {
+                            if(Page >0)
+                            {
+                                Page--;
+                                MyPos = 0;
+                                return;
+                            }
+
+                        }
+                        
                     }
 
 
@@ -680,15 +717,36 @@ namespace IngameScript
                 }
                 else if (Direct == "Down")
                 {
-                    
-                    if (MyPos < MenuCount - 1)
+                    MyPos++;
+                    if (MyPos < MenuCount )
                     {
-                        MyPos++;
-                        
+                        // MyPos++;
+                        Echo("++");
                         ShowMenu();
                         return;
 
                     }
+                    else
+                    {
+                        MyPos--;
+                        Echo("MaxPages2: " + MaxPages);
+                        Echo("Page2:" + Page);
+                        Echo("+-");
+                        if (MaxPages > 0)
+                        {
+                         if(Page < MaxPages -1)
+                            {
+
+                                Page++;
+                                MyPos = 0;
+                                return;
+
+                            }
+                            
+                        }
+                        
+                    }
+
                     return;
                 }
                 else if (Direct == "Back")
@@ -697,10 +755,11 @@ namespace IngameScript
                     {
                         deep--;
                     }
+                    SiteValue.Clear();
                     
                     Site = Steps[deep];
                     MyPos = 0;
-                    
+                    New = 0;
 
                     ShowMenu();
 
@@ -725,6 +784,7 @@ namespace IngameScript
                             Site = Temp;
                           
                             MyPos = 0;
+                            Page = 0;
                             ShowMenu();
                             return;
                         }
@@ -841,13 +901,13 @@ namespace IngameScript
 
 
         }
-
+        
 
 
         public void ShowMenu()
         {
             string Out = "";
-
+            MenuCount = 0;
             if (Site == "")
             {
                 Site = "MainMenu";
@@ -866,22 +926,22 @@ namespace IngameScript
                     if (Site == "Info")
                     {
                         int MaxI = ReturnMaxMessages(0);
-                        
+
                         if (MaxI > 0)
                         {
                             string IMessage = ReturnMessage(0, MyPos);
-                                int MyPosmath = MyPos + 1;
+                            int MyPosmath = MyPos + 1;
 
-                                Out = "Infos: " + Environment.NewLine + IMessage + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxI + "]" + Environment.NewLine;
-                            
+                            Out = "Infos: " + Environment.NewLine + IMessage + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxI + "]" + Environment.NewLine;
+
 
                         }
                         else
                         {
-                            Out = "No Info" + Environment.NewLine + Environment.NewLine ;
+                            Out = "No Info" + Environment.NewLine + Environment.NewLine;
                         }
 
-                        
+
                         DirectShow(Out);
                         return;
 
@@ -889,32 +949,32 @@ namespace IngameScript
                     else if (Site == "Warning")
                     {
                         int MaxW = ReturnMaxMessages(1);
-                        
+
                         if (MaxW > 0)
                         {
 
-                                int MyPosmath = MyPos + 1;
+                            int MyPosmath = MyPos + 1;
                             string WMessage = ReturnMessage(1, MyPos);
                             Out = "Warnings: " + Environment.NewLine + WMessage + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxW + "]" + Environment.NewLine;
 
 
-                            
+
                         }
                         else
                         {
                             Out = "No Warnings" + Environment.NewLine + Environment.NewLine;
                         }
-                        
+
                         DirectShow(Out);
                         return;
                     }
-                    else if(Site == "Energy")
+                    else if (Site == "Energy")
                     {
 
 
 
 
-                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine +  Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine +Environment.NewLine + "Batterys:" +Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
+                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine + Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine + Environment.NewLine + "Batterys:" + Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
 
 
 
@@ -925,7 +985,7 @@ namespace IngameScript
                         return;
 
                     }
-                    else if(Site == "Weapons")
+                    else if (Site == "Weapons")
                     {
 
 
@@ -934,22 +994,23 @@ namespace IngameScript
                         DirectShow(Out);
                         return;
                     }
-                    else if(Site == "Fuel")
+                    else if (Site == "Fuel")
                     {
 
 
-                        Out = "Fuel: " + Environment.NewLine + "Tanks: " + MyFuelTanks.Count + Environment.NewLine + "Fuel " + CurrentFuel + Environment.NewLine + "Max Fuel: " + Environment.NewLine + MaxFuel + Environment.NewLine + "Filling in Percent: " + FuelPercent + Environment.NewLine; 
+                        Out = "Fuel: " + Environment.NewLine + "Tanks: " + MyFuelTanks.Count + Environment.NewLine + "Fuel " + CurrentFuel + Environment.NewLine + "Max Fuel: " + Environment.NewLine + MaxFuel + Environment.NewLine + "Filling in Percent: " + FuelPercent + Environment.NewLine;
 
-                        DirectShow(Out);
-                        return;
-                    }else if(Site == "Inventory")
-                    {
-
-                        Out = "Cargo: " + Environment.NewLine +"Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine ;
                         DirectShow(Out);
                         return;
                     }
-                    else if(Site == "BatteryInfo")
+                    else if (Site == "Inventory")
+                    {
+
+                        Out = "Cargo: " + Environment.NewLine + "Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine;
+                        DirectShow(Out);
+                        return;
+                    }
+                    else if (Site == "BatteryInfo")
                     {
 
 
@@ -961,12 +1022,12 @@ namespace IngameScript
                 else if (Type == "Menu")
                 {
 
-    
+
 
 
                     string MenuName = Channellist[Index].MainChannel;
-                    
-                    
+
+
                     if (Channellist[Index].Subs.Count > 0)
                     {
                         Out = MenuName + ":" + Environment.NewLine;
@@ -991,25 +1052,27 @@ namespace IngameScript
                         return;
 
                     }
-                    
-                    
-                }else if(Type == "Reset")
+
+
+                }
+                else if (Type == "Reset")
                 {
                     Out = "";
-                    if(Site == "Reset All")
+                    if (Site == "Reset All")
                     {
                         Out = "Enter to Delete all Infos/Warnings, Back to go back to Menu";
                         ResetAll = 1;
                         DirectShow(Out);
 
-                    }else if(Site == "Reset Warnings")
+                    }
+                    else if (Site == "Reset Warnings")
                     {
                         Out = "Enter to Delete all Warnings, Back to go back to Menu";
                         ResetWarning = 1;
                         DirectShow(Out);
 
                     }
-                    else if(Site == "Reset Info")
+                    else if (Site == "Reset Info")
                     {
                         ResetInfo = 1;
                         Out = "Enter to Delete all Infos, Back to go back to Menu";
@@ -1018,53 +1081,359 @@ namespace IngameScript
                     }
 
 
-                }else if(Type == "Setting")
+                }
+                else if (Type == "Setting")
                 {
-                    Out = Site + Environment.NewLine;
-                    int Index92 = SettingsList.FindIndex(a => a.Channel == Site);
-                    int C2 = 0;
-                    if (Index92 != -1)
+                    if (New == 0)
                     {
-                        if (SettingsList[Index92].Sets.Count > 0)
-                        {
-                            
-                            foreach (Options Setting in SettingsList[Index92].Sets)
-                            {
-                                //Out = Out  + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
 
-                                if (C2 == MyPos)
+                        //8 Menus
+                        Out = "";
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+                        int Index92 = SettingsList.FindIndex(a => a.Channel == Site);
+                        int C2 = 0;
+                        //int C2Max = 0;
+                        if (Index92 != -1)
+                        {
+                            if (SettingsList[Index92].Sets.Count > 0)
+                            {
+
+                                int SettingCount = SettingsList[Index92].Sets.Count;
+
+                                int U1 = 0;
+                                int U2 = 6;
+
+                                do
                                 {
-                                    string Uff = Setting.Description + " = " + Setting.SettingStatus + "<---";
-                                    Out = Out + Uff + Environment.NewLine;
+                                    if (U1 == U2)
+                                    {
+                                        SiteValue.Add(new MValue { Max = U1 });
+
+                                        U2 = (U2 + 6);
+                                    }
+
+                                    if (U2 >= SettingCount)
+                                    {
+                                        SiteValue.Add(new MValue { Max = U1 });
+                                        
+                                        break;
+
+                                    }
+
+                                    U1++;
+
+                                } while (U1 < SettingCount + +1);
+                                /*
+                                if(SettingCount >6)
+                                {
+                                    MaxPages = 2;
+                                    Echo("Hier");
+
+                                }
+                                else if (SettingCount >12)
+                                {
+                                    MaxPages = 3;
+                                }
+                                else if (SettingCount > 18)
+                                {
+                                    MaxPages = 4;
+                                }
+                                else if (SettingCount > 24)
+                                {
+                                    MaxPages = 5;
+                                }
+                                else if (SettingCount > 30)
+                                {
+                                    MaxPages = 6;
+                                }
+                                else if (SettingCount > 36)
+                                {
+                                    MaxPages = 7;
+                                }
+                                else if (SettingCount > 42)
+                                {
+                                    MaxPages = 8;
+                                }
+                                else if (SettingCount > 48)
+                                {
+                                    MaxPages = 9;
+                                }
+                                else if (SettingCount > 54)
+                                {
+                                    MaxPages = 10;
+                                }
+                                else if(SettingCount > 60)
+                                {
+                                    MaxPages = 11;
                                 }
                                 else
                                 {
-                                    Out = Out + Setting.Description + " = " + Setting.SettingStatus + Environment.NewLine;
+                                    MaxPages = 0;
+                                    Echo("Nicht hier");
+                                }
+
+                                */
+                                Echo("U1: " + U1);
+                                Echo("U2: " + U2);
+                                Echo("Settincount" + SettingCount);
+                                Echo("Sitevalue " + SiteValue.Count);
+                                /*
+                                if(MaxPages > 1)
+                                {
+
+                                    if(Page > 0)
+                                    {
+                                        int Tmp35 = (Page * 6);
+                                        if(SettingCount >= Tmp35)
+                                        {
+                                            C2Max = Tmp35;
+                                            C2 = (Tmp35 - 6);
+                                        }
+                                        else
+                                        {
+                                            C2Max = SettingCount;
+                                            C2 = (Page * 6);
+                                            C2 = (C2 - 6);
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                            C2Max = SettingCount;
+                                            C2 = 0;
+
+                                    }
+                                }
+                                else
+                                {
+                                    MaxPages = 0;
+                                    C2 = 0;
+                                    C2Max = SettingCount;
+
+                                }
+                                */
+
+                                /*
+                                do
+                                {
+                                    if(C2 == MyPos)
+                                    {
+                                        string Uff = SettingsList[Index92].Sets[C2].Description + " = " + SettingsList[Index92].Sets[C2].SettingStatus + " <----";
+                                        Out = Out + Uff + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        Out = Out + SettingsList[Index92].Sets[C2].Description + " = " + SettingsList[Index92].Sets[C2].SettingStatus + Environment.NewLine;
+                                    }
+                                    Echo("C2DO: " + C2);
+                                    C2++;
+
+                                } while (C2 < C2Max);
+                                */
+
+                                do
+                                {
+
+                                    Out = SettingsList[Index92].Sets[I2].Description + " = " + SettingsList[Index92].Sets[I2].SettingStatus;
+                                    SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+
+
+                                    if (I == 5)
+                                    {
+                                        Echo("OutCount: " + SiteValue[ISite].RowValue.Count);
+                                        Echo("IAus1: " + I);
+                                        Echo("Isite1: " + ISite);
+                                        SiteValue[ISite].Max = I;
+                                        
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+
+                                    }
+                                    if (I2 >= SettingCount -1)
+                                    {
+                                        Echo("I Aus2: " + I);
+                                        Echo("Isite2: " + ISite);
+                                        SiteValue[ISite].Max = I;
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+                                        break;
+
+                                    }
+
+                                    Echo("IDO : " + I);
+                                    Echo("I2DO: " + I2);
+
+                                    I++;
+                                    I2++;
+                                } while (I2 <= SettingCount);
+
+                                /*
+                                 * 
+                                foreach (Options Setting in SettingsList[Index92].Sets)
+                                {
+                                    //Out = Out  + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
+                                    Echo("I: " + I);
+                                    Echo("ISite: " + ISite);
+
+                                    Out = Setting.Description + " = " + Setting.SettingStatus;
+                                    SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+
+
+                                    if (I == 5)
+                                    {
+                                        Echo("OutCount: " + SiteValue[ISite].RowValue.Count);
+                                        Echo("IAus1: " + I);
+                                        SiteValue[ISite].Max = I;
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+                                        
+                                    }
+                                    if (I2 == SettingCount)
+                                    {
+                                        Echo("I Aus: " + I);
+                                        SiteValue[ISite].Max = I;
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+                                        break;
+
+                                    }
+
+
+                                    I++;
+                                    I2++;
 
                                 }
 
+                                */
 
-                                C2++;
+                                /*
+                                foreach (Options Setting in SettingsList[Index92].Sets)
+                                {
+                                    //Out = Out  + Setting.Setting + " = " + Setting.SettingStatus + Environment.NewLine;
+
+                                    if (C2 == MyPos)
+                                    {
+                                        string Uff = Setting.Description + " = " + Setting.SettingStatus + "<---";
+                                        Out = Out + Uff + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        Out = Out + Setting.Description + " = " + Setting.SettingStatus + Environment.NewLine;
+
+                                    }
+
+
+                                    C2++;
+                                }
+                                */
+                                Echo("RAUS");
+                                MaxPages = ISite;
+                                //MenuCount = SiteValue[Page].Max;
+
+                                Echo("Seite1 Max: " + SiteValue[0].RowValue.Count);
+                                Echo("Seite2 Max: " + SiteValue[1].RowValue.Count);
+                                Echo("Seite99: " + Page);
+                                Echo("MaxSeiten99: " + MaxPages);
+                                Echo("MyPos99: " + MyPos);
+                                Echo("MenuCOunt99: " + MenuCount);
+                                New = 1;
+
+
+
+                                string FU = "";
+                                 FU = Site + Environment.NewLine;
+                                int X1 = 0;
+                                /*
+                                do
+                                {
+                                    if (C2 == MyPos)
+                                    {
+                                        string Uff = SiteValue[Page].RowValue[X1].Row + " <----";
+                                        FU = FU + Uff + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        FU = FU + SiteValue[Page].RowValue[X1].Row + Environment.NewLine;
+                                    }
+
+
+                                    X1++;
+                                } while (X1 < SiteValue[Page].RowValue.Count);
+                                */
+
+                                
+                                foreach (Rows Value in SiteValue[Page].RowValue)
+                                {
+                                    if (C2 == MyPos)
+                                    {
+                                        string Uff = Value.Row + " <----";
+                                        FU = FU + Uff + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        FU = FU + Value.Row + Environment.NewLine;
+                                    }
+
+                                    C2++;
+                                }
+
+                                //MenuCount = SiteValue[Page].RowValue.Count;
+                                Echo("MenuCOunt98: " + MenuCount);
+
+
+                                DirectShow(FU);
+                                return;
                             }
-
-
-
-                            DirectShow(Out);
-                            return;
+                            else
+                            {
+                                Out = "No Settings Aviable";
+                                DirectShow(Out);
+                            }
                         }
                         else
                         {
-                            Out = "No Settings Aviable";
+                            Out = "Something is Wrong";
                             DirectShow(Out);
                         }
+
                     }
                     else
                     {
-                        Out = "Something is Wrong";
-                            DirectShow(Out);
-                    }
+                        Echo("Out Mypos22: " + MyPos);
+                        int C2 = 0;
+                        string FU = "";
+                       // MenuCount = SiteValue[Page].RowValue.Count;
+                        FU = Site + Environment.NewLine;
+                        foreach (Rows Value in SiteValue[Page].RowValue)
+                        {
+                            if (C2 == MyPos)
+                            {
+                                string Uff = Value.Row + " <----";
+                                FU = FU + Uff + Environment.NewLine;
+                                
+                            }
+                            else
+                            {
+                                FU = FU + Value.Row + Environment.NewLine;
+                               
+                            }
 
+                            C2++;
+                        }
+
+                        DirectShow(FU);
+
+                        return;
+                    }
                 }
+
+
                 return;
             }
             else
@@ -1075,10 +1444,9 @@ namespace IngameScript
             }
         }
 
-        #endregion
 
 
-        #region Menu
+
         public void DirectShow(string Show)
         {
             
@@ -1093,7 +1461,7 @@ namespace IngameScript
                 {
                                 
 
-                int MenuCount = 0;
+                MenuCount = 0;
                
 
                 if (Site == "Warning")
@@ -1107,12 +1475,30 @@ namespace IngameScript
                 else if (Type == "Setting")
                 {
                     int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
-                    MenuCount = SettingsList[Index93].Sets.Count;
+                        // MenuCount = SettingsList[Index93].Sets.Count;
+                        MenuCount = SiteValue[Page].RowValue.Count;
+                        Echo("Page98:" + Page);
+                        Echo("MenuCount2: " + MenuCount);
                 }
+
+                if(MaxPages >0)
+                    {
+                        int Math2 = Page + 1;
+                        int Math3 = MaxPages;
+                        int Math4 = MenuCount;
+                        Show = Show + Environment.NewLine + "Position[" + Math + "/" + Math4 + "]   Page[" + Math2 + "/"+ Math3 + "] " + Environment.NewLine;
+                    }
+                    else
+                    {
+                        Show = Show + Environment.NewLine + "Position[" + Math + "/" + MenuCount + "]" + Environment.NewLine;
+                    }
                     
-                    Show = Show + Environment.NewLine + "Position[" + Math + "/" + MenuCount + "]" + Environment.NewLine;
+                   // Show = Show + Environment.NewLine + "Position[" + Math + "/" + MenuCount + "]" + Environment.NewLine;
                 }
             }
+
+
+
 
             if (WarnM.Count > 0)
             {
@@ -1336,16 +1722,6 @@ namespace IngameScript
             }
             return MAX;
         }
-
-
-
-
-
-
-
-
-
-
 
 
 
