@@ -19,8 +19,8 @@ Batterien in % anzeigen (Füllstand über Balken???)
 
 
 
-Seiten zu menüs hinzufügen,wenn mehr als x zeilen <---- FIXXEN <----- Und dann auf alle seiten anwenden
-AUSWAHL in setting wieder möglich machen!!!
+Seiten zu menüs hinzufügen,wenn mehr als x zeilen <----- Und dann auf alle seiten anwenden
+
 
 !!! Addierung bei generatoren beheben!!
 
@@ -32,6 +32,12 @@ Batterie Übersicht Mit fllständen mit mehreren seiten, dafür lsite mit Batter
 
 Alarmmodus(rot gelb grün),mit Türen/Tore schließen,alle waffen aktivieren etc 
 
+Info/Warning menüpunkte verschwinden lassen wenn keine vorhanden
+
+Startup (wie booten)
+
+
+
 
 erledigt:
 HauptMenu mit funktion
@@ -41,3 +47,5 @@ channeliste dynamischer machen, mit 2. liste für unterchannel
 Setting menü mit einstellbaren werten
 Turn Generator off Over (für einen/erstmalö nicht für einen) und alle) einstellung setting 
 !! Prozentrechnung reparieren!!  max Batterien Füllung 17 MWh
+AUSWAHL in setting wieder möglich machen!!!
+!!!! Menu In Menus fixxen!!
