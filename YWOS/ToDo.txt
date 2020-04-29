@@ -3,9 +3,8 @@
 Daten für Systemstatus sammeln und anzeigen
 
 
-Show Only modus hinzufügen(über menü und extern)
-reset über Extern(panel)hinzufügen
-Externe nachrichten annahme(Von anderen scripten)
+Show Only modus hinzufügen(über menü und extern) <- eröledigt
+
 
 Screen Auswahl für Infos  <---- eine seite per info/Warning ,mit auswahl für mehrere bildschirme für die selbe info (gehtn ur mit infos für eine seite,weil  keine bedienung)
 Text Eingabe über text panel?
@@ -15,14 +14,11 @@ funktion für Blöcke nachträglich erfassen
 automatische  erfassung vvon zb pistons ,automatisch menüpunkt hinzufügen,wo man diese umschalten und ausschalten kann
 
 inventarscreen in % füllstand anzeigen
+
 Batterien in % anzeigen (Füllstand über Balken???)
 
 
-
-Seiten zu menüs hinzufügen,wenn mehr als x zeilen <----- Und dann auf alle seiten anwenden
-
-
-!!! Addierung bei generatoren beheben!!
+!!! Addierung bei generatoren beheben!! ???
 
 Liste für Connectoren und was angedockt ist
 
@@ -32,7 +28,6 @@ Batterie Übersicht Mit fllständen mit mehreren seiten, dafür lsite mit Batter
 
 Alarmmodus(rot gelb grün),mit Türen/Tore schließen,alle waffen aktivieren etc 
 
-Info/Warning menüpunkte verschwinden lassen wenn keine vorhanden
 
 Startup (wie booten)
 
@@ -49,3 +44,30 @@ Turn Generator off Over (für einen/erstmalö nicht für einen) und alle) einste
 !! Prozentrechnung reparieren!!  max Batterien Füllung 17 MWh
 AUSWAHL in setting wieder möglich machen!!!
 !!!! Menu In Menus fixxen!!
+Info/Warning menüpunkte verschwinden lassen wenn keine vorhanden -> Erledigt
+Seiten zu menüs hinzufügen,wenn mehr als x zeilen <----- Und dann auf alle seiten anwenden
+Externe nachrichten annahme(Von anderen scripten)  -> erledigt
+reset über Extern(panel)hinzufügen
+Show Only modus hinzufügen(über menü und extern) <- eröledigt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -123,9 +123,9 @@ namespace IngameScript
            // string ResetMenu = "Reset Warnings|Reset Info|Reset All";
 
             //Main
-            Channellist.Add(new Channels { MainChannel = "MainMenu",Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Info" },new Sub() { SubValue = "Warning"}, new Sub() { SubValue = "SystemStatus"}, new Sub() { SubValue = "Settings"}, new Sub() { SubValue = "Reset"} } });
-            Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
-            Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "MainMenu",Type = "Menu", Subs = new List<Sub>() {  new Sub() { SubValue = "SystemStatus"}, new Sub() { SubValue = "Settings"}, new Sub() { SubValue = "Reset"} } });
+
+
             //systemstatus
             Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "Wapons"}, new Sub() { SubValue = "Fuel"}, new Sub() { SubValue = "Inventory"} } });
             Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
@@ -133,14 +133,18 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "Inventory", Type = "Info" });
             //Settings
-            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" } } });
+            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" } } });
             Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "SGeneral", Type = "Setting" });
             SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
                 new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } , new Options() { Setting = "Test5", Description = "Test5", SettingRange = "AN|AUS", SettingStatus = "AUS" },
                 new Options() { Setting = "Test6", Description = "Test6", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test7", Description = "Test7", SettingRange = "AN|AUS", SettingStatus = "AUS" },new Options() { Setting = "Test8", Description = "Test8", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
+            SettingsList.Add(new Set { Channel = "SGeneral", Sets = new List<Options>() { new Options() { Setting = "ShowOnly", Description = "Show OnlyMode(No Automations)", SettingRange = "ON|OFF", SettingStatus = "OFF" } } });
+
+
             //reset
             Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
             Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
@@ -154,14 +158,9 @@ namespace IngameScript
 
             }
             
-            /*
-            RegisterMessage(0, 1, "test4", "ywerInc4");
-            RegisterMessage(0, 1, "test5", "ywerInc5");
-            RegisterMessage(0, 1, "test6", "ywerInc6");
-            RegisterMessage(1, 1, "test1", "ywerInc1");
-            RegisterMessage(1, 1, "test2", "ywerInc2");
-            RegisterMessage(1, 1, "test3", "ywerInc3");
-            */
+            
+
+            
 
         }
 
@@ -182,7 +181,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.226;
+        double Version = 0.227;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -190,13 +189,15 @@ namespace IngameScript
         int Page = 0;
         int MaxPages = 0;
         int MenuCount = 0;
-        int MaxRowPerSite = 8; //Max One Row Values per site
+        int MaxRowPerSite = 10; //Max One Row Values per site
         List<MValue> SiteValue = new List<MValue>();
 
         int ResetAll = 0;
         int ResetWarning = 0;
         int ResetInfo = 0;
-        
+        int WarnMenu = 0;
+        int InfoMenu = 0;
+
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
        // List<SubChannel> SubChannelList = new List<SubChannel>();
@@ -368,11 +369,40 @@ namespace IngameScript
 
             if (Status == "Reset")
             {
-
+                DeleteWarnings();
+                DeleteInfos();
             }
             else if (Status == "ShowOnly")
             {
-                ShowOnly = 1;
+                if(ShowOnly == 0)
+                {
+                    int Index36 = SettingsList.FindIndex(a => a.Channel == "SGeneral");
+                    int Index37 = 0;
+
+                    if (Index36 != -1)
+                    {
+                        Index37 = SettingsList[Index36].Sets.FindIndex(a => a.Setting == "ShowOnly");
+                        SettingsList[Index36].Sets[Index37].SettingStatus = "ON";
+
+                    }
+
+                    ShowOnly = 1;
+                    Echo("Show Only Aktive");
+                }
+                else
+                {
+                    int Index38 = SettingsList.FindIndex(a => a.Channel == "SGeneral");
+                    int Index39 = 0;
+
+                    if (Index38 != -1)
+                    {
+                        Index39 = SettingsList[Index38].Sets.FindIndex(a => a.Setting == "ShowOnly");
+                        SettingsList[Index38].Sets[Index39].SettingStatus = "OFF";
+
+                    }
+                    ShowOnly = 0;
+                    Echo("Show Only Inaktive");
+                }
             }
             else if (Status == "UP")
             {
@@ -394,17 +424,44 @@ namespace IngameScript
                 ChangePos("Back");
 
             }
-            else if (Status.Contains("Trans:"))
+            else if (Status.Contains("MSG"))
             {
+                Echo("MSG: " + Status);
+                //MSG|0|1|TEXT|USER
+                string[] Input = Status.Split('|');
 
-                Echo("Nicht Implementiert");
+
+                if (Input.Length > 3)
+                {
+                    Input[0] = Input[0].Replace("|", "");
+                    Input[0] = Input[0].Replace("|", "");
+                    Input[1] = Input[1].Replace("|", "");
+                    Input[1] = Input[1].Replace("|", "");
+                    Input[2] = Input[2].Replace("|", "");
+                    Input[2] = Input[2].Replace("|", "");
+                    Input[3] = Input[3].Replace("|", "");
+                    Input[3] = Input[3].Replace("|", "");
+                    int MType = 0;
+                    int MPrio = 0;
+                    bool isNumeric = int.TryParse(Input[1], out MType);
+                    bool isNumeric2 = int.TryParse(Input[2], out MPrio);
+                    
+                    if(isNumeric & isNumeric2)
+                    {
+                        RegisterMessage(MType, MPrio, Input[3], Input[4]);
+                        Echo("New Extern Message");
+                    }
+                    else
+                    {
+                        Echo("Wrong Input Formate! MSG|TYPE|PRIO|TEXT|USER");
+                        Echo("Example: MSG|0|1|HELP|InfoScript");
+                        Echo("Type: 0 = Info , 1 = Warning");
+                    }
+                }
 
             }
             DoEveryTime();
             ShowMenu();
-
-
-
         }
 
 
@@ -491,65 +548,66 @@ namespace IngameScript
 
 
 
-
-            int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
-            int Index96 = 0;
-            int Index97 = 0;
-            int Index98 = 0;
-            if (Index95 != -1)
+            if (ShowOnly == 0)
             {
-               Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
-                Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
-                Index98 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MaxAll");
-            }
-            if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
-            {
-                string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
-                float MinAllFloat = Convert.ToSingle(MinAll);
-
-
-                if (BatteryPercent < MinAllFloat)
+                int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
+                int Index96 = 0;
+                int Index97 = 0;
+                int Index98 = 0;
+                if (Index95 != -1)
                 {
-                    foreach(IMyReactor Rea in AllMyReactors)
+                    Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
+                    Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
+                    Index98 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MaxAll");
+                }
+                if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
+                {
+                    string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
+                    float MinAllFloat = Convert.ToSingle(MinAll);
+
+
+                    if (BatteryPercent < MinAllFloat)
                     {
-                        Rea.Enabled = true;
+                        foreach (IMyReactor Rea in AllMyReactors)
+                        {
+                            Rea.Enabled = true;
+
+                        }
 
                     }
-
                 }
-             }
 
-            if (SettingsList[Index95].Sets[Index97].SettingStatus != "OFF")
-            {
-                string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
-                float MinOneFloat = Convert.ToSingle(MinOne);
-
-                if (BatteryPercent < MinOneFloat)
+                if (SettingsList[Index95].Sets[Index97].SettingStatus != "OFF")
                 {
-                    Random random = new Random();
-                    int Ran = random.Next(AllMyReactors.Count -1);
+                    string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
+                    float MinOneFloat = Convert.ToSingle(MinOne);
 
-                    AllMyReactors[Ran].Enabled = true;
-                }
-            }
-
-            if (SettingsList[Index95].Sets[Index98].SettingStatus != "OFF")
-            {
-                string MaxAll = SettingsList[Index95].Sets[Index98].SettingStatus;
-                float MaxAllFloat = Convert.ToSingle(MaxAll);
-      
-                if (BatteryPercent > MaxAllFloat)
-                {
-                    foreach (IMyReactor Rea in AllMyReactors)
+                    if (BatteryPercent < MinOneFloat)
                     {
-                        Rea.Enabled = false;
+                        Random random = new Random();
+                        int Ran = random.Next(AllMyReactors.Count - 1);
+
+                        AllMyReactors[Ran].Enabled = true;
+                    }
+                }
+
+                if (SettingsList[Index95].Sets[Index98].SettingStatus != "OFF")
+                {
+                    string MaxAll = SettingsList[Index95].Sets[Index98].SettingStatus;
+                    float MaxAllFloat = Convert.ToSingle(MaxAll);
+
+                    if (BatteryPercent > MaxAllFloat)
+                    {
+                        foreach (IMyReactor Rea in AllMyReactors)
+                        {
+                            Rea.Enabled = false;
+
+                        }
 
                     }
-
                 }
+
             }
-
-
 
             //Energy End
 
@@ -646,7 +704,122 @@ namespace IngameScript
             //Cargo End
 
 
-            return;
+
+            //Menu-------------
+
+            //Remove Warning/info
+            int MaxInf = ReturnMaxMessages(0);
+            int MaxWarn = ReturnMaxMessages(1);
+            if(MaxInf > 0)
+            {
+                if (InfoMenu == 0)
+                {
+                    InfoMenu = 1;
+                    int Index1 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                    if (Index1 != -1)
+                    {
+                        Channellist[Index1].Subs.Add(new Sub() { SubValue = "Info" });
+                        Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
+                    }
+                }
+            }
+            else
+            {
+                if(InfoMenu == 1)
+                {
+                    InfoMenu = 0;
+                int Index2 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                int Index23 = Channellist.FindIndex(a => a.MainChannel == "Info");
+                    if (Index2 != -1)
+                    {
+
+                        int Index22 = Channellist[Index2].Subs.FindIndex(a => a.SubValue == "Info");
+                        if (Index22 != -1)
+                        {
+                            Channellist[Index2].Subs.RemoveAt(Index22);
+                        }
+
+                        if (Index23 != -1)
+                        {
+                            Channellist.RemoveAt(Index23);
+                        }
+
+                    }
+                }
+            }
+            //new List<Sub>() { new Sub() { SubValue = "Info" },new Sub() { SubValue = "Warning"}
+            //Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
+            //Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+            if (MaxWarn > 0)
+            {
+                if (WarnMenu == 0)
+                {
+                    WarnMenu = 1;
+                    int Index3 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                    if (Index3 != -1)
+                    {
+                        Channellist[Index3].Subs.Add(new Sub() { SubValue = "Warning" });
+                        Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+                    }
+                }
+            }
+            else
+            {
+                if (WarnMenu == 1)
+                {
+                    WarnMenu = 0;
+                    int Index4 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                    int Index45 = Channellist.FindIndex(a => a.MainChannel == "Warning");
+                    if (Index4 != -1)
+                    {
+
+                        int Index44 = Channellist[Index4].Subs.FindIndex(a => a.SubValue == "Warning");
+                        if (Index44 != -1)
+                        {
+                            Channellist[Index4].Subs.RemoveAt(Index44);
+                        }
+                        if (Index45 != -1)
+                        {
+                            Channellist.RemoveAt(Index45);
+                        }
+                    }
+                }
+
+            }
+            //Remofe Info/Warning ende
+
+            //Show Only
+
+            int Index33 = SettingsList.FindIndex(a => a.Channel == "SGeneral");
+            int Index34 = 0;
+
+            if (Index33 != -1)
+            {
+                Index34 = SettingsList[Index33].Sets.FindIndex(a => a.Setting == "ShowOnly");
+
+            }
+            if (SettingsList[Index33].Sets[Index34].SettingStatus != "OFF")
+            {
+                ShowOnly = 1;
+
+            }
+            else
+            {
+                ShowOnly = 0;
+            }
+
+           // ShowOnly  Ende
+
+
+                //Menu End---------------
+
+
+
+
+
+
+
+                return;
         }
         #endregion
 
@@ -1072,36 +1245,6 @@ namespace IngameScript
 
                         }
                          MaxPages = TSite;
-                        /*
-                        do
-                        {
-
-                            Out = SettingsList[Index92].Sets[I2].Description + " = " + SettingsList[Index92].Sets[I2].SettingStatus;
-                            SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
-
-
-                            if (I == MaxRowPerSite)
-                            {
-                                SiteValue[ISite].Max = SiteValue[ISite].RowValue.Count;
-                                ISite++;
-                                I = 0;
-                                Out = "";
-                            }
-                            if (I2 >= SettingCount - 1)
-                            {
-                                SiteValue[ISite].Max = SiteValue[ISite].RowValue.Count;
-                                ISite++;
-                                I = 0;
-                                Out = "";
-                                break;
-
-                            }
-                            I++;
-                            I2++;
-                        } while (I2 <= SettingCount);
-
-                        */
-
 
                         string Uff = Site + Environment.NewLine;
                         int T4 = 0;
@@ -1120,31 +1263,6 @@ namespace IngameScript
 
                         }
                         DirectShow(Uff);
-
-
-
-                        /*
-                        Out = MenuName + ":" + Environment.NewLine;
-                        int C1 = 0;
-                        int C2 = 0;
-                        foreach (Sub MSub in Channellist[Index].Subs)
-                        {
-                            if (C1 == MyPos)
-                            {
-                                string Uff = MSub.SubValue + "<---";
-                                Out = Out + Uff + Environment.NewLine;
-                            }
-                            else
-                            {
-                                Out = Out + MSub.SubValue + Environment.NewLine;
-
-                            }
-
-
-                            C1++;
-                        }
-                        */
-                        //DirectShow(Out);
                         return;
 
                     }
@@ -1345,12 +1463,19 @@ namespace IngameScript
 
             if (WarnM.Count > 0)
             {
-                Show = Show + "Warnungen: " + ReturnMaxMessages(1);
+                Show = Show + "WARNINGS: " + ReturnMaxMessages(1);
             }
             else
             {
-                Show = Show + "Keine Warnungen" ;
+                Show = Show + "No Warnings" ;
             }
+
+            if (ShowOnly == 1)
+            {
+                Show = Show + "        !!! SHOW ONLY AKTIVE!!! ";
+            }
+
+
 
             if (MLCD != null)
             {
