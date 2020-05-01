@@ -140,7 +140,7 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SGeneral", Type = "Setting" });
             SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
-                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "Test4", Description = "Test4", SettingRange = "AN|AUS", SettingStatus = "AUS" } , new Options() { Setting = "Test5", Description = "Test5", SettingRange = "AN|AUS", SettingStatus = "AUS" },
+                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "BatWarnUnder", Description = "Warn under % Battery Load", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" } , new Options() { Setting = "Test5", Description = "Test5", SettingRange = "AN|AUS", SettingStatus = "AUS" },
                 new Options() { Setting = "Test6", Description = "Test6", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test7", Description = "Test7", SettingRange = "AN|AUS", SettingStatus = "AUS" },new Options() { Setting = "Test8", Description = "Test8", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
             SettingsList.Add(new Set { Channel = "SGeneral", Sets = new List<Options>() { new Options() { Setting = "ShowOnly", Description = "Show OnlyMode(No Automations)", SettingRange = "ON|OFF", SettingStatus = "OFF" } } });
 
@@ -181,7 +181,8 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.227;
+        double Version = 0.228;
+        int Tick = 0;
         int MyPos = 0;
         int deep = 0;
         int Deletecount = 0;
@@ -189,7 +190,7 @@ namespace IngameScript
         int Page = 0;
         int MaxPages = 0;
         int MenuCount = 0;
-        int MaxRowPerSite = 10; //Max One Row Values per site
+        int MaxRowPerSite = 11; //Max One Row Values per site
         List<MValue> SiteValue = new List<MValue>();
 
         int ResetAll = 0;
@@ -197,6 +198,7 @@ namespace IngameScript
         int ResetInfo = 0;
         int WarnMenu = 0;
         int InfoMenu = 0;
+        int BatMenu = 0;
 
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
@@ -238,6 +240,7 @@ namespace IngameScript
         int BatCount = 0;
         float BatteryPercent = 0;
         int BatteryPercentInt = 0;
+        List<BatStatus> BatteryStatus = new List<BatStatus>();
 
         //Weapons
         int MissTurretsActive = 0;
@@ -356,6 +359,19 @@ namespace IngameScript
             public string Row { get; set; }
         }
 
+        public class BatStatus
+        {
+            public string Name { get; set; }
+
+            public string Status { get; set; }
+
+            public int Percent { get; set; }
+
+        }
+
+
+
+
         #endregion
 
 
@@ -426,12 +442,12 @@ namespace IngameScript
             }
             else if (Status.Contains("MSG"))
             {
-                Echo("MSG: " + Status);
-                //MSG|0|1|TEXT|USER
+                //Echo("MSG: " + Status);
+                //PREFIX|TYPE|PRIO|ID|TEXT|USER
                 string[] Input = Status.Split('|');
 
 
-                if (Input.Length > 3)
+                if (Input.Length > 5)
                 {
                     Input[0] = Input[0].Replace("|", "");
                     Input[0] = Input[0].Replace("|", "");
@@ -441,22 +457,34 @@ namespace IngameScript
                     Input[2] = Input[2].Replace("|", "");
                     Input[3] = Input[3].Replace("|", "");
                     Input[3] = Input[3].Replace("|", "");
+                    Input[4] = Input[4].Replace("|", "");
+                    Input[4] = Input[4].Replace("|", "");
+                    Input[5] = Input[5].Replace("|", "");
+                    Input[5] = Input[5].Replace("|", "");
                     int MType = 0;
                     int MPrio = 0;
+                    int MID = 0;
                     bool isNumeric = int.TryParse(Input[1], out MType);
                     bool isNumeric2 = int.TryParse(Input[2], out MPrio);
-                    
-                    if(isNumeric & isNumeric2)
+                    bool isNumeric3 = int.TryParse(Input[3], out MID);
+                    if (isNumeric & isNumeric2 & isNumeric3)
                     {
-                        RegisterMessage(MType, MPrio, Input[3], Input[4]);
+                        RegisterMessage(MType, MPrio,MID, Input[4], Input[5]);
                         Echo("New Extern Message");
                     }
                     else
                     {
                         Echo("Wrong Input Formate! MSG|TYPE|PRIO|TEXT|USER");
-                        Echo("Example: MSG|0|1|HELP|InfoScript");
-                        Echo("Type: 0 = Info , 1 = Warning");
+                        Echo("Example: MSG|1|1|101|HELP|InfoScript");
+                        Echo("Type:0=Info,1=Warning");
                     }
+                }
+                else
+                {
+                    Echo("Wrong Input Formate! MSG|TYPE|PRIO|TEXT|USER");
+                    Echo("Example: MSG|1|1|101|HELP|InfoScript");
+                    Echo("Type: ");
+                    Echo("0=Info,1=Warning");
                 }
 
             }
@@ -468,351 +496,465 @@ namespace IngameScript
         public void DoEveryTime()
         {
 
-            //battery
-            MaxPower = 0;
-             PowerUsed = 0;
-             ReacIsRunning = 0;
-             MaxSolarPower = 0;
-             OutputSolarPower = 0;
-             BatMaxLoad = 0;
-            BatCurrentLoad = 0;
-            MaxReac = 0;
-            BatOutput = 0;
-            BatInput = 0;
-            BatCount = 0;
-            BatteryPercent = 0;
-            BatteryPercentInt = 0;
-
-            //Weapons
-            MissTurretsActive = 0;
-             GatTurretsActive = 0;
-            IntTurretsActive = 0;
-            GatAIEnabled = 0;
-            GatIsShooting = 0;
-            IntIsShooting = 0;
-            MissIsShooting = 0;
-            IntAIEnabled = 0;
-            MissAIEnabled = 0;
-
-            //Fuel
-            MaxFuel = 0;
-            MaxFuelFloat = 0;
-            CurrentFuelFloat = 0;
-            CurrentFuel = 0;
-            FuelPercent = 0;
-
-            //Cargo
-
-            CargoPercent = 0;
-
-            //Energy
-            MaxReac = AllMyReactors.Count;
-            foreach (IMyReactor Rea in AllMyReactors)
+            if(Tick == 0)
             {
-                PowerUsed = PowerUsed + Rea.CurrentOutput;
-                MaxPower = MaxPower + Rea.MaxOutput;
-
-                if (Rea.Enabled)
-                {
-                    ReacIsRunning++;
-                }
-
-            }
-
-
-            foreach (IMySolarPanel Sola in MySolar)
-            {
-                MaxSolarPower = MaxSolarPower + Sola.MaxOutput;
-                OutputSolarPower = OutputSolarPower + Sola.CurrentOutput;
-
-            }
-
-            
-            BatCount = MyBatteries.Count;
-            foreach (IMyBatteryBlock Bat in MyBatteries)
-            {
-                BatMaxLoad = BatMaxLoad + Bat.MaxStoredPower;
-                BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
-
-
-                BatInput = BatInput + Bat.CurrentInput;
-                BatOutput = BatOutput + Bat.CurrentOutput;
-
-            }
-            int Current = Convert.ToInt32(BatCurrentLoad);
-            int Max = Convert.ToInt32(BatMaxLoad);
-
-            float one = (BatMaxLoad / 100);
-            BatteryPercent = (BatCurrentLoad / one);
-            BatteryPercentInt = Convert.ToInt32(BatteryPercent);
-
-
-
-            if (ShowOnly == 0)
-            {
-                int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
-                int Index96 = 0;
-                int Index97 = 0;
-                int Index98 = 0;
-                if (Index95 != -1)
-                {
-                    Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
-                    Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
-                    Index98 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MaxAll");
-                }
-                if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
-                {
-                    string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
-                    float MinAllFloat = Convert.ToSingle(MinAll);
-
-
-                    if (BatteryPercent < MinAllFloat)
-                    {
-                        foreach (IMyReactor Rea in AllMyReactors)
-                        {
-                            Rea.Enabled = true;
-
-                        }
-
-                    }
-                }
-
-                if (SettingsList[Index95].Sets[Index97].SettingStatus != "OFF")
-                {
-                    string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
-                    float MinOneFloat = Convert.ToSingle(MinOne);
-
-                    if (BatteryPercent < MinOneFloat)
-                    {
-                        Random random = new Random();
-                        int Ran = random.Next(AllMyReactors.Count - 1);
-
-                        AllMyReactors[Ran].Enabled = true;
-                    }
-                }
-
-                if (SettingsList[Index95].Sets[Index98].SettingStatus != "OFF")
-                {
-                    string MaxAll = SettingsList[Index95].Sets[Index98].SettingStatus;
-                    float MaxAllFloat = Convert.ToSingle(MaxAll);
-
-                    if (BatteryPercent > MaxAllFloat)
-                    {
-                        foreach (IMyReactor Rea in AllMyReactors)
-                        {
-                            Rea.Enabled = false;
-
-                        }
-
-                    }
-                }
-
-            }
-
-            //Energy End
-
-            //Weapons
-            foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
-            {
-                if (Gat.Enabled)
-                {
-                    GatTurretsActive++;
-                }
-                if (Gat.AIEnabled)
-                {
-                    GatAIEnabled++;
-                }
-                if (Gat.IsShooting)
-                {
-                    GatIsShooting++;
-                }
-
-
-            }
-
-            foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
-            {
-                if (Miss.Enabled)
-                {
-                    MissTurretsActive++;
-                }
-                if (Miss.AIEnabled)
-                {
-                    MissAIEnabled++;
-                }
-                if (Miss.IsShooting)
-                {
-                    MissIsShooting++;
-                }
-
-            }
-
-            foreach (IMyLargeInteriorTurret Int in MyIntTurrets)
-            {
-                if (Int.Enabled)
-                {
-                    IntTurretsActive++;
-                }
-                if (Int.AIEnabled)
-                {
-                    IntAIEnabled++;
-                }
-                if (Int.IsShooting)
-                {
-                    IntIsShooting++;
-                }
-
-            }
-
-            //Weapons end
-
-            //fuel
-
-
-
-            
-            foreach (IMyGasTank Fuel in MyFuelTanks)
-            {
-                MaxFuel = MaxFuel + Fuel.Capacity;
-                CurrentFuel = CurrentFuel + Fuel.FilledRatio;
-
-            }
-            int Temp1 = Convert.ToInt32(MaxFuel);
-             MaxFuelFloat = Convert.ToSingle(Temp1);
-            int Temp2 = Convert.ToInt32(CurrentFuel);
-            CurrentFuelFloat = Convert.ToSingle(Temp2);
-
-            float OneFuel = MaxFuel / 100;
-            FuelPercent = (CurrentFuelFloat / OneFuel);
-            //fuel end
-
-
-            //Cargo
-             MaxCargo = 0;
-             UsedCargo = 0;
-             test = null;
-            
-
-            foreach (IMyCargoContainer Cargo in MyCargoContainers)
-            {
-
-                test = Cargo.GetInventory();
-                MaxCargo = MaxCargo + test.MaxVolume;
-                UsedCargo = UsedCargo + test.CurrentVolume;
-            }
-
-            //Cargo End
-
-
-
-            //Menu-------------
-
-            //Remove Warning/info
-            int MaxInf = ReturnMaxMessages(0);
-            int MaxWarn = ReturnMaxMessages(1);
-            if(MaxInf > 0)
-            {
-                if (InfoMenu == 0)
-                {
-                    InfoMenu = 1;
-                    int Index1 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
-                    if (Index1 != -1)
-                    {
-                        Channellist[Index1].Subs.Add(new Sub() { SubValue = "Info" });
-                        Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
-                    }
-                }
+                Tick++;
             }
             else
             {
-                if(InfoMenu == 1)
+                Tick = 0 ;
+            }
+
+            if (Tick == 0)
+            {
+                //battery
+                MaxPower = 0;
+                PowerUsed = 0;
+                ReacIsRunning = 0;
+                MaxSolarPower = 0;
+                OutputSolarPower = 0;
+                BatMaxLoad = 0;
+                BatCurrentLoad = 0;
+                MaxReac = 0;
+                BatOutput = 0;
+                BatInput = 0;
+                BatCount = 0;
+                BatteryPercent = 0;
+                BatteryPercentInt = 0;
+
+                //Weapons
+                MissTurretsActive = 0;
+                GatTurretsActive = 0;
+                IntTurretsActive = 0;
+                GatAIEnabled = 0;
+                GatIsShooting = 0;
+                IntIsShooting = 0;
+                MissIsShooting = 0;
+                IntAIEnabled = 0;
+                MissAIEnabled = 0;
+
+                //Fuel
+                MaxFuel = 0;
+                MaxFuelFloat = 0;
+                CurrentFuelFloat = 0;
+                CurrentFuel = 0;
+                FuelPercent = 0;
+
+                //Cargo
+
+                CargoPercent = 0;
+
+                //Energy
+                MaxReac = AllMyReactors.Count;
+                foreach (IMyReactor Rea in AllMyReactors)
                 {
-                    InfoMenu = 0;
-                int Index2 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
-                int Index23 = Channellist.FindIndex(a => a.MainChannel == "Info");
-                    if (Index2 != -1)
+                    PowerUsed = PowerUsed + Rea.CurrentOutput;
+                    MaxPower = MaxPower + Rea.MaxOutput;
+
+                    if (Rea.Enabled)
                     {
+                        ReacIsRunning++;
+                    }
 
-                        int Index22 = Channellist[Index2].Subs.FindIndex(a => a.SubValue == "Info");
-                        if (Index22 != -1)
+                }
+
+
+                foreach (IMySolarPanel Sola in MySolar)
+                {
+                    MaxSolarPower = MaxSolarPower + Sola.MaxOutput;
+                    OutputSolarPower = OutputSolarPower + Sola.CurrentOutput;
+
+                }
+
+
+                BatCount = MyBatteries.Count;
+                foreach (IMyBatteryBlock Bat in MyBatteries)
+                {
+                    BatMaxLoad = BatMaxLoad + Bat.MaxStoredPower;
+                    BatCurrentLoad = BatCurrentLoad + Bat.CurrentStoredPower;
+
+
+                    BatInput = BatInput + Bat.CurrentInput;
+                    BatOutput = BatOutput + Bat.CurrentOutput;
+
+                }
+                int Current = Convert.ToInt32(BatCurrentLoad);
+                int Max = Convert.ToInt32(BatMaxLoad);
+
+                float one = (BatMaxLoad / 100);
+                BatteryPercent = (BatCurrentLoad / one);
+                BatteryPercentInt = Convert.ToInt32(BatteryPercent);
+
+
+
+                if (ShowOnly == 0)
+                {
+                    int Index95 = SettingsList.FindIndex(a => a.Channel == "SEnergy");
+                    int Index96 = 0;
+                    int Index97 = 0;
+                    int Index98 = 0;
+                    int Index99 = 0;
+                    if (Index95 != -1)
+                    {
+                        Index96 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinALL");
+                        Index97 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MinOne");
+                        Index98 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "MaxAll");
+                        Index99 = SettingsList[Index95].Sets.FindIndex(a => a.Setting == "BatWarnUnder");
+                    }
+                    if (SettingsList[Index95].Sets[Index96].SettingStatus != "OFF")
+                    {
+                        string MinAll = SettingsList[Index95].Sets[Index96].SettingStatus;
+                        float MinAllFloat = Convert.ToSingle(MinAll);
+
+
+                        if (BatteryPercent < MinAllFloat)
                         {
-                            Channellist[Index2].Subs.RemoveAt(Index22);
+                            foreach (IMyReactor Rea in AllMyReactors)
+                            {
+                                Rea.Enabled = true;
+
+                            }
+
                         }
+                    }
 
-                        if (Index23 != -1)
+                    if (SettingsList[Index95].Sets[Index97].SettingStatus != "OFF")
+                    {
+                        string MinOne = SettingsList[Index95].Sets[Index97].SettingStatus;
+                        float MinOneFloat = Convert.ToSingle(MinOne);
+
+                        if (BatteryPercent < MinOneFloat)
                         {
-                            Channellist.RemoveAt(Index23);
+                            Random random = new Random();
+                            int Ran = random.Next(AllMyReactors.Count - 1);
+
+                            AllMyReactors[Ran].Enabled = true;
+                        }
+                    }
+
+                    if (SettingsList[Index95].Sets[Index98].SettingStatus != "OFF")
+                    {
+                        string MaxAll = SettingsList[Index95].Sets[Index98].SettingStatus;
+                        float MaxAllFloat = Convert.ToSingle(MaxAll);
+
+                        if (BatteryPercent > MaxAllFloat)
+                        {
+                            foreach (IMyReactor Rea in AllMyReactors)
+                            {
+                                Rea.Enabled = false;
+
+                            }
+
+                        }
+                    }
+                    //BatWarnUnder
+                    if (BatCount > 0)
+                    {
+                        if (SettingsList[Index95].Sets[Index99].SettingStatus != "OFF")
+                        {
+                            string WarnP = SettingsList[Index95].Sets[Index99].SettingStatus;
+                            float WarnPF = Convert.ToSingle(WarnP);
+                            if (BatteryPercent < WarnPF)
+                            {
+                                RegisterMessage(1, 10, 21, "Warning Energy Critical", "Energy Warning-Setting");
+                            }
+
+                        }
+                        //BatWarn 0;
+                        if (BatteryPercent < 10)
+                        {
+                            RegisterMessage(1, 10, 22, "Warning Energy Empty", "Energy Warning-Setting");
                         }
 
                     }
+
                 }
-            }
-            //new List<Sub>() { new Sub() { SubValue = "Info" },new Sub() { SubValue = "Warning"}
-            //Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
-            //Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
-            if (MaxWarn > 0)
-            {
-                if (WarnMenu == 0)
+
+                //Energy End
+
+                //Weapons
+                foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
                 {
-                    WarnMenu = 1;
-                    int Index3 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
-                    if (Index3 != -1)
+                    if (Gat.Enabled)
                     {
-                        Channellist[Index3].Subs.Add(new Sub() { SubValue = "Warning" });
-                        Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+                        GatTurretsActive++;
+                    }
+                    if (Gat.AIEnabled)
+                    {
+                        GatAIEnabled++;
+                    }
+                    if (Gat.IsShooting)
+                    {
+                        GatIsShooting++;
+                    }
+
+
+                }
+
+                foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
+                {
+                    if (Miss.Enabled)
+                    {
+                        MissTurretsActive++;
+                    }
+                    if (Miss.AIEnabled)
+                    {
+                        MissAIEnabled++;
+                    }
+                    if (Miss.IsShooting)
+                    {
+                        MissIsShooting++;
+                    }
+
+                }
+
+                foreach (IMyLargeInteriorTurret Int in MyIntTurrets)
+                {
+                    if (Int.Enabled)
+                    {
+                        IntTurretsActive++;
+                    }
+                    if (Int.AIEnabled)
+                    {
+                        IntAIEnabled++;
+                    }
+                    if (Int.IsShooting)
+                    {
+                        IntIsShooting++;
+                    }
+
+                }
+
+                //Weapons end
+            }
+            //TICK 1 VORBEI!
+
+            //TICK 2!!
+
+            if (Tick == 1)
+            {
+
+                //fuel
+
+
+
+
+                foreach (IMyGasTank Fuel in MyFuelTanks)
+                {
+                    MaxFuel = MaxFuel + Fuel.Capacity;
+                    CurrentFuel = CurrentFuel + Fuel.FilledRatio;
+
+                }
+                int Temp1 = Convert.ToInt32(MaxFuel);
+                MaxFuelFloat = Convert.ToSingle(Temp1);
+                int Temp2 = Convert.ToInt32(CurrentFuel);
+                CurrentFuelFloat = Convert.ToSingle(Temp2);
+
+                float OneFuel = MaxFuel / 100;
+                FuelPercent = (CurrentFuelFloat / OneFuel);
+                //fuel end
+
+
+                //Cargo
+                MaxCargo = 0;
+                UsedCargo = 0;
+                test = null;
+
+
+                foreach (IMyCargoContainer Cargo in MyCargoContainers)
+                {
+
+                    test = Cargo.GetInventory();
+                    MaxCargo = MaxCargo + test.MaxVolume;
+                    UsedCargo = UsedCargo + test.CurrentVolume;
+                }
+
+                //Cargo End
+
+
+
+                //Menu-------------
+
+                //Remove Warning/info
+                int MaxInf = ReturnMaxMessages(0);
+                int MaxWarn = ReturnMaxMessages(1);
+                if (MaxInf > 0)
+                {
+                    if (InfoMenu == 0)
+                    {
+                        InfoMenu = 1;
+                        int Index1 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        if (Index1 != -1)
+                        {
+                            Channellist[Index1].Subs.Add(new Sub() { SubValue = "Info" });
+                            Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (WarnMenu == 1)
+                else
                 {
-                    WarnMenu = 0;
-                    int Index4 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
-                    int Index45 = Channellist.FindIndex(a => a.MainChannel == "Warning");
-                    if (Index4 != -1)
+                    if (InfoMenu == 1)
                     {
+                        InfoMenu = 0;
+                        int Index2 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        int Index23 = Channellist.FindIndex(a => a.MainChannel == "Info");
+                        if (Index2 != -1)
+                        {
 
-                        int Index44 = Channellist[Index4].Subs.FindIndex(a => a.SubValue == "Warning");
-                        if (Index44 != -1)
-                        {
-                            Channellist[Index4].Subs.RemoveAt(Index44);
-                        }
-                        if (Index45 != -1)
-                        {
-                            Channellist.RemoveAt(Index45);
+                            int Index22 = Channellist[Index2].Subs.FindIndex(a => a.SubValue == "Info");
+                            if (Index22 != -1)
+                            {
+                                Channellist[Index2].Subs.RemoveAt(Index22);
+                            }
+
+                            if (Index23 != -1)
+                            {
+                                Channellist.RemoveAt(Index23);
+                            }
+
                         }
                     }
                 }
+                //new List<Sub>() { new Sub() { SubValue = "Info" },new Sub() { SubValue = "Warning"}
+                //Channellist.Add(new Channels { MainChannel = "Info", Type = "Info" });
+                //Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+                if (MaxWarn > 0)
+                {
+                    if (WarnMenu == 0)
+                    {
+                        WarnMenu = 1;
+                        int Index3 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        if (Index3 != -1)
+                        {
+                            Channellist[Index3].Subs.Add(new Sub() { SubValue = "Warning" });
+                            Channellist.Add(new Channels { MainChannel = "Warning", Type = "Info" });
+                        }
+                    }
+                }
+                else
+                {
+                    if (WarnMenu == 1)
+                    {
+                        WarnMenu = 0;
+                        int Index4 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        int Index45 = Channellist.FindIndex(a => a.MainChannel == "Warning");
+                        if (Index4 != -1)
+                        {
 
-            }
-            //Remofe Info/Warning ende
+                            int Index44 = Channellist[Index4].Subs.FindIndex(a => a.SubValue == "Warning");
+                            if (Index44 != -1)
+                            {
+                                Channellist[Index4].Subs.RemoveAt(Index44);
+                            }
+                            if (Index45 != -1)
+                            {
+                                Channellist.RemoveAt(Index45);
+                            }
+                        }
+                    }
 
-            //Show Only
+                }
+                //Remofe Info/Warning ende
 
-            int Index33 = SettingsList.FindIndex(a => a.Channel == "SGeneral");
-            int Index34 = 0;
+                //Battery Site
 
-            if (Index33 != -1)
-            {
-                Index34 = SettingsList[Index33].Sets.FindIndex(a => a.Setting == "ShowOnly");
+                if (BatCount > 0)
+                {
+                    if (BatMenu == 0)
+                    {
 
-            }
-            if (SettingsList[Index33].Sets[Index34].SettingStatus != "OFF")
-            {
-                ShowOnly = 1;
+                        int Index5 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        if (Index5 != -1)
+                        {
+                            BatMenu = 1;
+                            Channellist[Index5].Subs.Add(new Sub() { SubValue = "BatteryStatus" });
+                            Channellist.Add(new Channels { MainChannel = "BatteryStatus", Type = "Info" });
+                        }
+                    }
 
-            }
-            else
-            {
-                ShowOnly = 0;
-            }
+                }
+                else
+                {
+                    if (BatMenu == 1)
+                    {
+                        int Index6 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index65 = Channellist.FindIndex(a => a.MainChannel == "BatteryStatus");
+                        if (Index6 != -1)
+                        {
+                            BatMenu = 0;
+                            int Index44 = Channellist[Index6].Subs.FindIndex(a => a.SubValue == "BatteryStatus");
+                            if (Index44 != -1)
+                            {
+                                Channellist[Index6].Subs.RemoveAt(Index44);
+                            }
+                            if (Index65 != -1)
+                            {
+                                Channellist.RemoveAt(Index65);
+                            }
+                        }
 
-           // ShowOnly  Ende
+                    }
+
+
+                }
+
+                if (BatMenu == 1)
+                {
+                    BatteryStatus.Clear();
+                    foreach (IMyBatteryBlock Bat in MyBatteries)
+                    {
+                        float MaxLoad = 0;
+                        float Load = 0;
+                        string BatName = "";
+
+                        MaxLoad = Bat.MaxStoredPower;
+                        Load = Bat.CurrentStoredPower;
+                        float oneone = (MaxLoad / 100);
+                        float BatteryP = (Load / oneone);
+                        int BatteryPInt = Convert.ToInt32(BatteryP);
+                        BatName = Bat.CustomName;
+                        string Stat = ReturnIndicator(BatteryPInt);
+
+                        BatteryStatus.Add(new BatStatus { Name = BatName, Status = Stat, Percent = BatteryPInt });
+                    }
+
+
+
+                }
+
+
+
+
+
+                //Battery site end
+
+
+
+                //Show Only
+
+                int Index33 = SettingsList.FindIndex(a => a.Channel == "SGeneral");
+                int Index34 = 0;
+
+                if (Index33 != -1)
+                {
+                    Index34 = SettingsList[Index33].Sets.FindIndex(a => a.Setting == "ShowOnly");
+
+                }
+                if (SettingsList[Index33].Sets[Index34].SettingStatus != "OFF")
+                {
+                    ShowOnly = 1;
+
+                }
+                else
+                {
+                    ShowOnly = 0;
+                }
+
+                // ShowOnly  Ende
 
 
                 //Menu End---------------
-
+            }
 
 
 
@@ -1173,11 +1315,90 @@ namespace IngameScript
                         DirectShow(Out);
                         return;
                     }
-                    else if (Site == "BatteryInfo")
+                    else if (Site == "BatteryStatus")
                     {
 
+                        SiteValue.Clear();
+                        Out = "";
+                        int SettingCount = BatteryStatus.Count;
+                        int U11 = 0;
+                        int U22 = MaxRowPerSite;
+                        do
+                        {
+                            if (U11 == U22)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                U22 = (U22 + MaxRowPerSite);
+                            }
+
+                            if (U22 >= SettingCount)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                break;
+
+                            }
+
+                            U11++;
+
+                        } while (U11 < SettingCount + +1);
 
 
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+
+
+                        do
+                        {
+
+                            Out = BatteryStatus[I2].Name + " = " + BatteryStatus[I2].Status + " " + BatteryStatus[I2].Percent + "%";
+                            SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+
+                            I++;
+                            I2++;
+                            if (I == MaxRowPerSite)
+                            {
+                                SiteValue[ISite].Max = 1;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                            }
+                            if (I2 >= SettingCount)
+                            {
+                                SiteValue[ISite].Max = 1;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                                break;
+
+                            }
+
+
+                        } while (I2 <= SettingCount);
+                        MaxPages = ISite;
+
+                        string FU = "";
+                        FU = Site + Environment.NewLine;
+                        string MenuName = Channellist[Index].MainChannel;
+                        string Uff = Site + Environment.NewLine;
+                        int T4 = 0;
+                        foreach (Rows Var in SiteValue[Page].RowValue)
+                        {
+
+                                Uff = Uff + Var.Row + Environment.NewLine;
+                                
+
+                        }
+                        int MyPosmath = MyPos + 1;
+                        int MaxI = MaxPages;
+                        Uff = Uff + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxI + "]" + Environment.NewLine;
+
+                        DirectShow(Uff);
+
+
+                        
                         return;
                     }
 
@@ -1490,7 +1711,7 @@ namespace IngameScript
        
        
 
-        public void RegisterMessage(int MType, int Prio, string Message, string Source)
+        public void RegisterMessage(int MType, int Prio, int ID, string Message, string Source)
         {
 
             //0 - Info
@@ -1506,23 +1727,30 @@ namespace IngameScript
                 }
                 else
                 {
-                    if (Source == LastISource)
-                    {
+
                         int Index2 = InfoM.FindIndex(a => a.ScriptName == Source);
+                        int Index4 = InfoM.FindIndex(a => a.ID == ID);
                         if (Index2 != -1)
                         {
+
                             int temp = InfoM[Index2].ID;
                             InfoM.RemoveAt(Index2);
                             InfoM.Add(new Inf() { ID = temp, Message = Message, Prio = Prio, ScriptName = Source });
+                            LastISource = Source;
                             return;
                         }
-
+                        else if(Index4 != -1)
+                        {
+                            InfoM.RemoveAt(Index4);
+                            int temp = ID;
+                            InfoM.Add(new Inf() { ID = temp, Message = Message, Prio = Prio, ScriptName = Source });
+                            LastISource = Source;
                         return;
-                    }
+                        }
                     else
                     {
                         IID++;
-                        InfoM.Add(new Inf() { ID = WID, Message = Message, Prio = Prio, ScriptName = Source });
+                        InfoM.Add(new Inf() { ID = IID, Message = Message, Prio = Prio, ScriptName = Source });
                         return;
                     }
                 }
@@ -1543,41 +1771,44 @@ namespace IngameScript
                 else
                 {
 
-                    if (LastWSource == Source)
-                    {
-                        int Index3 = WarnM.FindIndex(a => a.ScriptName == Source);
-                        if (Index3 != -1)
-                        {
-                            int temp2 = WarnM[Index3].ID;
-                            InfoM.RemoveAt(Index3);
-                            WarnM.Add(new Warn() { ID = temp2, Message = Message, Prio = Prio, ScriptName = Source });
-                            return;
-                        }
-                    }
+
+                    int Index3 = WarnM.FindIndex(a => a.ScriptName == Source);
+                    int Index5 = InfoM.FindIndex(a => a.ID == ID);
+
+                    if (Index3 != -1)
+                     {
+                     int temp2 = WarnM[Index3].ID;
+                     WarnM.RemoveAt(Index3);
+                     WarnM.Add(new Warn() { ID = temp2, Message = Message, Prio = Prio, ScriptName = Source });
+                        LastWSource = Source;
+                        return;
+                     }else if(Index5 != -1)
+                     {
+
+                        WarnM.RemoveAt(Index5);
+                     int temp = ID;
+                     WarnM.Add(new Warn() { ID = temp, Message = Message, Prio = Prio, ScriptName = Source });
+                      LastWSource = Source;
+                        return;
+                      }
                     else
                     {
                         WID++;
                         WarnM.Add(new Warn() { ID = WID, Message = Message, Prio = Prio, ScriptName = Source });
                         return;
-
                     }
 
+                        return;
+
+                    
+
                 }
-
-
-
-
-                return;
             }
             else
             {
 
                 return;
             }
-
-
-
-
         }
 
 
@@ -1702,24 +1933,23 @@ namespace IngameScript
 
         public string ReturnIndicator(int Percent)
         {
+            
             string Out = "[";
-            Double Mathe = 0;
+            int Mathe = 0;
 
             Mathe = (Percent / 10);
-            Mathe = Math.Round(Mathe);
-
+            //Mathe = Math.Round(Mathe);
             int I = 0;
-
             do
             {
                 Out = Out + "|";
 
+                I++;
 
-
-            } while (I < Mathe);
-
+            } while (I < Mathe +1);
             Out = Out + "]";
-
+            
+           // string Out = "";
             return Out;
         }
 
