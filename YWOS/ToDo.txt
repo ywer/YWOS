@@ -4,6 +4,23 @@ Daten für Systemstatus sammeln und anzeigen
 
 
 
+Copnnectoren prüfen ob sie vom lokalen grid sind
+
+
+
+Seite mit Flugdaten(Speed, stopweg etc)(mit bildschirm auswahl für mehrere Bildschirme)
+
+produktions setting seite und infoseite für assembler und refinery, mit aktivieren/deaktivieren
+seite für Sortierer
+seite für jumpdrives
+seite für pistons
+seite für Connectoren(angefangen)
+
+Schiff auswahl und dann alle optionen für entsprechendes schiff?
+
+SpeicherOption für setting etc
+
+auf schiffe zugreifen überantenne?
 
 
 Screen Auswahl für Infos  <---- eine seite per info/Warning ,mit auswahl für mehrere bildschirme für die selbe info (gehtn ur mit infos für eine seite,weil  keine bedienung)
@@ -51,10 +68,15 @@ Show Only modus hinzufügen(über menü und extern) <- eröledigt
 Show Only modus hinzufügen(über menü und extern) <- eröledigt
 Batterie Übersicht Mit fllständen mit mehreren seiten, dafür lsite mit Batterien machen mit Baterie namen und füllstand in %
 Batterien in % anzeigen (Füllstand über Balken???)
+-
 
 
-
-
+0.229
+!leeres menu fixxen das exception auslöst!
+Addes System Page on Systemstatus
+Fixxed Setting not all shown
+!!!!Menu für Connectoren FIXXEN!!
+Connectoren prüfen ob sie vom lokalen grid sind
 
 
 

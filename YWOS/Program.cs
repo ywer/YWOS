@@ -19,6 +19,7 @@ using VRage;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 
+
 namespace IngameScript
 {
     partial class Program : MyGridProgram
@@ -114,6 +115,12 @@ namespace IngameScript
                     MyCargoContainers.Add((IMyCargoContainer)Block);
                 }
 
+                if(Block is IMyShipConnector)
+                {
+                    MyConnectors.Add((IMyShipConnector)Block);
+                }
+
+
 
             }
 
@@ -127,22 +134,24 @@ namespace IngameScript
 
 
             //systemstatus
-            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "Wapons"}, new Sub() { SubValue = "Fuel"}, new Sub() { SubValue = "Inventory"} } });
+            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "Wapons"}, new Sub() { SubValue = "Fuel"}, new Sub() { SubValue = "Inventory"}, new Sub() { SubValue = "System" } } });
             Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "Weapons", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "Inventory", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "System", Type = "Info" });
             //Settings
             Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" } } });
             Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
+             SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
+                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "BatWarnUnder", Description = "Warn under % Battery Load", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" } } });
+           //General Setting
             Channellist.Add(new Channels { MainChannel = "SGeneral", Type = "Setting" });
-            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
-                new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "BatWarnUnder", Description = "Warn under % Battery Load", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" } , new Options() { Setting = "Test5", Description = "Test5", SettingRange = "AN|AUS", SettingStatus = "AUS" },
-                new Options() { Setting = "Test6", Description = "Test6", SettingRange = "AN|AUS", SettingStatus = "AUS" }, new Options() { Setting = "Test7", Description = "Test7", SettingRange = "AN|AUS", SettingStatus = "AUS" },new Options() { Setting = "Test8", Description = "Test8", SettingRange = "AN|AUS", SettingStatus = "AUS" } } });
             SettingsList.Add(new Set { Channel = "SGeneral", Sets = new List<Options>() { new Options() { Setting = "ShowOnly", Description = "Show OnlyMode(No Automations)", SettingRange = "ON|OFF", SettingStatus = "OFF" } } });
+            
 
 
             //reset
@@ -181,7 +190,7 @@ namespace IngameScript
         #endregion
 
         #region Stuff
-        double Version = 0.228;
+        double Version = 0.229;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;
@@ -265,6 +274,14 @@ namespace IngameScript
         MyFixedPoint UsedCargo = 0;
         IMyInventory test = null;
         float CargoPercent = 0;
+
+        //Connectors
+        int ConnectorMenu = 0;
+
+        IMyCubeGrid LocalGrid = null;
+            
+        List<IMyShipConnector> MyConnectors = new List<IMyShipConnector>();
+        List<ConShips> ConnectedShips = new List<ConShips>();
 
 
 
@@ -372,6 +389,33 @@ namespace IngameScript
 
 
 
+
+        public class ConShips
+        {
+            public string SubName { get; set; }
+
+            public IMyCubeGrid SubGrid { get; set; }
+
+            public string ConnectorName { get; set; }
+
+            public int LocalConnector { get; set; }
+
+            public MyShipConnectorStatus ConnectorStatus { get; set; }
+
+            public int SubBatteryPercen { get; set; }
+
+            public List<IMyBatteryBlock> SubBatterys { get; set; } = new List<IMyBatteryBlock>();
+
+            List<IMyTerminalBlock> allSubBlocks = new List<IMyTerminalBlock>();
+
+
+
+            
+        }
+
+
+
+
         #endregion
 
 
@@ -382,7 +426,7 @@ namespace IngameScript
         public void Main(string argument, UpdateType updateSource)
         {
             string Status = argument;
-
+            LocalGrid = Me.CubeGrid;
             if (Status == "Reset")
             {
                 DeleteWarnings();
@@ -496,14 +540,6 @@ namespace IngameScript
         public void DoEveryTime()
         {
 
-            if(Tick == 0)
-            {
-                Tick++;
-            }
-            else
-            {
-                Tick = 0 ;
-            }
 
             if (Tick == 0)
             {
@@ -921,12 +957,85 @@ namespace IngameScript
 
 
                 }
-
-
-
-
-
                 //Battery site end
+
+
+            }
+            if (Tick == 2) //TICK 3--------------
+            {
+
+                //Connector Site //DOCKED SHIP DETECTION
+
+                if (MyConnectors.Count > 0)
+                {
+                    if (ConnectorMenu == 0)
+                    {
+                        int Index6 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        if (Index6 != -1)
+                        {
+                            ConnectorMenu = 1;
+                            Channellist[Index6].Subs.Add(new Sub() { SubValue = "Connectors/Connected Ships" });
+                            Channellist.Add(new Channels { MainChannel = "Connectors/Connected Ships", Type = "Info" });
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (ConnectorMenu == 1)
+                    {
+                        int Index7 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index75 = Channellist.FindIndex(a => a.MainChannel == "Connectors/Connected Ships");
+                        if (Index7 != -1)
+                        {
+                            BatMenu = 0;
+                            int Index54 = Channellist[Index7].Subs.FindIndex(a => a.SubValue == "Connectors/Connected Ships");
+                            if (Index54 != -1)
+                            {
+                                Channellist[Index7].Subs.RemoveAt(Index54);
+                            }
+                            if (Index75 != -1)
+                            {
+                                Channellist.RemoveAt(Index75);
+                            }
+                        }
+
+                    }
+                }
+                int CLocal = 0;
+                if(ConnectorMenu == 1)
+                {
+                    ConnectedShips.Clear();
+                foreach(IMyShipConnector CON in MyConnectors)
+                    {
+                        if(CON.CubeGrid == LocalGrid)
+                        {
+                            CLocal = 1;
+                        }
+                        else
+                        {
+                            CLocal = 0;
+                        }
+
+
+                        if(CON.Status == MyShipConnectorStatus.Connected)
+                        {
+                            string Other = CON.OtherConnector.CubeGrid.CustomName;
+                            ConnectedShips.Add(new ConShips { SubName = Other, SubGrid = CON.OtherConnector.CubeGrid, ConnectorName = CON.DisplayNameText, ConnectorStatus = CON.Status, LocalConnector = CLocal });
+                        }
+                        else
+                        {
+                            ConnectedShips.Add(new ConShips { ConnectorName = CON.DisplayNameText, ConnectorStatus = CON.Status,LocalConnector = CLocal });
+                        }
+                       
+                    }
+                }
+
+
+
+
+                //Conenctor Site end
+
 
 
 
@@ -951,17 +1060,58 @@ namespace IngameScript
                 }
 
                 // ShowOnly  Ende
-
+                
 
                 //Menu End---------------
+            }//Tick 3 End
+
+
+            if (Tick == 3) //TICK 4--------------
+            {
+                //connected Ships
+                int U34 = 0;
+                foreach(ConShips SP in ConnectedShips)
+                {
+                    float BatMaxLoad2 = 0;
+                    string GridName = SP.SubName;
+                    GridTerminalSystem.GetBlocksOfType(ConnectedShips[U34].SubBatterys,b => b.CubeGrid.CustomName == GridName);
+                    foreach(IMyBatteryBlock Bat in ConnectedShips[U34].SubBatterys)
+                    {
+                        BatMaxLoad2 = BatMaxLoad2 + Bat.MaxStoredPower;
+
+                    }
+                    float one = (BatMaxLoad / 100);
+                    BatteryPercent = (BatCurrentLoad / one);
+                    BatteryPercentInt = Convert.ToInt32(BatteryPercent);
+                    ConnectedShips[U34].SubBatteryPercen = BatteryPercentInt;
+
+                    U34++;
+                }
+
+                //GridTerminalSystem.GetBlocks(allBlocks);
+
+
+
+                //Conencted ships ende
+
+
+
+
+
+            } //TICK 4 End
+
+            //Echo("Tick: " + Tick);
+            if (Tick <= 4)
+            {
+                Tick++;
+            }
+            else
+            {
+                Tick = 0;
             }
 
 
-
-
-
-
-                return;
+            return;
         }
         #endregion
 
@@ -972,13 +1122,13 @@ namespace IngameScript
 
         public void ChangePos(String Direction)
         {
+            //Echo("Deep: " + deep);
             string Direct = Direction;
             int Index = Channellist.FindIndex(a => a.MainChannel == Site);
             if (Index != -1)
             {
                 int MenuCount = 0;
                string Type = Channellist[Index].Type;
-
                 if (Site == "Warning")
                 {
                     MenuCount = ReturnMaxMessages(1);
@@ -989,14 +1139,29 @@ namespace IngameScript
                 }
                 else if (Type == "Menu")
                 {
-                    MenuCount = SiteValue[Page].Max;
+                    if (SiteValue.Count > 0)
+                    {
+                        MenuCount = SiteValue[Page].Max;
+                    }
+                    else
+                    {
+                        MenuCount = 0;
+                    }
                 }
                 else if (Type == "Setting")
                 {
-                    int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
-                    MenuCount = SiteValue[Page].Max;
-                }
+                    //int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
+                    if(SiteValue.Count > 0)
+                    {
+                        MenuCount = SiteValue[Page].Max;
+                    }
+                    else
+                    {
+                        MenuCount = 0;
+                    }
+                    
 
+                }
 
                 if (Direct == "UP")
                 {
@@ -1004,13 +1169,11 @@ namespace IngameScript
                     if (MyPos > -1)
                     {
                         //MyPos--;
-                        
                         ShowMenu();
                         return;
                     }
                     else
                     {
-                        
                         MyPos++;
                         if(MaxPages >0)
                         {
@@ -1047,7 +1210,6 @@ namespace IngameScript
                         {
                          if(Page < MaxPages -1)
                             {
-
                                 Page++;
                                 MyPos = 0;
                                 return;
@@ -1064,13 +1226,14 @@ namespace IngameScript
                 {
                     if(deep > 0)
                     {
+                        
                         deep--;
                     }
                     SiteValue.Clear();
                     
                     Site = Steps[deep];
                     MyPos = 0;
-
+                    Page = 0;
                     ShowMenu();
 
                 }
@@ -1383,7 +1546,7 @@ namespace IngameScript
                         FU = Site + Environment.NewLine;
                         string MenuName = Channellist[Index].MainChannel;
                         string Uff = Site + Environment.NewLine;
-                        int T4 = 0;
+                        
                         foreach (Rows Var in SiteValue[Page].RowValue)
                         {
 
@@ -1401,6 +1564,134 @@ namespace IngameScript
                         
                         return;
                     }
+                    else if(Site == "System")
+                    {
+                        Out = "";
+                        Out = "Systemstatus" + Environment.NewLine + Environment.NewLine + "Version: " + Version + Environment.NewLine + "Creator: >>Ywer<<" + Environment.NewLine + Environment.NewLine;
+                        DirectShow(Out);
+
+
+
+
+                    }
+                    else if(Site == "Connectors/Connected Ships")
+                    {
+                        SiteValue.Clear();
+                        Out = "";
+                        int SettingCount = ConnectedShips.Count;
+                        int U11 = 0;
+                        int MaxPerRowConnector = 3; //ZEILEN EINSTELLUNG CONENCTOR SEITE!!!!!!!!!
+                        int U22 = MaxPerRowConnector;
+                        
+                        do
+                        {
+                            if (U11 == U22)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                U22 = (U22 + MaxPerRowConnector);
+                            }
+
+                            if (U22 >= SettingCount)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                break;
+
+                            }
+
+                            U11++;
+
+                        } while (U11 < SettingCount + +1);
+
+
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+                        int M1 = 0;
+                        
+                        do
+                        {
+                            if (ConnectedShips[I2].LocalConnector == 1)
+                            {
+                                if (ConnectedShips[I2].ConnectorStatus == MyShipConnectorStatus.Connected)
+                                {
+                                    if (ConnectedShips[I2].SubBatteryPercen > 0)
+                                    {
+                                        string Boo = ReturnIndicator(ConnectedShips[I2].SubBatteryPercen);
+                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine + "Battery: " + Boo + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine;
+                                    }
+
+                                }
+                                else
+                                {
+                                    Out = ConnectedShips[I2].ConnectorName + " = " + ConnectedShips[I2].ConnectorStatus + Environment.NewLine;
+                                }
+                                Echo("I: " + I);
+                                Echo("I2: " + I2);
+                                Echo("Site: " + ISite);
+                                Echo("M1: " + M1);
+                                Echo("Int: " + ConnectedShips[I2].ConnectorName);
+                                SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+                                I++;
+                                I2++;
+                                M1++;
+                            }
+                            else
+                            {
+                                I2++;
+                            }
+
+                            if (I == MaxPerRowConnector)
+                            {
+
+                                SiteValue[ISite].Max = 1;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                            }
+                            if (I2 >= SettingCount)
+                            {
+
+                                ISite--;
+                                SiteValue[ISite].Max = 1;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                                break;
+
+                            }
+
+
+                        } while (I2 < SettingCount+1);
+                        MaxPages = ISite + 1;
+                        string FU = "";
+                        FU = Site + ": "+ Environment.NewLine;
+                        string MenuName = Channellist[Index].MainChannel;
+                        string Uff = Site + Environment.NewLine;
+
+                        foreach (Rows Var in SiteValue[Page].RowValue)
+                        {
+
+                            Uff = Uff + Var.Row + Environment.NewLine;
+
+
+                        }
+                        int MyPosmath = Page + 1;
+                        int MaxI = MaxPages;
+                        Uff = Uff + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxI + "]" + Environment.NewLine;
+                        DirectShow(Uff);
+
+
+
+                        return;
+
+                    }
+
 
                 }
                 else if (Type == "Menu")
@@ -1535,7 +1826,6 @@ namespace IngameScript
                             {
 
                                 int SettingCount = SettingsList[Index92].Sets.Count;
-
                                 int U1 = 0;
                                 int U2 = MaxRowPerSite;
 
@@ -1548,7 +1838,7 @@ namespace IngameScript
                                         U2 = (U2 + MaxRowPerSite);
                                     }
 
-                                    if (U2 >= SettingCount)
+                                    if (U2 >= SettingCount )
                                     {
                                         SiteValue.Add(new MValue { Max = U1 });
 
@@ -1559,7 +1849,7 @@ namespace IngameScript
                                     U1++;
 
                                 } while (U1 < SettingCount  +1);
-                            
+                                
                                 do
                                 {
 
@@ -1575,7 +1865,7 @@ namespace IngameScript
                                         I = 0;
                                         Out = "";
                                     }
-                                    if (I2 >= SettingCount -1)
+                                    if (I2 >= SettingCount )
                                     {
                                         SiteValue[ISite].Max = SiteValue[ISite].RowValue.Count;
                                         ISite++;
@@ -1586,7 +1876,7 @@ namespace IngameScript
                                     }
 
 
-                            } while (I2 <= SettingCount);
+                            } while (I2 <= SettingCount +1);
                                 MaxPages = ISite;
 
                                 string FU = "";
@@ -1606,18 +1896,18 @@ namespace IngameScript
                                     C2++;
                                 }
                                 DirectShow(FU);
-                                return;
+                            return;
                             }
                             else
                             {
-                                Out = "No Settings Aviable";
+                                Out = "No Settings Aviable" + Environment.NewLine;
                                 DirectShow(Out);
                             }
                         }
                         else
                         {
-                            Out = "Something is Wrong";
-                            DirectShow(Out);
+                            Out = "Something is Wrong, Menu Dont Exist" + Environment.NewLine;
+                        DirectShow(Out);
                         }
                 }
                 return;
@@ -1660,10 +1950,17 @@ namespace IngameScript
                 {
                     int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
                         // MenuCount = SettingsList[Index93].Sets.Count;
-                        MenuCount = SiteValue[Page].Max;
+                        if (SiteValue.Count > 0)
+                        {
+                            MenuCount = SiteValue[Page].Max;
+                        }
+                        else
+                        {
+                            MenuCount = 0;
+                        }
                 }
 
-                if(MaxPages >0)
+                    if(MaxPages >0)
                     {
                         int Math2 = Page + 1;
                         int Math3 = MaxPages;
@@ -1798,7 +2095,7 @@ namespace IngameScript
                         return;
                     }
 
-                        return;
+                       
 
                     
 
