@@ -2,9 +2,25 @@
 
 Daten für Systemstatus sammeln und anzeigen
 
+fehlende statusseiten noch füllen
+-Swaffen(Setting)
+-Sfuel
+-s-inventory?
+-SConnecotrs
+-sgeneral
+
+Statusseiten Anlegen:
+-Luftversorgung info und setting
+
+Script Laufen lassen ohne timer
+
+Schiff ausschalt modus,das nornoch  1 generator läuft oder so
 
 
-Copnnectoren prüfen ob sie vom lokalen grid sind
+blöcke nachträglich erfassen?
+Menus ausblenden für Blöcke die nicht da sind (Done: Weapons INFO,Weapon Setting, Fuel Info,cargo info menu)   ->>> Ausprobieren
+
+Connectoren Auto verrriegelung(mit setting). drauf achten das beim abdocken net direkt wieder verriegelt
 
 
 
@@ -77,6 +93,15 @@ Addes System Page on Systemstatus
 Fixxed Setting not all shown
 !!!!Menu für Connectoren FIXXEN!!
 Connectoren prüfen ob sie vom lokalen grid sind
+
+0.230
+-Fixxed Weapons Info Page
+-Addes Percent to Inventory Screen (Whit indicator)
+-Added Percent numbers to Docking Screen
+-Added Autorun(Again)
+-Added Little Description in Readme
+
+
 
 
 

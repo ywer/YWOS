@@ -18,16 +18,28 @@ using VRage.Game;
 using VRage;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
-
+using System.Runtime.Remoting.Contexts;
 
 namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
 
+        #region settings
+        //settings
+
+
+        string MenuLCD = "MenuLCD";
+        int ShowOnly = 0; //Only Show, dont Turn on Anything Mode!
+
+        //Setting end ----> DONT EDIT BELOW
+        #endregion
+
+
 
         public Program()
         {
+            Runtime.UpdateFrequency = UpdateFrequency.Update100;
             List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
             GridTerminalSystem.GetBlocks(allBlocks);
 
@@ -36,28 +48,6 @@ namespace IngameScript
 
                 if (Block is IMyTextPanel)
                 {
-
-                    if (Block.CustomName.Contains(LCDName))
-                    {
-
-
-                        InfoLCDList.Add((IMyTextPanel)Block);
-
-                    }
-
-                    if (Block.CustomName.Contains(WarningLCDName))
-                    {
-
-
-                        WarnLCDList.Add((IMyTextPanel)Block);
-
-                    }
-
-                    if (Block.CustomName.Contains(Controller))
-                    {
-                        ControllerList.Add((IMyButtonPanel)Block);
-
-                    }
 
 
                     if (Block.CustomName.Contains(MenuLCD))
@@ -134,11 +124,8 @@ namespace IngameScript
 
 
             //systemstatus
-            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "Wapons"}, new Sub() { SubValue = "Fuel"}, new Sub() { SubValue = "Inventory"}, new Sub() { SubValue = "System" } } });
+            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "System" } } });
             Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
-            Channellist.Add(new Channels { MainChannel = "Weapons", Type = "Info" });
-            Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info" });
-            Channellist.Add(new Channels { MainChannel = "Inventory", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "System", Type = "Info" });
             //Settings
             Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" } } });
@@ -178,19 +165,10 @@ namespace IngameScript
 
         }
 
-        #region settings
-        //settings
-        string LCDName = "NachrichtenPanel"; //MSg LCD
-        string WarningLCDName = "Warnings"; //Warning LCD
-        string Controller = "ControllerPanel"; //Panel to Switch
-        string MenuLCD = "MenuLCD";
-        int ShowOnly = 0; //Only Show, dont Turn on Anything Mode!
 
-        //Setting end ----> DONT EDIT BELOW
-        #endregion
 
         #region Stuff
-        double Version = 0.229;
+        double Version = 0.230;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;
@@ -207,7 +185,6 @@ namespace IngameScript
         int ResetInfo = 0;
         int WarnMenu = 0;
         int InfoMenu = 0;
-        int BatMenu = 0;
 
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
@@ -215,7 +192,6 @@ namespace IngameScript
         List<Set> SettingsList = new List<Set>();
         List<IMyTextPanel> InfoLCDList = new List<IMyTextPanel>();
         List<IMyTextPanel> WarnLCDList = new List<IMyTextPanel>();
-        List<IMyButtonPanel> ControllerList = new List<IMyButtonPanel>();
         List<IMyReactor> AllMyReactors = new List<IMyReactor>();
         List<IMyLargeMissileTurret> MyMissleTurrets = new List<IMyLargeMissileTurret>();
         List<IMyLargeGatlingTurret> MyGatlingTurrets = new List<IMyLargeGatlingTurret>();
@@ -250,6 +226,7 @@ namespace IngameScript
         float BatteryPercent = 0;
         int BatteryPercentInt = 0;
         List<BatStatus> BatteryStatus = new List<BatStatus>();
+        int BatMenu = 0;
 
         //Weapons
         int MissTurretsActive = 0;
@@ -261,6 +238,7 @@ namespace IngameScript
         int MissIsShooting = 0;
         int IntAIEnabled = 0;
         int MissAIEnabled = 0;
+        int WeaponMenu = 0;
 
         //Fuel
         float MaxFuel = 0;
@@ -268,12 +246,14 @@ namespace IngameScript
         float CurrentFuelFloat = 0;
         double CurrentFuel = 0;
         float FuelPercent = 0;
+        int FuelInfoMenu = 0;
 
         //Cargo
         MyFixedPoint MaxCargo = 0;
         MyFixedPoint UsedCargo = 0;
         IMyInventory test = null;
-        float CargoPercent = 0;
+        int CargoPercent = 0;
+        int CargoInfoMenu = 0;
 
         //Connectors
         int ConnectorMenu = 0;
@@ -488,6 +468,9 @@ namespace IngameScript
             {
                 //Echo("MSG: " + Status);
                 //PREFIX|TYPE|PRIO|ID|TEXT|USER
+                //MSG|
+                //1 = Warning 0 = info
+
                 string[] Input = Status.Split('|');
 
 
@@ -579,6 +562,7 @@ namespace IngameScript
                 //Cargo
 
                 CargoPercent = 0;
+
 
                 //Energy
                 MaxReac = AllMyReactors.Count;
@@ -709,58 +693,133 @@ namespace IngameScript
                 //Energy End
 
                 //Weapons
-                foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
+                //SystemStatus\Weapons
+                //Settings\SWeapons
+
+                if (MyMissleTurrets.Count > 0 ^ MyGatlingTurrets.Count > 0 ^ MyIntTurrets.Count > 0)
                 {
-                    if (Gat.Enabled)
+                    if (WeaponMenu == 0)
                     {
-                        GatTurretsActive++;
+
+                        int Index8 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index64 = Channellist.FindIndex(a => a.MainChannel == "Settings");
+                        if (Index8 != -1)
+                        {
+                            BatMenu = 1;
+                            Channellist[Index8].Subs.Add(new Sub() { SubValue = "Weapons" });
+                            Channellist.Add(new Channels { MainChannel = "Weapons", Type = "Info" });
+                        }
+                        if (Index64 != -1)
+                        {
+                            BatMenu = 1;
+                            Channellist[Index8].Subs.Add(new Sub() { SubValue = "SWeapons" });
+                            Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
+                        }
                     }
-                    if (Gat.AIEnabled)
+
+                }
+                else
+                {
+                    if (WeaponMenu == 1)
                     {
-                        GatAIEnabled++;
-                    }
-                    if (Gat.IsShooting)
-                    {
-                        GatIsShooting++;
+                        int Index87 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index86 = Channellist.FindIndex(a => a.MainChannel == "Weapons");
+
+                        if (Index87 != -1)
+                        {
+                            BatMenu = 0;
+                            int Index44 = Channellist[Index87].Subs.FindIndex(a => a.SubValue == "Weapons");
+                            if (Index44 != -1)
+                            {
+                                Channellist[Index87].Subs.RemoveAt(Index44);
+                            }
+                            if (Index86 != -1)
+                            {
+                                Channellist.RemoveAt(Index86);
+                            }
+                        }
+                        int Index85 = Channellist.FindIndex(a => a.MainChannel == "Settings");
+                        int Index84 = Channellist.FindIndex(a => a.MainChannel == "SWeapons");
+
+                        if (Index85 != -1)
+                        {
+                            BatMenu = 0;
+                            int Index45 = Channellist[Index85].Subs.FindIndex(a => a.SubValue == "SWeapons");
+                            if (Index45 != -1)
+                            {
+                                Channellist[Index85].Subs.RemoveAt(Index45);
+                            }
+                            if (Index84 != -1)
+                            {
+                                Channellist.RemoveAt(Index84);
+                            }
+                        }
+
+
+
+
                     }
 
 
                 }
 
-                foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
+
+
+
+                if (WeaponMenu == 1)
                 {
-                    if (Miss.Enabled)
+                    foreach (IMyLargeGatlingTurret Gat in MyGatlingTurrets)
                     {
-                        MissTurretsActive++;
-                    }
-                    if (Miss.AIEnabled)
-                    {
-                        MissAIEnabled++;
-                    }
-                    if (Miss.IsShooting)
-                    {
-                        MissIsShooting++;
+                        if (Gat.Enabled)
+                        {
+                            GatTurretsActive++;
+                        }
+                        if (Gat.AIEnabled)
+                        {
+                            GatAIEnabled++;
+                        }
+                        if (Gat.IsShooting)
+                        {
+                            GatIsShooting++;
+                        }
+
+
                     }
 
+                    foreach (IMyLargeMissileTurret Miss in MyMissleTurrets)
+                    {
+                        if (Miss.Enabled)
+                        {
+                            MissTurretsActive++;
+                        }
+                        if (Miss.AIEnabled)
+                        {
+                            MissAIEnabled++;
+                        }
+                        if (Miss.IsShooting)
+                        {
+                            MissIsShooting++;
+                        }
+
+                    }
+
+                    foreach (IMyLargeInteriorTurret Int in MyIntTurrets)
+                    {
+                        if (Int.Enabled)
+                        {
+                            IntTurretsActive++;
+                        }
+                        if (Int.AIEnabled)
+                        {
+                            IntAIEnabled++;
+                        }
+                        if (Int.IsShooting)
+                        {
+                            IntIsShooting++;
+                        }
+
+                    }
                 }
-
-                foreach (IMyLargeInteriorTurret Int in MyIntTurrets)
-                {
-                    if (Int.Enabled)
-                    {
-                        IntTurretsActive++;
-                    }
-                    if (Int.AIEnabled)
-                    {
-                        IntAIEnabled++;
-                    }
-                    if (Int.IsShooting)
-                    {
-                        IntIsShooting++;
-                    }
-
-                }
-
                 //Weapons end
             }
             //TICK 1 VORBEI!
@@ -771,39 +830,137 @@ namespace IngameScript
             {
 
                 //fuel
+                //SystemStatus\Fuel
 
-
-
-
-                foreach (IMyGasTank Fuel in MyFuelTanks)
+                if (MyFuelTanks.Count > 0)
                 {
-                    MaxFuel = MaxFuel + Fuel.Capacity;
-                    CurrentFuel = CurrentFuel + Fuel.FilledRatio;
+                    if (FuelInfoMenu == 0)
+                    {
+
+                        int Index22 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        if (Index22 != -1)
+                        {
+                            FuelInfoMenu = 1;
+                            Channellist[Index22].Subs.Add(new Sub() { SubValue = "Fuel" });
+                            Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info" });
+                        }
+                    }
 
                 }
-                int Temp1 = Convert.ToInt32(MaxFuel);
-                MaxFuelFloat = Convert.ToSingle(Temp1);
-                int Temp2 = Convert.ToInt32(CurrentFuel);
-                CurrentFuelFloat = Convert.ToSingle(Temp2);
+                else
+                {
+                    if (FuelInfoMenu == 1)
+                    {
+                        int Index23 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index24 = Channellist.FindIndex(a => a.MainChannel == "Fuel");
+                        if (Index24 != -1)
+                        {
+                            FuelInfoMenu = 0;
+                            int Index44 = Channellist[Index24].Subs.FindIndex(a => a.SubValue == "Fuel");
+                            if (Index44 != -1)
+                            {
+                                Channellist[Index24].Subs.RemoveAt(Index44);
+                            }
+                            if (Index23 != -1)
+                            {
+                                Channellist.RemoveAt(Index23);
+                            }
+                        }
 
-                float OneFuel = MaxFuel / 100;
-                FuelPercent = (CurrentFuelFloat / OneFuel);
+                    }
+
+
+                }
+
+
+                if (FuelInfoMenu == 1)
+                {
+                    foreach (IMyGasTank Fuel in MyFuelTanks)
+                    {
+                        MaxFuel = MaxFuel + Fuel.Capacity;
+                        CurrentFuel = CurrentFuel + Fuel.FilledRatio;
+
+                    }
+                    int Temp1 = Convert.ToInt32(MaxFuel);
+                    MaxFuelFloat = Convert.ToSingle(Temp1);
+                    int Temp2 = Convert.ToInt32(CurrentFuel);
+                    CurrentFuelFloat = Convert.ToSingle(Temp2);
+
+                    float OneFuel = MaxFuel / 100;
+                    FuelPercent = (CurrentFuelFloat / OneFuel);
+
+                }
                 //fuel end
 
 
+
                 //Cargo
+                //SystemStatus\Inventory
+
+
+
                 MaxCargo = 0;
                 UsedCargo = 0;
                 test = null;
 
+                if (MyCargoContainers.Count > 0)
+                {
+                    if (CargoInfoMenu == 0)
+                    {
 
-                foreach (IMyCargoContainer Cargo in MyCargoContainers)
+                        int Index29 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        if (Index29 != -1)
+                        {
+                            CargoInfoMenu = 1;
+                            Channellist[Index29].Subs.Add(new Sub() { SubValue = "Inventory" });
+                            Channellist.Add(new Channels { MainChannel = "Inventory", Type = "Info" });
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (CargoInfoMenu == 1)
+                    {
+                        int Index28 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                        int Index27 = Channellist.FindIndex(a => a.MainChannel == "Inventory");
+                        if (Index27 != -1)
+                        {
+                            CargoInfoMenu = 0;
+                            int Index43 = Channellist[Index27].Subs.FindIndex(a => a.SubValue == "Inventory");
+                            if (Index43 != -1)
+                            {
+                                Channellist[Index27].Subs.RemoveAt(Index43);
+                            }
+                            if (Index28 != -1)
+                            {
+                                Channellist.RemoveAt(Index28);
+                            }
+                        }
+
+                    }
+
+
+                }
+
+
+
+                if (CargoInfoMenu == 1)
                 {
 
-                    test = Cargo.GetInventory();
-                    MaxCargo = MaxCargo + test.MaxVolume;
-                    UsedCargo = UsedCargo + test.CurrentVolume;
+                    foreach (IMyCargoContainer Cargo in MyCargoContainers)
+                    {
+
+                        test = Cargo.GetInventory();
+                        MaxCargo = MaxCargo + test.MaxVolume;
+                        UsedCargo = UsedCargo + test.CurrentVolume;
+                    }
+                    int UCargo = UsedCargo.ToIntSafe();
+                    int OneCargo = MaxCargo.ToIntSafe() / 100;
+                    CargoPercent = (UCargo / OneCargo);
+
                 }
+
 
                 //Cargo End
 
@@ -1442,7 +1599,7 @@ namespace IngameScript
 
 
 
-                        Out = "Energy Monitor" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine + Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine + Environment.NewLine + "Batterys:" + Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
+                        Out = "Energy Monitor:" + Environment.NewLine + "Reactors: " + Environment.NewLine + "Currently Running of: " + ReacIsRunning + "/" + MaxReac + Environment.NewLine + "Output/Max Output: " + PowerUsed + "/" + MaxPower + Environment.NewLine + Environment.NewLine + "Solar Power: " + Environment.NewLine + "Output/Max Output: " + OutputSolarPower + "/" + MaxSolarPower + Environment.NewLine + Environment.NewLine + "Batterys:" + Environment.NewLine + "Count: " + BatCount + Environment.NewLine + "Batterload load %: " + BatteryPercent + Environment.NewLine + "Input/Output: " + BatInput + "/" + BatOutput + Environment.NewLine + Environment.NewLine;
 
 
 
@@ -1473,8 +1630,8 @@ namespace IngameScript
                     }
                     else if (Site == "Inventory")
                     {
-
-                        Out = "Cargo: " + Environment.NewLine + "Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine;
+                        string ind = ReturnIndicator(CargoPercent);
+                        Out = "Cargo: " + Environment.NewLine + "Used Volumen/Max Volumen: " + Environment.NewLine + UsedCargo + "/" + MaxCargo + Environment.NewLine + ind + " " + CargoPercent + "%" +Environment.NewLine;
                         DirectShow(Out);
                         return;
                     }
@@ -1542,10 +1699,8 @@ namespace IngameScript
                         } while (I2 <= SettingCount);
                         MaxPages = ISite;
 
-                        string FU = "";
-                        FU = Site + Environment.NewLine;
                         string MenuName = Channellist[Index].MainChannel;
-                        string Uff = Site + Environment.NewLine;
+                        string Uff = Site + ":" + Environment.NewLine;
                         
                         foreach (Rows Var in SiteValue[Page].RowValue)
                         {
@@ -1567,7 +1722,7 @@ namespace IngameScript
                     else if(Site == "System")
                     {
                         Out = "";
-                        Out = "Systemstatus" + Environment.NewLine + Environment.NewLine + "Version: " + Version + Environment.NewLine + "Creator: >>Ywer<<" + Environment.NewLine + Environment.NewLine;
+                        Out = "Systemstatus:" + Environment.NewLine + Environment.NewLine + "Version: " + Version + Environment.NewLine + "Creator: >>Ywer<<" + Environment.NewLine + Environment.NewLine;
                         DirectShow(Out);
 
 
@@ -1619,7 +1774,7 @@ namespace IngameScript
                                     if (ConnectedShips[I2].SubBatteryPercen > 0)
                                     {
                                         string Boo = ReturnIndicator(ConnectedShips[I2].SubBatteryPercen);
-                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine + "Battery: " + Boo + Environment.NewLine;
+                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine + "Battery: " + Boo + " " + ConnectedShips[I2].SubBatteryPercen  + "%" + Environment.NewLine;
                                     }
                                     else
                                     {
@@ -1631,11 +1786,6 @@ namespace IngameScript
                                 {
                                     Out = ConnectedShips[I2].ConnectorName + " = " + ConnectedShips[I2].ConnectorStatus + Environment.NewLine;
                                 }
-                                Echo("I: " + I);
-                                Echo("I2: " + I2);
-                                Echo("Site: " + ISite);
-                                Echo("M1: " + M1);
-                                Echo("Int: " + ConnectedShips[I2].ConnectorName);
                                 SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
                                 I++;
                                 I2++;
@@ -1669,10 +1819,8 @@ namespace IngameScript
 
                         } while (I2 < SettingCount+1);
                         MaxPages = ISite + 1;
-                        string FU = "";
-                        FU = Site + ": "+ Environment.NewLine;
                         string MenuName = Channellist[Index].MainChannel;
-                        string Uff = Site + Environment.NewLine;
+                        string Uff = Site + ":" + Environment.NewLine;
 
                         foreach (Rows Var in SiteValue[Page].RowValue)
                         {
@@ -1758,7 +1906,7 @@ namespace IngameScript
                         }
                          MaxPages = TSite;
 
-                        string Uff = Site + Environment.NewLine;
+                        string Uff = Site + ":" + Environment.NewLine;
                         int T4 = 0;
                         foreach(Rows  Var in SiteValue[Page].RowValue)
                         {
@@ -1880,7 +2028,7 @@ namespace IngameScript
                                 MaxPages = ISite;
 
                                 string FU = "";
-                                 FU = Site + Environment.NewLine;
+                                 FU = Site + ":" + Environment.NewLine;
                                 foreach (Rows Value in SiteValue[Page].RowValue)
                                 {
                                     if (C2 == MyPos)
@@ -2234,16 +2382,22 @@ namespace IngameScript
             string Out = "[";
             int Mathe = 0;
 
-            Mathe = (Percent / 10);
+            Mathe = (Percent / 5);
             //Mathe = Math.Round(Mathe);
             int I = 0;
             do
             {
-                Out = Out + "|";
-
+                if (I < Mathe)
+                {
+                    Out = Out + "|";
+                }
+                else
+                {
+                    Out = Out + " ";
+                }
                 I++;
 
-            } while (I < Mathe +1);
+            } while (I < 20);
             Out = Out + "]";
             
            // string Out = "";
