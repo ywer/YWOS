@@ -19,11 +19,15 @@ using VRage;
 using VRageMath;
 using Sandbox.Common.ObjectBuilders;
 using System.Runtime.Remoting.Contexts;
+using Sandbox.Common.ObjectBuilders.Definitions;
+using Sandbox.Game.Weapons;
 
 namespace IngameScript
 {
     partial class Program : MyGridProgram
     {
+        //Script By Ywer
+
 
         #region settings
         //settings
@@ -66,16 +70,18 @@ namespace IngameScript
 
                 if (Block is IMyLargeMissileTurret)
                 {
-                    MyMissleTurrets.Add((IMyLargeMissileTurret)Block);
-
+                    IMyLargeMissileTurret Turr2 = (IMyLargeMissileTurret)Block;
+                    MyMissleTurrets.Add(new RocketTData { Turret = Turr2, AI = Turr2.AIEnabled, Range = Turr2.Range, Aktive = Turr2.Enabled });
                 }
 
                 if (Block is IMyLargeGatlingTurret)
                 {
-                    MyGatlingTurrets.Add((IMyLargeGatlingTurret)Block);
+
+                    IMyLargeGatlingTurret Turr = (IMyLargeGatlingTurret)Block;
+                    MyGatlingTurrets.Add(new GATData {Turret = Turr, AI = Turr.AIEnabled, Range = Turr.Range, Aktive = Turr.Enabled});
                 }
 
-                if(Block is IMyLargeInteriorTurret)
+                if (Block is IMyLargeInteriorTurret)
                 {
                     MyIntTurrets.Add((IMyLargeInteriorTurret)Block);
                 }
@@ -100,27 +106,47 @@ namespace IngameScript
                     MyPowerProd.Add((IMyPowerProducer)Block);
                 }
 
-                if(Block is IMyCargoContainer)
+                if (Block is IMyCargoContainer)
                 {
                     MyCargoContainers.Add((IMyCargoContainer)Block);
                 }
 
-                if(Block is IMyShipConnector)
+                if (Block is IMyShipConnector)
                 {
                     MyConnectors.Add((IMyShipConnector)Block);
+                }
+
+                if (Block is IMyLightingBlock)
+                {
+                    IMyLightingBlock BlockL = (IMyLightingBlock)Block;
+                    MyLights.Add(new LightSetting { Light = BlockL, Name = BlockL.Name, OldColor = BlockL.Color });
+                    
+                }
+
+                if(Block is IMyDoor)
+                {
+                    IMyDoor Door = (IMyDoor)Block;
+                    MyDoors.Add(new DoorSettings { Aktive = Door.Enabled, Doorstatus = Door.Status, Door = Door });
+                }
+
+                if(Block is IMyAirtightHangarDoor)
+                {
+                    IMyAirtightHangarDoor Gate = (IMyAirtightHangarDoor)Block;
+                    MyGates.Add(new GateSettings { Aktive = Gate.Enabled, Gatestatus = Gate.Status, Gate = Gate });
+                    
+
                 }
 
 
 
             }
 
-
-           // string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
-           // string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
-           // string ResetMenu = "Reset Warnings|Reset Info|Reset All";
+            // string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
+            // string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
+            // string ResetMenu = "Reset Warnings|Reset Info|Reset All";
 
             //Main
-            Channellist.Add(new Channels { MainChannel = "MainMenu",Type = "Menu", Subs = new List<Sub>() {  new Sub() { SubValue = "SystemStatus"}, new Sub() { SubValue = "Settings"}, new Sub() { SubValue = "Reset"} } });
+            Channellist.Add(new Channels { MainChannel = "MainMenu", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "SystemStatus" }, new Sub() { SubValue = "Settings" }, new Sub() { SubValue = "Reset" } } });
 
 
             //systemstatus
@@ -128,35 +154,45 @@ namespace IngameScript
             Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "System", Type = "Info" });
             //Settings
-            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu",Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons"}, new Sub() { SubValue = "SFuel"}, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" } } });
+            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons" }, new Sub() { SubValue = "SFuel" }, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" }, new Sub() { SubValue = "SAlarmmode" },new Sub() { SubValue = "SAutoDoorCloser" } } });
             Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
-             SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
+            //Energy
+            SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
                 new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "BatWarnUnder", Description = "Warn under % Battery Load", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" } } });
-           //General Setting
+            //General Setting
             Channellist.Add(new Channels { MainChannel = "SGeneral", Type = "Setting" });
             SettingsList.Add(new Set { Channel = "SGeneral", Sets = new List<Options>() { new Options() { Setting = "ShowOnly", Description = "Show OnlyMode(No Automations)", SettingRange = "ON|OFF", SettingStatus = "OFF" } } });
-            
-
+            //Alarmmode
+            Channellist.Add(new Channels { MainChannel = "SAlarmmode", Type = "Setting" });
+            SettingsList.Add(new Set { Channel = "SAlarmmode", Sets = new List<Options>() { new Options() { Setting = "BlockAlarm", Description = "Block Alarm Mode", SettingRange = "ON|OFF", SettingStatus = "OFF" }, new Options() { Setting = "LightColor", Description = "Change Light Color at Alarm to:", SettingRange = "RED|BLUE|GREEN|YELLOW|ORANGE|OFF", SettingStatus = "RED" }, new Options() { Setting = "AktivateTurrets", Description = "Aktivate All Turrets on ALarm", SettingRange = "ON|OFF", SettingStatus = "ON" },
+                new Options() { Setting = "TurretsMaxRange", Description = "Change Turret to Maxrange on Alarm", SettingRange = "ON|OFF", SettingStatus = "ON" },new Options() { Setting = "AktivateAI", Description = "Aktivate Turret AI on ALarm", SettingRange = "ON|OFF", SettingStatus = "ON"} , new Options() { Setting = "CloseAllDoors", Description = "Close all Doors and Gates", SettingRange = "ON|OFF", SettingStatus = "ON"}} });
+            //DoorCloser
+            Channellist.Add(new Channels { MainChannel = "SAutoDoorCloser", Type = "Setting" });
+            SettingsList.Add(new Set { Channel = "SAutoDoorCloser", Sets = new List<Options>() { new Options() { Setting = "CloseTicks", Description = "Close After Ticks", SettingRange = "10|30|50|100|200|300|400|500", SettingStatus = "30" }, new Options() { Setting = "CloseDoors", Description = "Autoclose Doors", SettingRange = "ON|OFF", SettingStatus = "ON" }, new Options() { Setting = "CloseGates", Description = "AutoClose Gates", SettingRange = "ON|OFF", SettingStatus = "ON" } } });
+            //Setting = "CloseTicks"
+            // Setting = "CloseDoors",
+            //Setting = "CloseGates"
 
             //reset
-            Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings"}, new Sub() { SubValue = "Reset Info"}, new Sub() { SubValue = "Reset All"} } });
+            Channellist.Add(new Channels { MainChannel = "Reset", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "ResetWarnings" }, new Sub() { SubValue = "Reset Info" }, new Sub() { SubValue = "Reset All" } } });
             Channellist.Add(new Channels { MainChannel = "ResetWarnings", Type = "Reset" });
             Channellist.Add(new Channels { MainChannel = "Reset Info", Type = "Reset" });
             Channellist.Add(new Channels { MainChannel = "Reset All", Type = "Reset" });
-            
 
-            foreach(Channels Sub in Channellist)
+
+
+            foreach (Channels Sub in Channellist)
             {
                 Sub.MenuCount = Sub.Subs.Count();
 
             }
-            
-            
 
-            
+
+
+
 
         }
 
@@ -168,7 +204,7 @@ namespace IngameScript
 
 
         #region Stuff
-        double Version = 0.230;
+        double Version = 0.232;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;
@@ -188,20 +224,18 @@ namespace IngameScript
 
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
-       // List<SubChannel> SubChannelList = new List<SubChannel>();
+        // List<SubChannel> SubChannelList = new List<SubChannel>();
         List<Set> SettingsList = new List<Set>();
         List<IMyTextPanel> InfoLCDList = new List<IMyTextPanel>();
         List<IMyTextPanel> WarnLCDList = new List<IMyTextPanel>();
         List<IMyReactor> AllMyReactors = new List<IMyReactor>();
-        List<IMyLargeMissileTurret> MyMissleTurrets = new List<IMyLargeMissileTurret>();
-        List<IMyLargeGatlingTurret> MyGatlingTurrets = new List<IMyLargeGatlingTurret>();
         List<IMyBatteryBlock> MyBatteries = new List<IMyBatteryBlock>();
         List<IMySolarPanel> MySolar = new List<IMySolarPanel>();
         List<IMyPowerProducer> MyPowerProd = new List<IMyPowerProducer>();
         List<IMyLargeInteriorTurret> MyIntTurrets = new List<IMyLargeInteriorTurret>();
         List<IMyGasTank> MyFuelTanks = new List<IMyGasTank>();
         List<IMyCargoContainer> MyCargoContainers = new List<IMyCargoContainer>();
-        string[] Steps = new string[20]; 
+        string[] Steps = new string[20];
         List<Inf> InfoM = new List<Inf>();
         List<Inf> InfoMTemp = new List<Inf>();
         List<Warn> WarnM = new List<Warn>();
@@ -239,6 +273,22 @@ namespace IngameScript
         int IntAIEnabled = 0;
         int MissAIEnabled = 0;
         int WeaponMenu = 0;
+        List<RocketTData> MyMissleTurrets = new List<RocketTData>();
+        List<GATData> MyGatlingTurrets = new List<GATData>();
+
+        //Alarm
+        int AlarmMode = 0;
+        int AlarmModeDisabled = 0;
+        int AlarmD = 0;
+        int AlarmMainMenu = 0;
+        int RAlarm = 0;
+        //Lights
+        List<LightSetting> MyLights = new List<LightSetting>();
+        Color AlarmColor = new Color(0,0,0);
+        //Doors
+        List<DoorSettings> MyDoors = new List<DoorSettings>();
+        List<GateSettings> MyGates = new List<GateSettings>();
+        int DoorTick = 0;
 
         //Fuel
         float MaxFuel = 0;
@@ -257,9 +307,7 @@ namespace IngameScript
 
         //Connectors
         int ConnectorMenu = 0;
-
         IMyCubeGrid LocalGrid = null;
-            
         List<IMyShipConnector> MyConnectors = new List<IMyShipConnector>();
         List<ConShips> ConnectedShips = new List<ConShips>();
 
@@ -351,12 +399,12 @@ namespace IngameScript
             public List<Rows> RowValue { get; set; } = new List<Rows>();
         }
 
-        public class Rows
+        class Rows
         {
             public string Row { get; set; }
         }
 
-        public class BatStatus
+       class BatStatus
         {
             public string Name { get; set; }
 
@@ -366,11 +414,7 @@ namespace IngameScript
 
         }
 
-
-
-
-
-        public class ConShips
+        class ConShips
         {
             public string SubName { get; set; }
 
@@ -388,13 +432,90 @@ namespace IngameScript
 
             List<IMyTerminalBlock> allSubBlocks = new List<IMyTerminalBlock>();
 
+        }
 
+        class LightSetting
+        {
+            public string Name { get; set; }
 
-            
+            public Color OldColor { get; set; }
+
+            public IMyLightingBlock Light { get; set; }
+
         }
 
 
+       class GATData
+        {
+           public IMyLargeGatlingTurret Turret { get; set; }
 
+            public bool Aktive { get; set; }
+            public string TargetNeutral { get; set; }
+
+            public bool AI { get; set; }
+
+            public float Range { get; set; }
+
+            public string TargetMet { get; set; }
+
+            public string TargetRocket { get; set; }
+
+            public string TargetSmall { get; set; }
+
+            public string TargetLarge { get; set; }
+
+            public string TargetPlayer { get; set; }
+
+            public string TargetStation { get; set; }
+
+        }
+
+        class RocketTData
+        {
+            public IMyLargeMissileTurret Turret { get; set; }
+
+            public bool Aktive { get; set; }
+
+            public string TargetNeutral { get; set; }
+
+            public bool AI { get; set; }
+
+            public float Range { get; set; }
+
+            public string TargetMet { get; set; }
+
+            public string TargetRocket { get; set; }
+
+            public string TargetSmall { get; set; }
+
+            public string TargetLarge { get; set; }
+
+            public string TargetPlayer { get; set; }
+
+            public string TargetStation { get; set; }
+
+        }
+
+        class DoorSettings
+        {
+            public IMyDoor Door { get; set; }
+            public bool Aktive { get; set; }
+
+            public DoorStatus Doorstatus { get; set; }
+
+
+        }
+
+        class GateSettings
+        {
+
+            public IMyAirtightHangarDoor Gate { get; set; }
+            public bool Aktive { get; set; }
+
+            public DoorStatus Gatestatus { get; set; }
+
+
+        }
 
         #endregion
 
@@ -515,13 +636,34 @@ namespace IngameScript
                 }
 
             }
-            DoEveryTime();
+            else if (Status == "Alarm")
+            {
+
+                if (AlarmModeDisabled == 0) 
+                {
+                    if (AlarmMode == 0)
+                    {
+                        AlarmMode = 1;
+                    }
+                    else
+                    {
+                        Echo("Alarm Alrdy Aktivated!");
+                    }
+                }else
+                {
+                    Echo("Alarmmode Diasabled in Settings!");
+                }
+
+            }
+                DoEveryTime();
             ShowMenu();
         }
 
 
         public void DoEveryTime()
         {
+
+
 
 
             if (Tick == 0)
@@ -1257,8 +1399,464 @@ namespace IngameScript
 
             } //TICK 4 End
 
+            if(Tick == 4)  //Tick 5!!!
+            {
+                //ALARMMODE
+
+                int Index11 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                int Index12 = 0;
+
+                if (Index11 != -1)
+                {
+                    Index12 = SettingsList[Index11].Sets.FindIndex(a => a.Setting == "BlockAlarm");
+
+                }
+                if (Index12 != -1)
+                {
+                    if (SettingsList[Index11].Sets[Index12].SettingStatus != "OFF")
+                    {
+                        AlarmModeDisabled = 1;
+                    }
+                    else
+                    {
+                        AlarmModeDisabled = 0;
+                    }
+                }
+
+                if (AlarmModeDisabled == 0)
+                {
+                    if (AlarmMainMenu == 0)
+                    {
+
+                        int Index77 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        if (Index77 != -1)
+                        {
+                            AlarmMainMenu = 1;
+                            Channellist.Add(new Channels { MainChannel = "Aktivate Alarm", Type = "Reset" });
+                            Channellist[Index77].Subs.Add(new Sub() { SubValue = "Aktivate Alarm" });
+                            
+                        }
+                    }
+
+                }
+                else
+                {
+                    if (AlarmMainMenu == 1)
+                    {
+                        int Index78 = Channellist.FindIndex(a => a.MainChannel == "MainMenu");
+                        int Index79 = Channellist.FindIndex(a => a.MainChannel == "Aktivate Alarm");
+                        if (Index78 != -1)
+                        {
+                            AlarmMainMenu = 0;
+                            int Index44 = Channellist[Index78].Subs.FindIndex(a => a.SubValue == "Aktivate Alarm");
+                            if (Index44 != -1)
+                            {
+                                Channellist[Index78].Subs.RemoveAt(Index44);
+                            }
+                            if (Index79 != -1)
+                            {
+                                Channellist.RemoveAt(Index79);
+                            }
+                        }
+
+                    }
+
+
+                }
+
+
+                if (AlarmMode == 1)
+                {
+                   
+                    int Index19 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                    int Index20 = 0;
+
+                    if (Index19 != -1)
+                    {
+                        Index20 = SettingsList[Index19].Sets.FindIndex(a => a.Setting == "LightColor");
+
+                    }
+                    if (Index20 != -1)
+                    {
+                        if (SettingsList[Index19].Sets[Index20].SettingStatus != "OFF")
+                        {
+                            string Color = SettingsList[Index19].Sets[Index20].SettingStatus;
+                            if(Color == "RED")
+                            {
+                                AlarmColor = new Color(255, 0, 0);
+
+                            }
+                            else if(Color == "BLUE")
+                            {
+                                AlarmColor = new Color(0, 0, 255);
+                            }
+                            else if(Color == "GREEN")
+                            {
+                                AlarmColor = new Color(0, 128, 0);
+                            }
+                            else if(Color == "YELLOW")
+                            {
+                                AlarmColor = new Color(255, 255, 0);
+                            }
+                            else if(Color == "ORANGE")
+                            {
+                                AlarmColor = new Color(255, 165, 0);
+                            }
+                            foreach(LightSetting Light in MyLights)
+                            {
+                                IMyLightingBlock LBlock = Light.Light;
+                                LBlock.Color = AlarmColor;
+
+
+                            }
+
+                        }
+                    }
+
+                    int Index24 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                    int Index25 = 0;
+
+                    if (Index24 != -1)
+                    {
+                        Index25 = SettingsList[Index24].Sets.FindIndex(a => a.Setting == "AktivateTurrets");
+
+                    }
+                    if (Index25 != -1)
+                    {
+                        if (SettingsList[Index24].Sets[Index25].SettingStatus != "OFF")
+                        {
+                            foreach(GATData Turr in MyGatlingTurrets)
+                            {
+                                Turr.Turret.ApplyAction("OnOff_On");
+                               // Turr.Turret.Enabled = true;
+                            }
+
+                            foreach (RocketTData Turr in MyMissleTurrets)
+                            {
+                                //Turr.Turret.Enabled = true;
+                                Turr.Turret.ApplyAction("OnOff_On");
+                            }
+
+                            int Index36 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                            int Index37 = 0;
+
+                            if (Index36 != -1)
+                            {
+                                Index37 = SettingsList[Index36].Sets.FindIndex(a => a.Setting == "TurretsMaxRange");
+
+                            }
+                            if (Index37 != -1)
+                            {
+                                if (SettingsList[Index36].Sets[Index37].SettingStatus != "OFF")
+                                {
+                                    foreach (GATData Turr in MyGatlingTurrets)
+                                    {
+                                        Turr.Turret.SetValue("Range",800);
+                                    }
+                                }
+                            }
+
+                            int Index66 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                            int Index67 = 0;
+
+                            if (Index66 != -1)
+                            {
+                                Index67 = SettingsList[Index66].Sets.FindIndex(a => a.Setting == "AktivateAI");
+
+                            }
+                            if (Index67 != -1)
+                            {
+                                if (SettingsList[Index66].Sets[Index67].SettingStatus != "OFF")
+                                {
+                                    foreach (GATData Turr in MyGatlingTurrets)
+                                    {
+                                        Turr.Turret.ApplyAction("EnableIdleMovement_On");
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+
+                    int Index55 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                    int Index56 = 0;
+
+                    if (Index55 != -1)
+                    {
+                        Index56 = SettingsList[Index55].Sets.FindIndex(a => a.Setting == "CloseAllDoors");
+
+                    }
+                    if (Index56 != -1)
+                    {
+                        if (SettingsList[Index55].Sets[Index56].SettingStatus != "OFF")
+                        {
+                            foreach(DoorSettings Door in MyDoors)
+                            {
+                                IMyDoor DBlock = Door.Door;
+                                DBlock.CloseDoor();
+                            }
+
+                            foreach(GateSettings Gate in MyGates)
+                            {
+                                IMyAirtightHangarDoor GBlock = Gate.Gate;
+                                GBlock.CloseDoor();
+                            }
+
+
+                        }
+                    }
+
+
+
+
+
+
+
+                    //Setting = "TurretsMaxRange"-
+                    //Setting = "AktivateTurrets", -
+                    //Setting = "AktivateAI"
+                    //Setting = "CloseAllDoors",
+
+
+
+                }
+                else
+                {
+                    if(RAlarm == 1)
+                    {
+                        RAlarm = 0;
+                        foreach (LightSetting Lights in MyLights)
+                        {
+                            IMyLightingBlock LBlock = Lights.Light;
+                            LBlock.Color = Lights.OldColor;
+
+
+                        }
+
+                        int Index24 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                        int Index25 = 0;
+
+                        if (Index24 != -1)
+                        {
+                            Index25 = SettingsList[Index24].Sets.FindIndex(a => a.Setting == "AktivateTurrets");
+
+                        }
+                        if (Index25 != -1)
+                        {
+                            if (SettingsList[Index24].Sets[Index25].SettingStatus != "OFF")
+                            {
+                                foreach (GATData Turr in MyGatlingTurrets)
+                                {
+                                    bool AK = Turr.Aktive;
+                                    if (AK != true)
+                                    {
+                                       // Turr.Turret.Enabled = false;
+                                        Turr.Turret.ApplyAction("OnOff_Off");
+                                    }
+                                }
+
+                                foreach (RocketTData Turr in MyMissleTurrets)
+                                {
+                                    bool AK = Turr.Aktive;
+                                    if (AK != true)
+                                    {
+                                        //Turr.Turret.Enabled = false;
+                                        Turr.Turret.ApplyAction("OnOff_Off");
+                                    }
+                                }
+
+
+                                int Index36 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                                int Index37 = 0;
+
+                                if (Index36 != -1)
+                                {
+                                    Index37 = SettingsList[Index36].Sets.FindIndex(a => a.Setting == "TurretsMaxRange");
+
+                                }
+                                if (Index37 != -1)
+                                {
+                                    if (SettingsList[Index36].Sets[Index37].SettingStatus != "OFF")
+                                    {
+                                        foreach (GATData Turr in MyGatlingTurrets)
+                                        {
+                                            float Range = Turr.Range;
+                                            Turr.Turret.SetValue("Range", Range);
+                                        }
+                                    }
+                                }
+
+                                int Index66 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                                int Index67 = 0;
+
+                                if (Index66 != -1)
+                                {
+                                    Index67 = SettingsList[Index66].Sets.FindIndex(a => a.Setting == "AktivateAI");
+
+                                }
+                                if (Index67 != -1)
+                                {
+                                    if (SettingsList[Index66].Sets[Index67].SettingStatus != "OFF")
+                                    {
+                                        foreach (GATData Turr in MyGatlingTurrets)
+                                        {
+                                            bool AI = Turr.AI;
+                                            Turr.Turret.ApplyAction("EnableIdleMovement_Off");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        int Index55 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
+                        int Index56 = 0;
+
+                        if (Index55 != -1)
+                        {
+                            Index56 = SettingsList[Index55].Sets.FindIndex(a => a.Setting == "CloseAllDoors");
+
+                        }
+                        if (Index56 != -1)
+                        {
+                            if (SettingsList[Index55].Sets[Index56].SettingStatus != "OFF")
+                            {
+                                foreach (DoorSettings Door in MyDoors)
+                                {
+                                    DoorStatus Status = Door.Doorstatus;
+                                    IMyDoor DBlock = Door.Door;
+                                    if(Status == DoorStatus.Closed)
+                                    {
+                                        DBlock.CloseDoor();
+                                    }
+                                    else
+                                    {
+                                        DBlock.OpenDoor();
+                                    }
+                                    
+                                }
+
+                                foreach (GateSettings Gate in MyGates)
+                                {
+                                    IMyAirtightHangarDoor GBlock = Gate.Gate;
+                                    DoorStatus Status = Gate.Gatestatus;
+                                    if(Status == DoorStatus.Closed)
+                                    {
+                                        GBlock.CloseDoor();
+                                    }
+                                    else
+                                    {
+                                        GBlock.OpenDoor();
+                                    }
+                                    
+                                }
+
+
+                            }
+                        }
+
+
+
+
+                    }
+                }
+
+
+
+
+            //ALARMMODE END
+
+
+
+            }//Tick 5 END
+
+            //Door Manager
+
+            //Setting = "CloseTicks"
+            // Setting = "CloseDoors",
+            //Setting = "CloseGates"
+
+            int Index82 = SettingsList.FindIndex(a => a.Channel == "SAutoDoorCloser");
+            int Index83 = 0;
+
+            if (Index82 != -1)
+            {
+                Index83 = SettingsList[Index82].Sets.FindIndex(a => a.Setting == "CloseTicks");
+
+            }
+            if (Index83 != -1)
+            {
+                string Setting = SettingsList[Index82].Sets[Index83].SettingStatus;
+                int STick = Convert.ToInt32(Setting);
+                if (DoorTick <= STick)
+                {
+                    DoorTick++;
+                }
+                else
+                {
+                    DoorTick = 0;
+                    int Index84 = SettingsList.FindIndex(a => a.Channel == "SAutoDoorCloser");
+                    int Index85 = 0;
+
+                    if (Index84 != -1)
+                    {
+                        Index85 = SettingsList[Index84].Sets.FindIndex(a => a.Setting == "CloseDoors");
+
+                    }
+                    if (Index85 != -1)
+                    {
+                        if (SettingsList[Index84].Sets[Index85].SettingStatus != "OFF")
+                        {
+                            foreach (DoorSettings Door in MyDoors)
+                            {
+                                IMyDoor DBlock = Door.Door;
+                                if (DBlock.Status == DoorStatus.Open)
+                                {
+                                    DBlock.CloseDoor();
+                                }
+
+
+                            }
+                        }
+                    }
+
+                    int Index86 = SettingsList.FindIndex(a => a.Channel == "SAutoDoorCloser");
+                    int Index87 = 0;
+
+                    if (Index86 != -1)
+                    {
+                        Index87 = SettingsList[Index86].Sets.FindIndex(a => a.Setting == "CloseGates");
+
+                    }
+                    if (Index87 != -1)
+                    {
+                        if (SettingsList[Index86].Sets[Index87].SettingStatus != "OFF")
+                        {
+
+
+                            foreach (GateSettings Gate in MyGates)
+                            {
+                                IMyAirtightHangarDoor GBlock = Gate.Gate;
+                                if (GBlock.Status == DoorStatus.Open)
+                                {
+                                    GBlock.CloseDoor();
+                                }
+
+                            }
+
+                        }
+                    }
+
+                }
+            }
+
+
+
+            //Door Manager ende
+
+
+
             //Echo("Tick: " + Tick);
-            if (Tick <= 4)
+            if (Tick <= 5)
             {
                 Tick++;
             }
@@ -1494,6 +2092,25 @@ namespace IngameScript
                             return;
 
 
+                        }else if(AlarmD == 1)
+                        {
+                            if(AlarmMode == 1)
+                            {
+                                AlarmD = 0;
+                                AlarmMode = 0;
+                                RAlarm = 1;
+                                ChangePos("Back");
+                                Echo("Alarm OFF");
+                                return;
+                            }
+                            else
+                            {
+                                AlarmD = 0;
+                                AlarmMode = 1;
+                                ChangePos("Back");
+                                Echo("Alarm ON");
+                                return;
+                            }
                         }
                     }else if(Type == "Setting")
                     {
@@ -1934,14 +2551,14 @@ namespace IngameScript
                     Out = "";
                     if (Site == "Reset All")
                     {
-                        Out = "Enter to Delete all Infos/Warnings, Back to go back to Menu";
+                        Out = "Enter to Delete all Infos/Warnings, Back to go back";
                         ResetAll = 1;
                         DirectShow(Out);
 
                     }
                     else if (Site == "Reset Warnings")
                     {
-                        Out = "Enter to Delete all Warnings, Back to go back to Menu";
+                        Out = "Enter to Delete all Warnings, Back to go back";
                         ResetWarning = 1;
                         DirectShow(Out);
 
@@ -1949,9 +2566,24 @@ namespace IngameScript
                     else if (Site == "Reset Info")
                     {
                         ResetInfo = 1;
-                        Out = "Enter to Delete all Infos, Back to go back to Menu";
+                        Out = "Enter to Delete all Infos, Back to go back";
                         DirectShow(Out);
 
+                    }
+                    else if(Site == "Aktivate Alarm")
+                    {
+                        if(AlarmMode == 0)
+                        {
+                            Out = "Enter to Aktivate, Back to go back";
+                            DirectShow(Out);
+                            AlarmD = 1;
+                        }
+                        else
+                        {
+                            Out = "Enter to DeAktivate, Back to go back";
+                            AlarmD = 1;
+                            DirectShow(Out);
+                        }
                     }
 
 
@@ -2141,6 +2773,10 @@ namespace IngameScript
                 Show = Show + "        !!! SHOW ONLY AKTIVE!!! ";
             }
 
+            if (AlarmMode == 1)
+            {
+                Show = Show + "        !!! ALARMMOE AKTIVE!!! ";
+            }
 
 
             if (MLCD != null)
@@ -2255,7 +2891,7 @@ namespace IngameScript
                 return;
             }
         }
-
+        //Script by ywer
 
 
         public int DeleteMessage(int MType, int ID)
