@@ -1,5 +1,7 @@
 ﻿todo list:
 
+
+
 Daten für Systemstatus sammeln und anzeigen
 
 fehlende statusseiten noch füllen
@@ -12,7 +14,7 @@ fehlende statusseiten noch füllen
 Statusseiten Anlegen:
 -Luftversorgung info und setting
 
-Script Laufen lassen ohne timer
+
 
 Schiff ausschalt modus,das nornoch  1 generator läuft oder so
 
@@ -50,14 +52,10 @@ inventarscreen in % füllstand anzeigen
 
 
 
-!!! Addierung bei generatoren beheben!! ???
-
-Liste für Connectoren und was angedockt ist
-
 Warnung und Info mit einstellwerten wann eine warnung oder Info rausgegeben werden soll
 
 
-Alarmmodus(rot gelb grün),mit Türen/Tore schließen,alle waffen aktivieren etc 
+
 
 Warnungen hinzufügen zb wenn batterien leer sind
 
@@ -84,7 +82,12 @@ Show Only modus hinzufügen(über menü und extern) <- eröledigt
 Show Only modus hinzufügen(über menü und extern) <- eröledigt
 Batterie Übersicht Mit fllständen mit mehreren seiten, dafür lsite mit Batterien machen mit Baterie namen und füllstand in %
 Batterien in % anzeigen (Füllstand über Balken???)
--
+Alarmmodus(rot gelb grün),mit Türen/Tore schließen,alle waffen aktivieren etc (auch extern Aktivierbar machen) -------WIP
+-Lichter alle rot machen, vorher farbe speichern (mit einstellung) ------- Erledigt,muss noch getestet werden!
+-Alle waffen aktivieren und auf ziel einstellen,vorher einstellung speichern! (mit eisntellung) --- Erledigt muss noch getestet werden!
+-Alle türen Schließen(mit option)------ erledigt
+-Rundumleuchten aktivieren! --- nicht möglich jetzt
+Automatische Tür Schließen(türscript)
 
 
 0.229
@@ -102,8 +105,15 @@ Connectoren prüfen ob sie vom lokalen grid sind
 -Added Little Description in Readme
 
 
-
-
+0.231
+-Added Alarm Mode that:
+--Aktivate ALL Turrets(Setting)
+--Close all Doors(Setting)
+--Turn all Light in Color from setting
+-Added Automatic Door Closer whit setting:
+--For Ticks till Close
+--For Autoclose Doors
+--For Autoclose Gates
 
 
 
