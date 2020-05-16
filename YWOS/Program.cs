@@ -204,7 +204,7 @@ namespace IngameScript
 
 
         #region Stuff
-        double Version = 0.231;
+        double Version = 0.232;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;

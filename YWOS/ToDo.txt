@@ -15,6 +15,9 @@ Statusseiten Anlegen:
 -Luftversorgung info und setting
 
 
+Alarm motdus für interne geschütze!
+
+
 
 Schiff ausschalt modus,das nornoch  1 generator läuft oder so
 
@@ -115,6 +118,7 @@ Connectoren prüfen ob sie vom lokalen grid sind
 --For Autoclose Doors
 --For Autoclose Gates
 
+0.232
 
 
 
