@@ -49,6 +49,15 @@ Setting for warn you if Batter Charge go under set value
 Genarator Setting:
 Turns on Generators when Battery Charge go under set Value(1 Gnerator or All Generators)
 
+Alarm Mode:
+Aktivate Alarm Mode Change Follow Things
+- Turn all Lights in Set Value(Like red)
+- Close all Doors
+- Aktivate all external Weapons (Missle and Gatling turrets)
+
+Auto Door Closer:
+-Set Ticks for Close intervalle
+-Works for Gates and Doors
 
 
 
