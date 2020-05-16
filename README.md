@@ -1,10 +1,7 @@
 # YWOS
 R e a d m e
 -----------
-DO NUT USE; HARDLY WIP! for Show only!
-
-
-YWOS is just a simple script to manage things in Space Engineers(for Ships/Space Station) in Programmable Block, its FAR AWAY to Working and even more far away to Perfect
+YWOS is just a simple script to manage things in Space Engineers(for Ships/Space Station) in Programmable Block, its FAR AWAY from finished and even more far away to Perfect
 its my first C# project, so pleas be forgiving
 
 
