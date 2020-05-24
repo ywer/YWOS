@@ -1,0 +1,32 @@
+0.229
+!leeres menu fixxen das exception auslöst!
+Addes System Page on Systemstatus
+Fixxed Setting not all shown
+!!!!Menu für Connectoren FIXXEN!!
+Connectoren prüfen ob sie vom lokalen grid sind
+
+0.230
+-Fixxed Weapons Info Page
+-Addes Percent to Inventory Screen (Whit indicator)
+-Added Percent numbers to Docking Screen
+-Added Autorun(Again)
+-Added Little Description in Readme
+
+
+0.231
+-Added Alarm Mode that:
+--Aktivate ALL Turrets(Setting)
+--Close all Doors(Setting)
+--Turn all Light in Color from setting
+-Added Automatic Door Closer whit setting:
+--For Ticks till Close
+--For Autoclose Doors
+--For Autoclose Gates
+
+
+0.232
+-Added Automatic sear for Blockchanges every now and then
+-Addes Interior Turrets to Alarm Mode
+-Fixxed Range of Missle Turrets not changed (Alarm Mode)
+-Fixxed AI of Missle Turrets not Aktivated (Alarm mode)
+

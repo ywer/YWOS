@@ -44,102 +44,8 @@ namespace IngameScript
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.Update100;
-            List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
-            GridTerminalSystem.GetBlocks(allBlocks);
 
-            foreach (IMyTerminalBlock Block in allBlocks)
-            {
-
-                if (Block is IMyTextPanel)
-                {
-
-
-                    if (Block.CustomName.Contains(MenuLCD))
-                    {
-
-
-                        MLCD = Block as IMyTextPanel;
-
-                    }
-                }
-
-                if (Block is IMyReactor)
-                {
-                    AllMyReactors.Add((IMyReactor)Block);
-                }
-
-                if (Block is IMyLargeMissileTurret)
-                {
-                    IMyLargeMissileTurret Turr2 = (IMyLargeMissileTurret)Block;
-                    MyMissleTurrets.Add(new RocketTData { Turret = Turr2, AI = Turr2.AIEnabled, Range = Turr2.Range, Aktive = Turr2.Enabled });
-                }
-
-                if (Block is IMyLargeGatlingTurret)
-                {
-
-                    IMyLargeGatlingTurret Turr = (IMyLargeGatlingTurret)Block;
-                    MyGatlingTurrets.Add(new GATData {Turret = Turr, AI = Turr.AIEnabled, Range = Turr.Range, Aktive = Turr.Enabled});
-                }
-
-                if (Block is IMyLargeInteriorTurret)
-                {
-                    MyIntTurrets.Add((IMyLargeInteriorTurret)Block);
-                }
-
-
-                if (Block is IMyGasTank)
-                {
-                    MyFuelTanks.Add((IMyGasTank)Block);
-
-
-                }
-                if (Block is IMyBatteryBlock)
-                {
-                    MyBatteries.Add((IMyBatteryBlock)Block);
-                }
-                if (Block is IMySolarPanel)
-                {
-                    MySolar.Add((IMySolarPanel)Block);
-                }
-                if (Block is IMyPowerProducer)
-                {
-                    MyPowerProd.Add((IMyPowerProducer)Block);
-                }
-
-                if (Block is IMyCargoContainer)
-                {
-                    MyCargoContainers.Add((IMyCargoContainer)Block);
-                }
-
-                if (Block is IMyShipConnector)
-                {
-                    MyConnectors.Add((IMyShipConnector)Block);
-                }
-
-                if (Block is IMyLightingBlock)
-                {
-                    IMyLightingBlock BlockL = (IMyLightingBlock)Block;
-                    MyLights.Add(new LightSetting { Light = BlockL, Name = BlockL.Name, OldColor = BlockL.Color });
-                    
-                }
-
-                if(Block is IMyDoor)
-                {
-                    IMyDoor Door = (IMyDoor)Block;
-                    MyDoors.Add(new DoorSettings { Aktive = Door.Enabled, Doorstatus = Door.Status, Door = Door });
-                }
-
-                if(Block is IMyAirtightHangarDoor)
-                {
-                    IMyAirtightHangarDoor Gate = (IMyAirtightHangarDoor)Block;
-                    MyGates.Add(new GateSettings { Aktive = Gate.Enabled, Gatestatus = Gate.Status, Gate = Gate });
-                    
-
-                }
-
-
-
-            }
+            FindAllBlocks();
 
             // string MMenus = "Info|Warning|SystemStatus|Settings[LEER]|Reset";
             // string SystemStatusM = "Energy|Weapons|Fuel|Inventory";
@@ -150,16 +56,19 @@ namespace IngameScript
 
 
             //systemstatus
-            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "System" } } });
+            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "System" }, new Sub() { SubValue = "ScreenInfoM", Hidden = true } } });
             Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info" });
             Channellist.Add(new Channels { MainChannel = "System", Type = "Info" });
+            Channellist.Add(new Channels { MainChannel = "ScreenInfoM", Type = "ScSetting"});
+
             //Settings
-            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons" }, new Sub() { SubValue = "SFuel" }, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" }, new Sub() { SubValue = "SAlarmmode" },new Sub() { SubValue = "SAutoDoorCloser" } } });
-            Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "Settings", Type = "Menu", Subs = new List<Sub>() { new Sub() { SubValue = "SEnergy" }, new Sub() { SubValue = "SWeapons" }, new Sub() { SubValue = "SFuel" }, new Sub() { SubValue = "SInventory" }, new Sub() { SubValue = "SGeneral" }, new Sub() { SubValue = "SAlarmmode" },new Sub() { SubValue = "SAutoDoorCloser" }, new Sub() { SubValue = "ScreenSetting" } } });
             Channellist.Add(new Channels { MainChannel = "SWeapons", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SFuel", Type = "Setting" });
             Channellist.Add(new Channels { MainChannel = "SInventory", Type = "Setting" });
+            Channellist.Add(new Channels { MainChannel = "ScreenSetting", Type = "ScSetting" });
             //Energy
+            Channellist.Add(new Channels { MainChannel = "SEnergy", Type = "Setting" });
             SettingsList.Add(new Set { Channel = "SEnergy", Sets = new List<Options>() { new Options() { Setting = "MinALL", Description = "Turn on ALL Below % Charge: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" }, new Options() { Setting = "MinOne", Description = "Turn on ONE Below % Charge", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "30" },
                 new Options() { Setting = "MaxAll",Description = "Turn OFF ALL Gens Over %: ", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "80" }, new Options() { Setting = "BatWarnUnder", Description = "Warn under % Battery Load", SettingRange = "10|20|30|40|50|60|70|80|90|100|OFF", SettingStatus = "20" } } });
             //General Setting
@@ -204,7 +113,8 @@ namespace IngameScript
 
 
         #region Stuff
-        double Version = 0.233;
+        //Script by ywer
+        double Version = 0.232;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;
@@ -222,17 +132,16 @@ namespace IngameScript
         int WarnMenu = 0;
         int InfoMenu = 0;
 
+        int Tick2 = 0;
+
         IMyTextPanel MLCD;
         List<Channels> Channellist = new List<Channels>();
         // List<SubChannel> SubChannelList = new List<SubChannel>();
         List<Set> SettingsList = new List<Set>();
-        List<IMyTextPanel> InfoLCDList = new List<IMyTextPanel>();
-        List<IMyTextPanel> WarnLCDList = new List<IMyTextPanel>();
         List<IMyReactor> AllMyReactors = new List<IMyReactor>();
         List<IMyBatteryBlock> MyBatteries = new List<IMyBatteryBlock>();
         List<IMySolarPanel> MySolar = new List<IMySolarPanel>();
         List<IMyPowerProducer> MyPowerProd = new List<IMyPowerProducer>();
-        List<IMyLargeInteriorTurret> MyIntTurrets = new List<IMyLargeInteriorTurret>();
         List<IMyGasTank> MyFuelTanks = new List<IMyGasTank>();
         List<IMyCargoContainer> MyCargoContainers = new List<IMyCargoContainer>();
         string[] Steps = new string[20];
@@ -275,6 +184,7 @@ namespace IngameScript
         int WeaponMenu = 0;
         List<RocketTData> MyMissleTurrets = new List<RocketTData>();
         List<GATData> MyGatlingTurrets = new List<GATData>();
+        List<IntTurretData> MyIntTurrets = new List<IntTurretData>();
 
         //Alarm
         int AlarmMode = 0;
@@ -311,21 +221,12 @@ namespace IngameScript
         List<IMyShipConnector> MyConnectors = new List<IMyShipConnector>();
         List<ConShips> ConnectedShips = new List<ConShips>();
 
+        //lcd
+        List<LCDSetting> MyLCD = new List<LCDSetting>();
+        List<ILCD> InformationLCD = new List<ILCD>();
+        int SelectedLCD = 0;
+        int LCDStep = 0; 
 
-
-        /*
-        class Channels
-        {
-            public string Name { get; set; }
-
-            public string Type { get; set; }
-
-            public string Menus { get; set; }
-
-            public int MenuCount { get; set; }
-
-        }
-        */
 
         class Channels
         {
@@ -335,6 +236,7 @@ namespace IngameScript
 
             public int MenuCount { get; set; }
 
+
             public List<Sub> Subs { get; set; } = new List<Sub>();
 
         }
@@ -342,7 +244,11 @@ namespace IngameScript
         public class Sub
         {
             public string SubValue { get; set; }
-            
+
+            public bool Hidden { get; set; }
+
+
+
         }
 
         class Set
@@ -392,6 +298,8 @@ namespace IngameScript
 
         class MValue
         {
+            public string Site { get; set; }
+
             public int Max { get; set; }
 
             public string Value { get; set; }
@@ -496,6 +404,33 @@ namespace IngameScript
 
         }
 
+        class IntTurretData
+        {
+            public IMyLargeInteriorTurret Turret { get; set; }
+
+            public bool Aktive { get; set; }
+
+            public string TargetNeutral { get; set; }
+
+            public bool AI { get; set; }
+
+            public float Range { get; set; }
+
+            public string TargetMet { get; set; }
+
+            public string TargetRocket { get; set; }
+
+            public string TargetSmall { get; set; }
+
+            public string TargetLarge { get; set; }
+
+            public string TargetPlayer { get; set; }
+
+            public string TargetStation { get; set; }
+
+        }
+
+
         class DoorSettings
         {
             public IMyDoor Door { get; set; }
@@ -516,6 +451,33 @@ namespace IngameScript
 
 
         }
+
+        class LCDSetting
+        {
+            public IMyTextPanel LCD { get; set; }
+
+            public bool Aktive { get; set; }
+
+            public string Mode { get; set; }
+
+            public string Name { get; set; }
+
+
+        }
+
+        class ILCD
+        {
+            public IMyTextPanel LCD { get; set; }
+
+
+            public string Info { get; set; }
+
+            public string Name { get; set; }
+
+            public int Site { get; set; }
+
+        }
+
 
         #endregion
 
@@ -1537,6 +1499,11 @@ namespace IngameScript
                                 Turr.Turret.ApplyAction("OnOff_On");
                             }
 
+                            foreach(IntTurretData Turr in MyIntTurrets)
+                            {
+                                Turr.Turret.ApplyAction("OnOff_On");
+                            }
+
                             int Index36 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
                             int Index37 = 0;
 
@@ -1553,6 +1520,20 @@ namespace IngameScript
                                     {
                                         Turr.Turret.SetValue("Range",800);
                                     }
+
+                                    foreach (RocketTData Turr in MyMissleTurrets)
+                                    {
+                                        //Turr.Turret.Enabled = true;
+                                        Turr.Turret.SetValue("Range", 800);
+                                    }
+
+                                    foreach (IntTurretData Turr in MyIntTurrets)
+                                    {
+                                        Turr.Turret.SetValue("Range", 800);
+                                    }
+
+
+
                                 }
                             }
 
@@ -1572,6 +1553,20 @@ namespace IngameScript
                                     {
                                         Turr.Turret.ApplyAction("EnableIdleMovement_On");
                                     }
+
+                                    foreach (RocketTData Turr in MyMissleTurrets)
+                                    {
+                                        //Turr.Turret.Enabled = true;
+                                        Turr.Turret.ApplyAction("EnableIdleMovement_On");
+                                    }
+
+                                    foreach (IntTurretData Turr in MyIntTurrets)
+                                    {
+                                        Turr.Turret.ApplyAction("EnableIdleMovement_On");
+                                    }
+
+
+
                                 }
                             }
                         }
@@ -1665,6 +1660,18 @@ namespace IngameScript
                                     }
                                 }
 
+                                foreach (IntTurretData Turr in MyIntTurrets)
+                                {
+                                    bool AK = Turr.Aktive;
+                                    if (AK != true)
+                                    {
+                                        //Turr.Turret.Enabled = false;
+                                        Turr.Turret.ApplyAction("OnOff_Off");
+                                    }
+                                }
+
+
+
 
                                 int Index36 = SettingsList.FindIndex(a => a.Channel == "SAlarmmode");
                                 int Index37 = 0;
@@ -1683,6 +1690,21 @@ namespace IngameScript
                                             float Range = Turr.Range;
                                             Turr.Turret.SetValue("Range", Range);
                                         }
+
+                                        foreach (RocketTData Turr in MyMissleTurrets)
+                                        {
+                                            float Range = Turr.Range;
+                                            Turr.Turret.SetValue("Range", Range);
+                                        }
+
+                                        foreach (IntTurretData Turr in MyIntTurrets)
+                                        {
+                                            float Range = Turr.Range;
+                                            Turr.Turret.SetValue("Range", Range);
+                                        }
+
+
+
                                     }
                                 }
 
@@ -1699,6 +1721,18 @@ namespace IngameScript
                                     if (SettingsList[Index66].Sets[Index67].SettingStatus != "OFF")
                                     {
                                         foreach (GATData Turr in MyGatlingTurrets)
+                                        {
+                                            bool AI = Turr.AI;
+                                            Turr.Turret.ApplyAction("EnableIdleMovement_Off");
+                                        }
+
+                                        foreach (RocketTData Turr in MyMissleTurrets)
+                                        {
+                                            bool AI = Turr.AI;
+                                            Turr.Turret.ApplyAction("EnableIdleMovement_Off");
+                                        }
+
+                                        foreach (IntTurretData Turr in MyIntTurrets)
                                         {
                                             bool AI = Turr.AI;
                                             Turr.Turret.ApplyAction("EnableIdleMovement_Off");
@@ -1768,14 +1802,36 @@ namespace IngameScript
 
 
             }//Tick 5 END
+            if (Tick == 5)//TICK &
+            {
+                if(Tick2 == 10)
+                {
+                    Tick2 = 0;
+                    FindAllBlocks();
 
-            //Door Manager
+                }
+                else
+                {
 
-            //Setting = "CloseTicks"
-            // Setting = "CloseDoors",
-            //Setting = "CloseGates"
+                    Tick2++;
+                }
 
-            int Index82 = SettingsList.FindIndex(a => a.Channel == "SAutoDoorCloser");
+
+
+
+
+
+
+
+            }//Tick 6 ENDE
+
+                //Door Manager
+
+                //Setting = "CloseTicks"
+                // Setting = "CloseDoors",
+                //Setting = "CloseGates"
+
+                int Index82 = SettingsList.FindIndex(a => a.Channel == "SAutoDoorCloser");
             int Index83 = 0;
 
             if (Index82 != -1)
@@ -1916,6 +1972,17 @@ namespace IngameScript
                     }
                     
 
+                }
+                else if(Type == "ScSetting")
+                {
+                    if (SiteValue.Count > 0)
+                    {
+                        MenuCount = SiteValue[Page].Max;
+                    }
+                    else
+                    {
+                        MenuCount = 0;
+                    }
                 }
 
                 if (Direct == "UP")
@@ -2131,8 +2198,42 @@ namespace IngameScript
                             ShowMenu();
                         return;
                         }
+                    }else if(Type == "ScSetting")
+                    {
+                        if (LCDStep == 0)
+                        {
+                            SelectedLCD = MyPos;
+                            Site = "ScreenInfoM";
+                            LCDStep++;
+                            ShowMenu();
+                            return;
+                        }
+                        if(LCDStep == 1)
+                        {
+
+                            LCDStep = 0;
+                            int Selected = MyPos;
+                            if (Selected != 0)
+                            {
+                                int Index23 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+                                InformationLCD.Add(new ILCD { LCD = MyLCD[SelectedLCD].LCD, Name = MyLCD[SelectedLCD].Name, Info = Channellist[Index23].Subs[Selected].SubValue });
+                                ChangePos("Back");
+
+
+                                return;
+                            }
+                            else
+                            {
+                                int Index23 = InformationLCD.FindIndex(a => a.LCD == MyLCD[SelectedLCD].LCD);
+                                if(Index23 != -1)
+                                {
+                                    InformationLCD.RemoveAt(Index23);
+                                }
+                                return;
+                            }
+                        }
+
                     }
-                    
 
                 }
 
@@ -2498,8 +2599,10 @@ namespace IngameScript
                         int TSite = 0;
                         foreach(Sub MSub in Channellist[Index].Subs)
                         {
-
-                            Out = MSub.SubValue;
+                            if(MSub.Hidden == false)
+                            {
+                                Out = MSub.SubValue;
+                            }
                             SiteValue[TSite].RowValue.Add(new Rows { Row = Out });
                             T3++;
                             T1++;
@@ -2690,7 +2793,194 @@ namespace IngameScript
                         DirectShow(Out);
                         }
                 }
-                return;
+                else if (Type == "ScSetting")
+                {
+                    if (Site == "ScreenSetting")
+                    {
+                        SiteValue.Clear();
+                        Out = "";
+                        int SettingCount = MyLCD.Count;
+                        int U11 = 0;
+                        int U22 = MaxRowPerSite;
+
+                        do
+                        {
+                            if (U11 == U22)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                U22 = (U22 + MaxRowPerSite);
+                            }
+
+                            if (U22 >= SettingCount)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                break;
+
+                            }
+
+                            U11++;
+
+                        } while (U11 < SettingCount + +1);
+
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+                        int M1 = 0;
+
+                        do
+                        {
+                            Out = MyLCD[I2].Name;
+                            SiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+                            I++;
+                            I2++;
+                            M1++;
+
+
+                            if (I == MaxRowPerSite)
+                            {
+                                SiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                            }
+                            if (I2 >= SettingCount)
+                            {
+                                if (ISite > 0)
+                                {
+                                    ISite--;
+                                }
+
+                                SiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                                break;
+
+                            }
+
+
+                        } while (I2 < SettingCount + 1);
+                        MaxPages = ISite;
+                        string MenuName = Channellist[Index].MainChannel;
+                        string Uff = Site + ":" + Environment.NewLine + "Please Select a Screen: " + Environment.NewLine;
+                        int U1 = 0;
+                        foreach (Rows Var in SiteValue[Page].RowValue)
+                        {
+                            if (U1 == MyPos)
+                            {
+                                Uff = Uff + Var.Row + "<----" + Environment.NewLine;
+                            }
+                            else
+                            {
+                                Uff = Uff + Var.Row + Environment.NewLine;
+                            }
+
+                            U1++;
+                        }
+                        DirectShow(Uff);
+
+
+
+                        return;
+                    }else if(Site == "ScreenInfoM")
+                    {
+                        string Out2 = "";
+                        int Index22 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+
+                        SiteValue.Clear();
+                        Out2 = "";
+                        int SettingCount = Channellist[Index22].Subs.Count;
+                        int U11 = 0;
+                        int U22 = MaxRowPerSite;
+
+                        do
+                        {
+                            if (U11 == U22)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                U22 = (U22 + MaxRowPerSite);
+                            }
+
+                            if (U22 >= SettingCount)
+                            {
+                                SiteValue.Add(new MValue { Max = U11 });
+
+                                break;
+
+                            }
+
+                            U11++;
+
+                        } while (U11 < SettingCount + +1);
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+                        int M1 = 0;
+                        SiteValue[ISite].RowValue.Add(new Rows { Row = "NONE" });
+                        do
+                        {
+                            Out2 = Channellist[Index22].Subs[I2].SubValue;
+                            SiteValue[ISite].RowValue.Add(new Rows { Row = Out2 });
+                            I++;
+                            I2++;
+                            M1++;
+
+
+                            if (I == MaxRowPerSite)
+                            {
+                                SiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out2 = "";
+                            }
+                            if (I2 >= SettingCount)
+                            {
+                                if (ISite > 0)
+                                {
+                                    ISite--;
+                                }
+
+                                SiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out2 = "";
+                                break;
+
+                            }
+
+
+                        } while (I2 < SettingCount + 1);
+                        MaxPages = ISite;
+                        string MenuName = Channellist[Index].MainChannel;
+                        string Uff = Site + ":" + Environment.NewLine + "Please Info You Want to Show: " + Environment.NewLine;
+                        int U1 = 0;
+                        foreach (Rows Var in SiteValue[Page].RowValue)
+                        {
+                            if (U1 == MyPos)
+                            {
+                                Uff = Uff + Var.Row + "<----" + Environment.NewLine;
+                            }
+                            else
+                            {
+                                Uff = Uff + Var.Row + Environment.NewLine;
+                            }
+
+                            U1++;
+                        }
+                        DirectShow(Uff);
+
+
+
+                        return;
+
+
+
+                    }
+                }
+                    return;
             }
             else
             {
@@ -2738,7 +3028,10 @@ namespace IngameScript
                         {
                             MenuCount = 0;
                         }
-                }
+                }else if(Type == "ScSetting")
+                    {
+                        MenuCount = SiteValue[Page].Max;
+                    }
 
                     if(MaxPages >0)
                     {
@@ -2789,8 +3082,39 @@ namespace IngameScript
             return;
         }
 
-       
-       
+        public void SaveMenus()
+        {
+            string Out = "";
+            MenuCount = 0;
+
+
+
+            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
+
+
+
+            if (Site == "Info")
+            {
+                int MaxI = ReturnMaxMessages(0);
+
+                if (MaxI > 0)
+                {
+                    string IMessage = ReturnMessage(0, MyPos);
+                    int MyPosmath = MyPos + 1;
+
+                    Out = "Infos: " + Environment.NewLine + IMessage + Environment.NewLine + Environment.NewLine + "Site:[" + MyPosmath + "/" + MaxI + "]" + Environment.NewLine;
+
+
+                }
+                else
+                {
+                    Out = "No Info" + Environment.NewLine + Environment.NewLine;
+                }
+
+                return;
+            }
+        }
+
 
         public void RegisterMessage(int MType, int Prio, int ID, string Message, string Source)
         {
@@ -2893,6 +3217,10 @@ namespace IngameScript
         }
         //Script by ywer
 
+
+        #endregion
+
+        #region Messages
 
         public int DeleteMessage(int MType, int ID)
         {
@@ -3039,6 +3367,166 @@ namespace IngameScript
            // string Out = "";
             return Out;
         }
+
+
+        public void FindAllBlocks()
+        {
+            //1 Error
+            //0 OK
+
+
+            List<IMyTerminalBlock> allBlocks2 = new List<IMyTerminalBlock>();
+            GridTerminalSystem.GetBlocks(allBlocks2);
+            AllMyReactors.Clear();
+            MyMissleTurrets.Clear();
+            MyGatlingTurrets.Clear();
+            MyIntTurrets.Clear();
+            MyFuelTanks.Clear();
+            MyBatteries.Clear();
+            MySolar.Clear();
+            MyPowerProd.Clear();
+            MyCargoContainers.Clear();
+            MyConnectors.Clear();
+            MyLights.Clear();
+            MyDoors.Clear();
+            MyGates.Clear();
+            MyLCD.Clear();
+
+
+            //Bei Ändern .clear ADDEN!!!!!!!!!!!!!
+
+
+            foreach (IMyTerminalBlock Block in allBlocks2)
+            {
+
+                if (Block is IMyTextPanel)
+                {
+                    IMyTextPanel LCD = (IMyTextPanel)Block;
+
+                    if (Block.CustomName.Contains(MenuLCD))
+                    {
+
+
+                        MLCD = Block as IMyTextPanel;
+
+                    }
+
+                    MyLCD.Add(new LCDSetting { Aktive = LCD.Enabled, LCD = LCD, Name = LCD.CustomName });
+                }
+
+                if (Block is IMyReactor)
+                {
+                    AllMyReactors.Add((IMyReactor)Block);
+                }
+
+                if (Block is IMyLargeMissileTurret)
+                {
+                    IMyLargeMissileTurret Turr2 = (IMyLargeMissileTurret)Block;
+                    MyMissleTurrets.Add(new RocketTData { Turret = Turr2, AI = Turr2.AIEnabled, Range = Turr2.Range, Aktive = Turr2.Enabled });
+                }
+
+                if (Block is IMyLargeGatlingTurret)
+                {
+
+                    IMyLargeGatlingTurret Turr = (IMyLargeGatlingTurret)Block;
+                    MyGatlingTurrets.Add(new GATData { Turret = Turr, AI = Turr.AIEnabled, Range = Turr.Range, Aktive = Turr.Enabled });
+                }
+
+                if (Block is IMyLargeInteriorTurret)
+                {
+                    IMyLargeInteriorTurret turr2 = (IMyLargeInteriorTurret)Block;
+                    MyIntTurrets.Add(new IntTurretData { AI = turr2.AIEnabled, Aktive = turr2.Enabled, Range = turr2.Range, Turret = turr2 });
+                }
+
+
+                if (Block is IMyGasTank)
+                {
+                    MyFuelTanks.Add((IMyGasTank)Block);
+
+
+                }
+                if (Block is IMyBatteryBlock)
+                {
+                    MyBatteries.Add((IMyBatteryBlock)Block);
+                }
+                if (Block is IMySolarPanel)
+                {
+                    MySolar.Add((IMySolarPanel)Block);
+                }
+                if (Block is IMyPowerProducer)
+                {
+                    MyPowerProd.Add((IMyPowerProducer)Block);
+                }
+
+                if (Block is IMyCargoContainer)
+                {
+                    MyCargoContainers.Add((IMyCargoContainer)Block);
+                }
+
+                if (Block is IMyShipConnector)
+                {
+                    MyConnectors.Add((IMyShipConnector)Block);
+                }
+
+                if (Block is IMyLightingBlock)
+                {
+                    IMyLightingBlock BlockL = (IMyLightingBlock)Block;
+                    MyLights.Add(new LightSetting { Light = BlockL, Name = BlockL.Name, OldColor = BlockL.Color });
+
+                }
+
+                if (Block is IMyDoor)
+                {
+                    IMyDoor Door = (IMyDoor)Block;
+                    MyDoors.Add(new DoorSettings { Aktive = Door.Enabled, Doorstatus = Door.Status, Door = Door });
+                }
+
+                if (Block is IMyAirtightHangarDoor)
+                {
+                    IMyAirtightHangarDoor Gate = (IMyAirtightHangarDoor)Block;
+                    MyGates.Add(new GateSettings { Aktive = Gate.Enabled, Gatestatus = Gate.Status, Gate = Gate });
+
+
+                }
+
+
+
+            }
+
+            allBlocks2.Clear();
+
+
+
+
+
+            return;
+        }
+
+
+        public void ShowOnOtherScreens()
+        {
+
+            if (InformationLCD.Count > 0)
+            {
+                foreach (ILCD LCD in InformationLCD)
+                {
+                    string ISite = LCD.Info;
+                    int InSite = LCD.Site;
+                    IMyTextPanel ILCD = LCD.LCD;
+                    int Index85 = Channellist.FindIndex(a => a.MainChannel == ISite);
+                    //fuck
+
+
+                }
+
+
+            }
+
+
+
+            return;
+        }
+
 
 
         #endregion
