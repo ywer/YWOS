@@ -22,3 +22,11 @@ Connectoren prüfen ob sie vom lokalen grid sind
 --For Ticks till Close
 --For Autoclose Doors
 --For Autoclose Gates
+
+
+0.232
+-Added Automatic sear for Blockchanges every now and then
+-Addes Interior Turrets to Alarm Mode
+-Fixxed Range of Missle Turrets not changed (Alarm Mode)
+-Fixxed AI of Missle Turrets not Aktivated (Alarm mode)
+
