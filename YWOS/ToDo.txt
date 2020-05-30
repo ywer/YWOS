@@ -1,6 +1,8 @@
 ﻿todo list:
 
+MENU Inhalt Löschen bevor es wieder geadded wird!!(info/Warning menu)
 
+leer menus entfernen
 
 Daten für Systemstatus sammeln und anzeigen
 
@@ -17,6 +19,7 @@ Statusseiten Anlegen:
 
 Script für Cockpits funktionierend machen(mit bedienung in Cockpit)
 
+Sammel von Seiten/NAchrichten neu machen
 
 
 Schiff ausschalt modus,das nornoch  1 generator läuft oder so
