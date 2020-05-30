@@ -3668,14 +3668,10 @@ namespace IngameScript
             // string Out = "";
             return Out;
         }
-
-
         public void FindAllBlocks()
         {
             //1 Error
             //0 OK
-
-
             List<IMyTerminalBlock> allBlocks2 = new List<IMyTerminalBlock>();
             GridTerminalSystem.GetBlocks(allBlocks2);
             AllMyReactors.Clear();
@@ -3692,11 +3688,7 @@ namespace IngameScript
             MyDoors.Clear();
             MyGates.Clear();
             MyLCD.Clear();
-
-
             //Bei Ändern .clear ADDEN!!!!!!!!!!!!!
-
-
             foreach (IMyTerminalBlock Block in allBlocks2)
             {
 
@@ -3706,12 +3698,8 @@ namespace IngameScript
 
                     if (Block.CustomName.Contains(MenuLCD))
                     {
-
-
                         MLCD = Block as IMyTextPanel;
-
                     }
-
                     MyLCD.Add(new LCDSetting { Aktive = LCD.Enabled, LCD = LCD, Name = LCD.CustomName });
                 }
 
@@ -3789,21 +3777,10 @@ namespace IngameScript
 
 
                 }
-
-
-
             }
-
             allBlocks2.Clear();
-
-
-
-
-
             return;
         }
-
-
         public void ShowOnOtherScreens()
         {
 
@@ -3819,18 +3796,9 @@ namespace IngameScript
 
 
                 }
-
-
             }
-
-
-
             return;
         }
-
-
-
         #endregion
-
     }
 }

@@ -1,26 +1,4 @@
 ﻿R e a d m e
 -----------
 YWOS is just a simple script to manage things in Space Engineers(for Ships/Space Station) in Programmable Block
-
-
-How to Use:
-1. Screen: Name a Screen "MenuLCD"
-2. Place a ButtonPanel in front of the Screen Whit follow Buttons:
-Link the Button to the Programming Block on Run whit follow Argmunents:
--UP: Argument: UP
--Down: Argument: Down
--Enter: Argument: Enter
--Back: Argument: Back
-
-!!NO TIMER BLOCK NEEDED!!
-
-Feature List: https://steamcommunity.com/sharedfiles/filedetails/?id=2094290375
-
-Update Log: https://github.com/ywer/YWOS/blob/master/UpdateLog
-Script by ywer
-its my first c# project, so it can have bugs!
-
-
-
-
-
+ https://steamcommunity.com/sharedfiles/filedetails/?id=2094290375

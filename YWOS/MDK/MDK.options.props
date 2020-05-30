@@ -4,12 +4,12 @@
     <!-- 
     Contains basic settings that should be included in code repositories
     -->
-    <MDKVersion>1.2.22</MDKVersion>
+    <MDKVersion>1.2.31</MDKVersion>
     <MDKTrimTypes>
-      <Enabled>no</Enabled>
+      <Enabled>yes</Enabled>
     </MDKTrimTypes>
     <MDKMinify>
-      <Enabled>no</Enabled>
+      <Level>Full</Level>
     </MDKMinify>
     <MDKIgnore>
       <Folder>mdk</Folder>
