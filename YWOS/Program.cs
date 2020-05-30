@@ -1491,7 +1491,7 @@ namespace IngameScript
                             ChannelID++;
                         }
                     }
-                    SaveMenus();
+
                 }
                 else
                 {
@@ -1647,7 +1647,7 @@ namespace IngameScript
 
 
 
-                            if (I == 1)
+                            if (I == MaxRowPerSite)
                             {
                                 SiteValue[Index22].MSiteValue[ISite].Max = I;
                                 ISite++;
@@ -1747,8 +1747,150 @@ namespace IngameScript
                         }
 
                     }
+
+
+                    //connected Ships
+                    int U34 = 0;
+                    foreach (ConShips SP in ConnectedShips)
+                    {
+                        float BatMaxLoad2 = 0;
+                        string GridName = SP.SubName;
+                        GridTerminalSystem.GetBlocksOfType(ConnectedShips[U34].SubBatterys, b => b.CubeGrid.CustomName == GridName);
+                        foreach (IMyBatteryBlock Bat in ConnectedShips[U34].SubBatterys)
+                        {
+                            BatMaxLoad2 = BatMaxLoad2 + Bat.MaxStoredPower;
+
+                        }
+                        float one = (BatMaxLoad / 100);
+                        BatteryPercent = (BatCurrentLoad / one);
+                        BatteryPercentInt = Convert.ToInt32(BatteryPercent);
+                        ConnectedShips[U34].SubBatteryPercen = BatteryPercentInt;
+
+                        U34++;
+                    }
+
+
+                    //connetor Info Menu
+
+
+
+                    int Index25 = SiteValue.FindIndex(a => a.Site == "Connectors/Connected Ships");
+                    SiteValue.RemoveAt(Index25);
+
+                    int ChannelID1 = -1;
+
+                    int Index21 = Channellist.FindIndex(a => a.MainChannel == "Connectors/Connected Ships");
+
+                    if (Index21 != -1)
+                    {
+                        ChannelID1 = Channellist[Index21].ID;
+
+                    }
+
+                    if (ChannelID1 != -1)
+                    {
+
+
+                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Connectors/Connected Ships" });
+                        int Index22 = SiteValue.FindIndex(a => a.Site == "Connectors/Connected Ships");
+                        if (Index22 == -1)
+                        {
+                            return;
+                        }
+
+
+                       string  Out = "";
+                        int SettingCount = ConnectedShips.Count;
+                        int U11 = 0;
+                        int MaxPerRowConnector = 3; //ZEILEN EINSTELLUNG CONENCTOR SEITE!!!!!!!!!
+                        int U22 = MaxPerRowConnector;
+
+                        do
+                        {
+                            if (U11 == U22)
+                            {
+                                SiteValue[Index22].MSiteValue.Add(new MSite { Max = U11 });
+
+                                U22 = (U22 + MaxPerRowConnector);
+                            }
+
+                            if (U22 >= SettingCount)
+                            {
+                                SiteValue[Index22].MSiteValue.Add(new MSite { Max = U11 });
+
+                                break;
+
+                            }
+
+                            U11++;
+
+                        } while (U11 < SettingCount + +1);
+
+
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+
+
+                        do
+                        {
+                            if (ConnectedShips[I2].LocalConnector == 1)
+                            {
+                                if (ConnectedShips[I2].ConnectorStatus == MyShipConnectorStatus.Connected)
+                                {
+                                    if (ConnectedShips[I2].SubBatteryPercen > 0)
+                                    {
+                                        string Boo = ReturnIndicator(ConnectedShips[I2].SubBatteryPercen);
+                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine + "Battery: " + Boo + " " + ConnectedShips[I2].SubBatteryPercen + "%" + Environment.NewLine;
+                                    }
+                                    else
+                                    {
+                                        Out = ConnectedShips[I2].ConnectorName + ": " + Environment.NewLine + ConnectedShips[I2].SubName + Environment.NewLine;
+                                    }
+
+                                }
+                                else
+                                {
+                                    Out = ConnectedShips[I2].ConnectorName + " = " + ConnectedShips[I2].ConnectorStatus + Environment.NewLine;
+                                }
+                                SiteValue[Index22].MSiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+                                I++;
+                                I2++;
+                            }
+                            else
+                            {
+                                I2++;
+                            }
+
+                            if (I == MaxPerRowConnector)
+                            {
+
+                                SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                            }
+                            if (I2 >= SettingCount)
+                            {
+                                if (ISite > 0)
+                                {
+                                    ISite--;
+                                }
+
+                                SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                ISite++;
+                                I = 0;
+                                Out = "";
+                                break;
+
+                            }
+
+
+                        } while (I2 < SettingCount + 1);
+                        SiteValue[Index22].MaxPages = ISite;
+                    }
                 }
-                ö
+                
 
 
 
@@ -1786,39 +1928,68 @@ namespace IngameScript
 
             if (Tick == 3) //TICK 4--------------
             {
-                //connected Ships
-                int U34 = 0;
-                foreach (ConShips SP in ConnectedShips)
+
+                #region Sys Page
+
+                    //System Page
+                    /*
+                else if (Site == "System")
                 {
-                    float BatMaxLoad2 = 0;
-                    string GridName = SP.SubName;
-                    GridTerminalSystem.GetBlocksOfType(ConnectedShips[U34].SubBatterys, b => b.CubeGrid.CustomName == GridName);
-                    foreach (IMyBatteryBlock Bat in ConnectedShips[U34].SubBatterys)
+                    Out = "";
+                    Out = "Systemstatus:" + Environment.NewLine 
+                    + Environment.NewLine 
+                    + "Version: " + Version + Environment.NewLine 
+                    + "Creator: >>Ywer<<" + Environment.NewLine 
+                    + Environment.NewLine;
+                    DirectShow(Out);
+
+
+
+
+                }
+                    */
+
+                string Out = "";
+                int SettingCount = 2;
+                int ChannelID1 = -1;
+
+                int Index25 = SiteValue.FindIndex(a => a.Site == "System");
+                SiteValue.RemoveAt(Index25);
+
+
+
+                int Index21 = Channellist.FindIndex(a => a.MainChannel == "System");
+
+                if (Index21 != -1)
+                {
+                    ChannelID1 = Channellist[Index21].ID;
+
+                }
+
+                if (ChannelID1 != -1)
+                {
+                    SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "System" });
+                    int Index22 = SiteValue.FindIndex(a => a.Site == "System");
+
+                    if (Index22 != -1)
                     {
-                        BatMaxLoad2 = BatMaxLoad2 + Bat.MaxStoredPower;
-
+                        SiteValue[Index22].MSiteValue.Add(new MSite { Max = SettingCount });
                     }
-                    float one = (BatMaxLoad / 100);
-                    BatteryPercent = (BatCurrentLoad / one);
-                    BatteryPercentInt = Convert.ToInt32(BatteryPercent);
-                    ConnectedShips[U34].SubBatteryPercen = BatteryPercentInt;
 
-                    U34++;
+
+                    Out = "Version: " + Version;
+                    SiteValue[Index22].MSiteValue[1].RowValue.Add(new Rows { Row = Out });
+
+                    Out = "Creator: >>Ywer<<";
+                    SiteValue[Index22].MSiteValue[1].RowValue.Add(new Rows { Row = Out });
+
+                    SiteValue[Index22].MaxPages = 1;
                 }
 
 
+                //System Page end
 
-
-                ö
-
-
-                //GridTerminalSystem.GetBlocks(allBlocks);
-
-
-
-                //Conencted ships ende
-
-
+                #endregion
 
 
 
@@ -2066,11 +2237,6 @@ namespace IngameScript
                     }
 
 
-
-
-
-
-
                     //Setting = "TurretsMaxRange"-
                     //Setting = "AktivateTurrets", -
                     //Setting = "AktivateAI"
@@ -2280,7 +2446,7 @@ namespace IngameScript
                     Tick2++;
                 }
 
-
+                SaveMenus();
 
 
 
@@ -2400,8 +2566,28 @@ namespace IngameScript
             //Echo("Deep: " + deep);
             string Direct = Direction;
             int Index = Channellist.FindIndex(a => a.MainChannel == Site);
-            if (Index != -1)
+            int Index25 = SiteValue.FindIndex(a => a.Site == Site);
+            int MenuCount = 0;
+            if (Index != -1 && Index25 != -1)
             {
+                string Type = Channellist[Index].Type;
+
+                if (Type == "Reset")
+                {
+
+
+                    MenuCount = 0;
+                    MaxPages = 0;
+
+                }
+                else
+                {
+                    MenuCount = SiteValue[Index25].MSiteValue[Page].Max;
+                    MaxPages = SiteValue[Index25].MaxPages;
+                }
+
+
+                /*
                 int MenuCount = 0;
                 string Type = Channellist[Index].Type;
                 if (Site == "Warning")
@@ -2448,7 +2634,7 @@ namespace IngameScript
                         MenuCount = 0;
                     }
                 }
-
+                */
                 if (Direct == "UP")
                 {
                     MyPos--;
@@ -2515,7 +2701,7 @@ namespace IngameScript
 
                         deep--;
                     }
-                    SiteValue.Clear();
+                    
 
                     Site = Steps[deep];
                     MyPos = 0;
@@ -2537,7 +2723,8 @@ namespace IngameScript
 
 
                             deep++;
-                            string Temp = SiteValue[Page].RowValue[MyPos].Row;
+                            string Temp = SiteValue[Index25].MSiteValue[Page].RowValue[MyPos].Row;
+                            //string Temp = SiteValue[Page].RowValue[MyPos].Row;
                             //string Temp = Channellist[Index2].Subs[MyPos].SubValue;
 
 
@@ -2730,6 +2917,89 @@ namespace IngameScript
 
 
             int Index = Channellist.FindIndex(a => a.MainChannel == Site);
+
+
+            if(Index != -1)
+            {
+                string Type = Channellist[Index].Type;
+                if (Type == "Reset")
+                {
+                    Out = "";
+                    if (Site == "Reset All")
+                    {
+                        Out = "Enter to Delete all Infos/Warnings, Back to go back";
+                        ResetAll = 1;
+                        DirectShow(Out);
+
+                    }
+                    else if (Site == "Reset Warnings")
+                    {
+                        Out = "Enter to Delete all Warnings, Back to go back";
+                        ResetWarning = 1;
+                        DirectShow(Out);
+
+                    }
+                    else if (Site == "Reset Info")
+                    {
+                        ResetInfo = 1;
+                        Out = "Enter to Delete all Infos, Back to go back";
+                        DirectShow(Out);
+
+                    }
+                    else if (Site == "Aktivate Alarm")
+                    {
+                        if (AlarmMode == 0)
+                        {
+                            Out = "Enter to Aktivate, Back to go back";
+                            DirectShow(Out);
+                            AlarmD = 1;
+                        }
+                        else
+                        {
+                            Out = "Enter to DeAktivate, Back to go back";
+                            AlarmD = 1;
+                            DirectShow(Out);
+                        }
+                    }
+
+
+                  
+                    return;
+                }
+                else
+                {
+                    int Index99 = SiteValue.FindIndex(a => a.Site == Site);
+
+                    string Uff = Site + ":" + Environment.NewLine;
+                    int T4 = 0;
+                    foreach (Rows Var in SiteValue[Index99].MSiteValue[Page].RowValue)
+                    {
+                        if (T4 == MyPos)
+                        {
+                            string LoL = Var.Row + "<----";
+                            Uff = Uff + LoL + Environment.NewLine;
+                        }
+                        else
+                        {
+                            Uff = Uff + Var.Row + Environment.NewLine;
+                        }
+                        T4++;
+
+                    }
+                    DirectShow(Uff);
+
+
+
+
+                }
+
+
+
+
+
+            }
+
+            /*
 
             if (Index != -1)
             {
@@ -3459,6 +3729,8 @@ namespace IngameScript
                 ShowMenu();
                 return;
             }
+
+            */
         }
 
 
@@ -3466,44 +3738,27 @@ namespace IngameScript
         {
 
             int Index = Channellist.FindIndex(a => a.MainChannel == Site);
+            int Index99 = SiteValue.FindIndex(a => a.Site == Site);
             int Math = MyPos + 1;
 
-            if (Index != -1)
+            if (Index != -1 && Index99 != -1)
             {
                 string Type = Channellist[Index].Type;
 
-                if (Type != "Info")
+                if (Type == "Reset")
                 {
 
 
                     MenuCount = 0;
+                    MaxPages = 0;
 
+                }
+                else
+                {
+                    MenuCount = SiteValue[Index99].MSiteValue[Page].Max;
+                    MaxPages = SiteValue[Index99].MaxPages;
+                }
 
-                    if (Site == "Warning")
-                    {
-                        MenuCount = ReturnMaxMessages(1);
-                    }
-                    else if (Type == "Menu")
-                    {
-                        MenuCount = SiteValue[Page].Max;
-                    }
-                    else if (Type == "Setting")
-                    {
-                        int Index93 = SettingsList.FindIndex(a => a.Channel == Site);
-                        // MenuCount = SettingsList[Index93].Sets.Count;
-                        if (SiteValue.Count > 0)
-                        {
-                            MenuCount = SiteValue[Page].Max;
-                        }
-                        else
-                        {
-                            MenuCount = 0;
-                        }
-                    }
-                    else if (Type == "ScSetting")
-                    {
-                        MenuCount = SiteValue[Page].Max;
-                    }
 
                     if (MaxPages > 0)
                     {
@@ -3519,7 +3774,7 @@ namespace IngameScript
 
                     // Show = Show + Environment.NewLine + "Position[" + Math + "/" + MenuCount + "]" + Environment.NewLine;
                 }
-            }
+            
 
 
 
@@ -3557,7 +3812,6 @@ namespace IngameScript
         public void SaveMenus()
         {
             string Out = "";
-            uff
                 foreach (Channels Chan in Channellist)
                 {
                     string CType = Chan.Type;
@@ -3566,16 +3820,25 @@ namespace IngameScript
                     string CName = Chan.MainChannel;
 
 
-                    if (CType == "Info")
+                if (CType == "Info")
+                {
+                    if (IType == 0 || IType == 1)
                     {
-                        if (IType == 0 || IType == 1)
+                        int Index24 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index24 != -1)
                         {
-                            Out = "";
-                            int SettingCount = ReturnMaxMessages(IType);
-                            int U11 = 0;
-                            int U22 = 1;
-                            SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
-                            int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                            SiteValue.RemoveAt(Index24);
+                        }
+                        Out = "";
+                        int SettingCount = ReturnMaxMessages(IType);
+                        int U11 = 0;
+                        int U22 = 1;
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index22 != -1)
+                        {
+
+
 
                             do
                             {
@@ -3601,7 +3864,7 @@ namespace IngameScript
                             int I = 0;
                             int I2 = 0;
                             int ISite = 0;
-                            
+
 
                             do
                             {
@@ -3646,10 +3909,361 @@ namespace IngameScript
 
                             } while (I2 < SettingCount + 1);
                             SiteValue[Index22].MaxPages = ISite;
-
-                        }
                         }
                     }
+                }
+                else if (CType == "ScSetting")
+                {
+                    if (CName == "ScreenSetting")
+                    {
+                        int Index24 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index24 != -1)
+                        {
+                            SiteValue.RemoveAt(Index24);
+                        }
+
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index22 != -1)
+                        {
+                            Out = "";
+                            int SettingCount = MyLCD.Count;
+                            int U11 = 0;
+                            int U22 = MaxRowPerSite;
+
+                            do
+                            {
+                                if (U11 == U22)
+                                {
+                                    SiteValue[Index22].MSiteValue.Add(new MSite { Max = U11 });
+
+                                    U22 = (U22 + MaxRowPerSite);
+                                }
+
+                                if (U22 >= SettingCount)
+                                {
+                                    SiteValue[Index22].MSiteValue.Add(new MSite { Max = U11 });
+
+                                    break;
+
+                                }
+
+                                U11++;
+
+                            } while (U11 < SettingCount + +1);
+
+                            int I = 0;
+                            int I2 = 0;
+                            int ISite = 0;
+
+
+
+                            do
+                            {
+                                Out = MyLCD[I2].Name;
+                                SiteValue[Index22].MSiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+                                I++;
+                                I2++;
+
+
+
+                                if (I == MaxRowPerSite)
+                                {
+                                    SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                    ISite++;
+                                    I = 0;
+                                    Out = "";
+                                }
+                                if (I2 >= SettingCount)
+                                {
+                                    if (ISite > 0)
+                                    {
+                                        ISite--;
+                                    }
+
+                                    SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                    ISite++;
+                                    I = 0;
+                                    Out = "";
+                                    break;
+
+                                }
+
+
+                            } while (I2 < SettingCount + 1);
+                            SiteValue[Index22].MaxPages = ISite;
+
+                        }
+
+                    }
+                    else if (Site == "ScreenInfoM")
+                    {
+                        int Index24 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index24 != -1)
+                        {
+                            SiteValue.RemoveAt(Index24);
+                        }
+
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        int Index28 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index28 != -1)
+                        {
+
+
+                            string Out2 = "";
+                            int Index22 = Channellist.FindIndex(a => a.MainChannel == "SystemStatus");
+
+                            Out2 = "";
+                            int SettingCount = Channellist[Index22].Subs.Count;
+                            int U11 = 0;
+                            int U22 = MaxRowPerSite;
+
+                            do
+                            {
+                                if (U11 == U22)
+                                {
+                                    SiteValue[Index28].MSiteValue.Add(new MSite { Max = U11 });
+
+                                    U22 = (U22 + MaxRowPerSite);
+                                }
+
+                                if (U22 >= SettingCount)
+                                {
+                                    SiteValue[Index28].MSiteValue.Add(new MSite { Max = U11 });
+
+                                    break;
+
+                                }
+
+                                U11++;
+
+                            } while (U11 < SettingCount + +1);
+                            int I = 0;
+                            int I2 = 0;
+                            int ISite = 0;
+                            int M1 = 0;
+                            SiteValue[Index28].MSiteValue[ISite].RowValue.Add(new Rows { Row = "NONE" });
+                            do
+                            {
+                                Out2 = Channellist[Index22].Subs[I2].SubValue;
+                                SiteValue[Index28].MSiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+                                I++;
+                                I2++;
+                                M1++;
+
+
+                                if (I == MaxRowPerSite)
+                                {
+                                    SiteValue[Index28].MSiteValue[ISite].Max = I;
+                                    ISite++;
+                                    I = 0;
+                                    Out2 = "";
+                                }
+                                if (I2 >= SettingCount)
+                                {
+                                    if (ISite > 0)
+                                    {
+                                        ISite--;
+                                    }
+
+                                    SiteValue[Index28].MSiteValue[ISite].Max = I;
+                                    ISite++;
+                                    I = 0;
+                                    Out2 = "";
+                                    break;
+
+                                }
+
+
+                            } while (I2 < SettingCount + 1);
+                            SiteValue[Index28].MaxPages = ISite;
+
+                        }
+
+
+
+                    }
+                    else if (CType == "Menu")
+                    {
+                        int Index24 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index24 != -1)
+                        {
+                            SiteValue.RemoveAt(Index24);
+                        }
+
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                        if (Index22 != -1)
+                        {
+
+                            Out = "";
+                            int SettingCount = Chan.Subs.Count;
+
+                            int U1 = 0;
+                            int U2 = MaxRowPerSite;
+                            do
+                            {
+                                if (U1 == U2)
+                                {
+                                    SiteValue[Index22].MSiteValue.Add(new MSite { Max = U1 });
+
+                                    U2 = (U2 + MaxRowPerSite);
+                                }
+
+                                if (U2 >= SettingCount)
+                                {
+                                    SiteValue[Index22].MSiteValue.Add(new MSite { Max = U1 });
+
+                                    break;
+
+                                }
+
+                                U1++;
+
+                            } while (U1 < SettingCount + +1);
+
+                            string MenuName = Chan.MainChannel;
+
+
+                            if (Chan.Subs.Count > 0)
+                            {
+                                int T1 = 0;
+                                int T3 = 0;
+                                int TSite = 0;
+                                foreach (Sub MSub in Chan.Subs)
+                                {
+                                    if (MSub.Hidden == false)
+                                    {
+                                        Out = MSub.SubValue;
+                                    }
+                                    SiteValue[Index22].MSiteValue[TSite].RowValue.Add(new Rows { Row = Out });
+                                    T3++;
+                                    T1++;
+                                    if (T1 == MaxRowPerSite)
+                                    {
+                                        SiteValue[Index22].MSiteValue[TSite].Max = T1;
+                                        Out = "";
+                                        T1 = 0;
+                                        TSite++;
+                                    }
+                                    if (T3 >= SettingCount)
+                                    {
+                                        if (TSite > 0)
+                                        {
+                                            TSite--;
+                                        }
+
+                                        SiteValue[Index22].MSiteValue[TSite].Max = T1;
+                                        TSite++;
+                                        T1 = 0;
+                                        Out = "";
+                                        break;
+                                    }
+
+
+                                }
+                                SiteValue[Index22].MaxPages = TSite;
+
+                            }
+
+                        }
+
+
+                    }
+                }
+                else if (CType == "Setting")
+                {
+                    int Index24 = SiteValue.FindIndex(a => a.Site == CName);
+                    if (Index24 != -1)
+                    {
+                        SiteValue.RemoveAt(Index24);
+                    }
+
+                    SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                    int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                    if (Index22 != -1)
+                    {
+
+
+
+                        Out = "";
+                        int I = 0;
+                        int I2 = 0;
+                        int ISite = 0;
+                        int Index92 = SettingsList.FindIndex(a => a.Channel == Site);
+                        if (Index92 != -1)
+                        {
+                            if (SettingsList[Index92].Sets.Count > 0)
+                            {
+
+                                int SettingCount = SettingsList[Index92].Sets.Count;
+                                int U1 = 0;
+                                int U2 = MaxRowPerSite;
+
+                                do
+                                {
+                                    if (U1 == U2)
+                                    {
+                                        SiteValue[Index22].MSiteValue.Add(new MSite { Max = U1 });
+
+                                        U2 = (U2 + MaxRowPerSite);
+                                    }
+
+                                    if (U2 >= SettingCount)
+                                    {
+                                        SiteValue[Index22].MSiteValue.Add(new MSite { Max = U1 });
+
+                                        break;
+
+                                    }
+
+                                    U1++;
+
+                                } while (U1 < SettingCount + 1);
+
+                                do
+                                {
+
+                                    Out = SettingsList[Index92].Sets[I2].Description + " = " + SettingsList[Index92].Sets[I2].SettingStatus;
+                                    SiteValue[Index22].MSiteValue[ISite].RowValue.Add(new Rows { Row = Out });
+
+                                    I++;
+                                    I2++;
+                                    if (I == MaxRowPerSite)
+                                    {
+                                        SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+                                    }
+                                    if (I2 >= SettingCount)
+                                    {
+                                        if (ISite > 0)
+                                        {
+                                            ISite--;
+                                        }
+
+                                        SiteValue[Index22].MSiteValue[ISite].Max = I;
+                                        ISite++;
+                                        I = 0;
+                                        Out = "";
+                                        break;
+                                    }
+
+
+                                } while (I2 <= SettingCount + 1);
+                                SiteValue[Index22].MaxPages = ISite;
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+
+            }
 
 
             return;
