@@ -2982,7 +2982,9 @@ namespace IngameScript
                     int IType = Chan.InfoType;
                     int CID = Chan.ID;
                     string CName = Chan.MainChannel;
-
+                Echo("Ctype: " + CType);
+                Echo("CNAME: " + CName);
+                Echo("CINFOTYPE: " + IType);
 
                 if (CType == "Info")
                 {
@@ -3163,7 +3165,7 @@ namespace IngameScript
                         }
 
                     }
-                    else if (Site == "ScreenInfoM")
+                    else if (CName == "ScreenInfoM")
                     {
                         Echo("DEBUG SAVEMENU Screeninfo");
                         int Index24 = SiteValue.FindIndex(a => a.Site == CName);
@@ -3248,7 +3250,7 @@ namespace IngameScript
 
                         }
 
-
+                    }
 
                     }
                     else if (CType == "Menu")
@@ -3339,7 +3341,7 @@ namespace IngameScript
                         }
 
 
-                    }
+                    
                 }
                 else if (CType == "Setting")
                 {

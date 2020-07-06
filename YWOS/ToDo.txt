@@ -129,6 +129,14 @@ Connectoren prüfen ob sie vom lokalen grid sind
 -Fixxed Range of Missle Turrets not changed (Alarm Mode)
 -Fixxed AI of Missle Turrets not Aktivated (Alarm mode)
 
+0.233
+-Changed Menu for show info on other screens
+-
+
+0.233 todo:
+-Sytem menu punkt ist doppelt
+-Alarm mode Menupunkt fehlt zeilenumbrüche, ausserdem funktionieren tasten back und enter nicht
+- Reset menupunkte gehen tasten ebenfalls nicht
 
 
 
