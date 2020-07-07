@@ -134,9 +134,11 @@ Connectoren prüfen ob sie vom lokalen grid sind
 -
 
 0.233 todo:
--Sytem menu punkt ist doppelt
--Alarm mode Menupunkt fehlt zeilenumbrüche, ausserdem funktionieren tasten back und enter nicht
+- System menu punkt ist doppelt
+- Alarm mode Menupunkt fehlt zeilenumbrüche, ausserdem funktionieren tasten back und enter nicht
 - Reset menupunkte gehen tasten ebenfalls nicht
+- Pfeil für nicht auswahlseiten entfernen in showmenu();
+- info seiten in Save Menu hinzufügen(Sind bis jetzt nur info und warning seite) INFO TYP 3
 
 
 

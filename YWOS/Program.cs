@@ -57,11 +57,11 @@ namespace IngameScript
             ChannelID++;
 
             //systemstatus
-            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", ID = ChannelID, Subs = new List<Sub>() { new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "System" }, new Sub() { SubValue = "ScreenInfoM", Hidden = true } } });
+            Channellist.Add(new Channels { MainChannel = "SystemStatus", Type = "Menu", ID = ChannelID, Subs = new List<Sub>() {/* new Sub() { SubValue = "Energy", }, new Sub() { SubValue = "System" },*/ new Sub() { SubValue = "ScreenInfoM", Hidden = true } } });
             ChannelID++;
-            Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info", ID = ChannelID, InfoType = 3 });
-            ChannelID++;
-            Channellist.Add(new Channels { MainChannel = "System", Type = "Info", ID = ChannelID, InfoType = 3 });
+           // Channellist.Add(new Channels { MainChannel = "Energy", Type = "Info", ID = ChannelID, InfoType = 3 });
+            //ChannelID++;
+            //Channellist.Add(new Channels { MainChannel = "System", Type = "Info", ID = ChannelID, InfoType = 3 });
             ChannelID++;
             Channellist.Add(new Channels { MainChannel = "ScreenInfoM", Type = "ScSetting", ID = ChannelID });
             ChannelID++;
@@ -332,7 +332,7 @@ namespace IngameScript
 
             public int MaxPages { get; set; }
 
-            public string Value { get; set; }
+            public string Type { get; set; }
 
             public List<MSite> MSiteValue { get; set; } = new List<MSite>();
 
@@ -662,7 +662,7 @@ namespace IngameScript
         {
 
 
-            Echo("DEBUG TICK: " + Tick);
+            //Echo("DEBUG TICK: " + Tick);
 
             if (Tick == 0)
             {
@@ -825,7 +825,7 @@ namespace IngameScript
                 //Energy INFO
                 string Out = "";
                 int SettingCount = 8;
-                int ChannelID1 = -1;
+
 
                 int Index25 = SiteValue.FindIndex(a => a.Site == "Energy");
 
@@ -836,19 +836,12 @@ namespace IngameScript
 
                 }
 
-                int Index21 = Channellist.FindIndex(a => a.MainChannel == "Energy");
+                
 
-                if (Index21 != -1)
-                {
 
-                    ChannelID1 = Channellist[Index21].ID;
-
-                }
-
-                if (ChannelID1 != -1)
-                {
-                    SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Energy" });
-                    int Index22 = SiteValue.FindIndex(a => a.Site == "Energy");
+                    SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "Energy" });
+                    ChannelID++;
+                int Index22 = SiteValue.FindIndex(a => a.Site == "Energy");
 
                     if (Index22 != -1)
                     {
@@ -889,7 +882,7 @@ namespace IngameScript
 
                         SiteValue[Index22].MaxPages = 1;
                     }
-                }
+                
                 //Energy End
 
                 //Weapons
@@ -1032,7 +1025,7 @@ namespace IngameScript
 
                     Out = "";
                     SettingCount = 13;
-                    ChannelID1 = -1;
+
 
                     Index25 = SiteValue.FindIndex(a => a.Site == "Weapons");
                     if(Index25 != -1)
@@ -1040,21 +1033,11 @@ namespace IngameScript
                         SiteValue.RemoveAt(Index25);
                     }
 
+                    
 
-                     
-
-                    Index21 = Channellist.FindIndex(a => a.MainChannel == "Weapons");
-
-                    if (Index21 != -1)
-                    {
-                        ChannelID1 = Channellist[Index21].ID;
-
-                    }
-
-                    if (ChannelID1 != -1)
-                    {
-                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Weapons" });
-                        int Index22 = SiteValue.FindIndex(a => a.Site == "Weapons");
+                        SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "Weapons" });
+                    ChannelID++;
+                    int Index222 = SiteValue.FindIndex(a => a.Site == "Weapons");
 
                         if (Index22 != -1)
                         {
@@ -1063,47 +1046,47 @@ namespace IngameScript
 
 
                             Out = "Energy Monitor:";
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Int. Turrets: ";
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Aktive/Max: " + IntTurretsActive + "/" + MyIntTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Ai Enabled: " + IntAIEnabled + "/" + MyIntTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Shooting: " + IntIsShooting + "/" + MyIntTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Gatling Guns: ";
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Aktive/Max: " + GatTurretsActive + "/" + MyGatlingTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Ai Enabled: " + GatAIEnabled + "/" + MyGatlingTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Shooting: " + GatIsShooting + "/" + MyGatlingTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Missle Turrets: ";
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Aktive/Max: " + MissTurretsActive + "/" + MyMissleTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Ai Enabled: " + MissAIEnabled + "/" + MyMissleTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
                             Out = "Shooting: " + MissIsShooting + "/" + MyMissleTurrets.Count;
-                            SiteValue[Index22].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
+                            SiteValue[Index222].MSiteValue[0].RowValue.Add(new Rows { Row = Out });
 
-                            SiteValue[Index22].MaxPages = 1;
+                            SiteValue[Index222].MaxPages = 1;
                         }
-                    }
+                    
 
                     
 
@@ -1134,7 +1117,7 @@ namespace IngameScript
                 test = null;
                 //fuel
                 //SystemStatus\Fuel
-                Echo("DEBUG Fuel 1");
+
                 if (MyFuelTanks.Count > 0)
                 {
                     if (FuelInfoMenu == 0)
@@ -1145,6 +1128,7 @@ namespace IngameScript
                         {
                             FuelInfoMenu = 1;
                             Channellist[Index22].Subs.Add(new Sub() { SubValue = "Fuel" });
+                            
                             Channellist.Add(new Channels { MainChannel = "Fuel", Type = "Info", ID = ChannelID, InfoType = 3 });
                             ChannelID++;
                         }
@@ -1175,7 +1159,7 @@ namespace IngameScript
 
 
                 }
-                Echo("DEBUG Fuel 2");
+
 
                 if (FuelInfoMenu == 1)
                 {
@@ -1200,7 +1184,7 @@ namespace IngameScript
 
                     string Out = "";
                     int  SettingCount = 5;
-                    int ChannelID1 = -1;
+
 
                    int Index25 = SiteValue.FindIndex(a => a.Site == "Fuel");
                     if (Index25 != -1)
@@ -1208,20 +1192,12 @@ namespace IngameScript
 
                         SiteValue.RemoveAt(Index25);
                     }
+                    
 
 
-                   int Index21 = Channellist.FindIndex(a => a.MainChannel == "Fuel");
-
-                    if (Index21 != -1)
-                    {
-                        ChannelID1 = Channellist[Index21].ID;
-
-                    }
-
-                    if (ChannelID1 != -1)
-                    {
-                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Fuel" });
-                        int Index22 = SiteValue.FindIndex(a => a.Site == "Fuel");
+                        SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "Fuel" });
+                    ChannelID++;
+                    int Index22 = SiteValue.FindIndex(a => a.Site == "Fuel");
 
                         if (Index22 != -1)
                         {
@@ -1246,7 +1222,7 @@ namespace IngameScript
 
                             SiteValue[Index22].MaxPages = 1;
                         }
-                    }
+                    
 
 
 
@@ -1258,7 +1234,7 @@ namespace IngameScript
 
 
 
-                Echo("DEBUG Cargo 1");
+
 
                 if (MyCargoContainers.Count > 0)
                 {
@@ -1325,29 +1301,20 @@ namespace IngameScript
                     string ind = ReturnIndicator(CargoPercent);
                     string Out = "";
                    int SettingCount = 3;
-                   int ChannelID1 = -1;
+
 
                    int Index25 = SiteValue.FindIndex(a => a.Site == "Weapons");
                     if(Index25 != -1)
                     {
                         SiteValue.RemoveAt(Index25);
                     }
-                    
 
 
+                   
 
-                   int Index21 = Channellist.FindIndex(a => a.MainChannel == "Weapons");
-
-                    if (Index21 != -1)
-                    {
-                        ChannelID1 = Channellist[Index21].ID;
-
-                    }
-
-                    if (ChannelID1 != -1)
-                    {
-                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Weapons" });
-                        int Index22 = SiteValue.FindIndex(a => a.Site == "Weapons");
+                        SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "Weapons" });
+                    ChannelID++;
+                    int Index22 = SiteValue.FindIndex(a => a.Site == "Weapons");
 
                         if (Index22 != -1)
                         {
@@ -1367,7 +1334,7 @@ namespace IngameScript
 
                             SiteValue[Index22].MaxPages = 1;
                         }
-                    }
+                    
 
 
 
@@ -1536,22 +1503,12 @@ namespace IngameScript
                         SiteValue.RemoveAt(Index25);
                     }
 
-                    int ChannelID1 = -1;
 
-                    int Index21 = Channellist.FindIndex(a => a.MainChannel == "BatteryStatus");
+                    
 
-                    if (Index21 != -1)
-                    {
-                        ChannelID1 = Channellist[Index21].ID;
-
-                    }
-
-                    if (ChannelID1 != -1)
-                    {
-
-
-                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "BatteryStatus"});
-                        int Index22 = SiteValue.FindIndex(a => a.Site == "BatteryStatus");
+                        SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "BatteryStatus"});
+                    ChannelID++;
+                    int Index22 = SiteValue.FindIndex(a => a.Site == "BatteryStatus");
                         if(Index22 == -1)
                         {
                             return;
@@ -1623,7 +1580,7 @@ namespace IngameScript
 
                         } while (I2 <= SettingCount);
                         SiteValue[Index22].MaxPages = ISite;
-                   }
+                   
                 }
                 //Battery site end
 
@@ -1730,22 +1687,13 @@ namespace IngameScript
                     {
                         SiteValue.RemoveAt(Index25);
                     }
-                    int ChannelID1 = -1;
 
-                    int Index21 = Channellist.FindIndex(a => a.MainChannel == "Connectors/Connected Ships");
-
-                    if (Index21 != -1)
-                    {
-                        ChannelID1 = Channellist[Index21].ID;
-
-                    }
-
-                    if (ChannelID1 != -1)
-                    {
+                    
 
 
-                        SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "Connectors/Connected Ships" });
-                        int Index22 = SiteValue.FindIndex(a => a.Site == "Connectors/Connected Ships");
+                        SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "Connectors/Connected Ships" });
+                    ChannelID++;
+                    int Index22 = SiteValue.FindIndex(a => a.Site == "Connectors/Connected Ships");
                         if (Index22 == -1)
                         {
                             return;
@@ -1841,7 +1789,7 @@ namespace IngameScript
 
                         } while (I2 < SettingCount + 1);
                         SiteValue[Index22].MaxPages = ISite;
-                    }
+                    
                 }
                 
 
@@ -1891,7 +1839,7 @@ namespace IngameScript
 
                 string Out = "";
                 int SettingCount = 2;
-                int ChannelID1 = -1;
+
 
                 int Index25 = SiteValue.FindIndex(a => a.Site == "System");
                 if (Index25 != -1)
@@ -1899,19 +1847,11 @@ namespace IngameScript
                     SiteValue.RemoveAt(Index25);
                 }
 
+               
 
-                int Index21 = Channellist.FindIndex(a => a.MainChannel == "System");
-
-                if (Index21 != -1)
-                {
-                    ChannelID1 = Channellist[Index21].ID;
-
-                }
-
-                if (ChannelID1 != -1)
-                {
-                    SiteValue.Add(new MValue { ChannelID = ChannelID1, Site = "System" });
-                    int Index22 = SiteValue.FindIndex(a => a.Site == "System");
+                    SiteValue.Add(new MValue { ChannelID = ChannelID, Site = "System" });
+                ChannelID++;
+                int Index22 = SiteValue.FindIndex(a => a.Site == "System");
 
                     if (Index22 != -1)
                     {
@@ -1927,7 +1867,7 @@ namespace IngameScript
 
                         SiteValue[Index22].MaxPages = 1;
                     }
-                }
+                
 
                 //System Page end
 
@@ -1966,10 +1906,10 @@ namespace IngameScript
                         if (Index77 != -1)
                         {
                             AlarmMainMenu = 1;
+                            
                             Channellist.Add(new Channels { MainChannel = "Aktivate Alarm", Type = "Reset", ID = ChannelID });
-                            ChannelID++;
                             Channellist[Index77].Subs.Add(new Sub() { SubValue = "Aktivate Alarm" });
-
+                            ChannelID++;
                         }
                     }
 
@@ -2502,7 +2442,8 @@ namespace IngameScript
             int MenuCount = 0;
             if (Index != -1 && Index25 != -1)
             {
-                string Type = Channellist[Index].Type;
+                string Type = SiteValue[Index25].Type;
+               // string Type = Channellist[Index].Type;
 
                 if (Type == "Reset")
                 {
@@ -2671,8 +2612,10 @@ namespace IngameScript
                     }
                     else if (Type == "Reset")
                     {
+                        Echo("DEBUG CHANGEPOS RESET");
                         if (ResetWarning == 1)
                         {
+                            Echo("DEBUG CHANGEPOS RESET Warning");
                             DeleteWarnings();
                             ResetWarning = 0;
 
@@ -2681,6 +2624,7 @@ namespace IngameScript
                         }
                         else if (ResetInfo == 1)
                         {
+                            Echo("DEBUG CHANGEPOS RESET info");
                             DeleteInfos();
                             ResetInfo = 0;
                             ChangePos("Back");
@@ -2688,6 +2632,7 @@ namespace IngameScript
                         }
                         else if (ResetAll == 1)
                         {
+                            Echo("DEBUG CHANGEPOS RESET all");
                             DeleteInfos();
                             DeleteWarnings();
                             ResetAll = 0;
@@ -2701,6 +2646,7 @@ namespace IngameScript
                         {
                             if (AlarmMode == 1)
                             {
+                                Echo("DEBUG CHANGEPOS RESET alarm off");
                                 AlarmD = 0;
                                 AlarmMode = 0;
                                 RAlarm = 1;
@@ -2710,6 +2656,7 @@ namespace IngameScript
                             }
                             else
                             {
+                                Echo("DEBUG CHANGEPOS RESET alarm on");
                                 AlarmD = 0;
                                 AlarmMode = 1;
                                 ChangePos("Back");
@@ -2790,6 +2737,8 @@ namespace IngameScript
         public void ShowMenu()
         {
             Echo("DEBUG SHOWMENU");
+            Echo("DEBUG SHOW SITE: " + Site);
+
             string Out = "";
             MenuCount = 0;
             if (Site == "")
@@ -2799,28 +2748,30 @@ namespace IngameScript
                 return;
             }
 
-
-            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
+            int Index = SiteValue.FindIndex(a => a.Site == Site);
+            //int Index = Channellist.FindIndex(a => a.MainChannel == Site);
 
 
             if(Index != -1)
             {
                 Echo("DEBUG show 1");
-                string Type = Channellist[Index].Type;
+                string Type = SiteValue[Index].Type;
+                //string Type = Channellist[Index].Type;
+                Echo("DEBUG SHOW TYPE: " + Type);
                 if (Type == "Reset")
                 {
                     Echo("DEBUG reset");
                     Out = "";
                     if (Site == "Reset All")
                     {
-                        Out = "Enter to Delete all Infos/Warnings, Back to go back";
+                        Out = "Enter to Delete all Infos/Warnings," + Environment.NewLine +  "Back to go back" + Environment.NewLine;
                         ResetAll = 1;
                         DirectShow(Out);
 
                     }
-                    else if (Site == "Reset Warnings")
+                    else if (Site == "ResetWarnings")
                     {
-                        Out = "Enter to Delete all Warnings, Back to go back";
+                        Out = "Enter to Delete all Warnings, Back to go back" + Environment.NewLine;
                         ResetWarning = 1;
                         DirectShow(Out);
 
@@ -2828,7 +2779,7 @@ namespace IngameScript
                     else if (Site == "Reset Info")
                     {
                         ResetInfo = 1;
-                        Out = "Enter to Delete all Infos, Back to go back";
+                        Out = "Enter to Delete all Infos, Back to go back" + Environment.NewLine;
                         DirectShow(Out);
 
                     }
@@ -2836,13 +2787,13 @@ namespace IngameScript
                     {
                         if (AlarmMode == 0)
                         {
-                            Out = "Enter to Aktivate, Back to go back";
+                            Out = "Enter to Aktivate, Back to go back" + Environment.NewLine;
                             DirectShow(Out);
                             AlarmD = 1;
                         }
                         else
                         {
-                            Out = "Enter to DeAktivate, Back to go back";
+                            Out = "Enter to DeAktivate, Back to go back" + Environment.NewLine;
                             AlarmD = 1;
                             DirectShow(Out);
                         }
@@ -2854,10 +2805,7 @@ namespace IngameScript
                 }
                 else
                 {
-                    Echo("DEBUG all");
-                    Echo("DEBUG SITE: " + Site);
                     int Index99 = SiteValue.FindIndex(a => a.Site == Site);
-                    Echo("DEBUG INDEX99: " + Index99);
                     if (Index99 != -1)
                     {
                         string Uff = Site + ":" + Environment.NewLine;
@@ -2900,13 +2848,15 @@ namespace IngameScript
         public void DirectShow(string Show)
         {
 
-            int Index = Channellist.FindIndex(a => a.MainChannel == Site);
+
             int Index99 = SiteValue.FindIndex(a => a.Site == Site);
             int Math = MyPos + 1;
 
-            if (Index != -1 && Index99 != -1)
+            if (Index99 != -1)
             {
-                string Type = Channellist[Index].Type;
+
+                string Type = SiteValue[Index99].Type;
+
 
                 if (Type == "Reset")
                 {
@@ -2974,7 +2924,6 @@ namespace IngameScript
 
         public void SaveMenus()
         {
-            Echo("DEBUG SAVEMENU");
             string Out = "";
                 foreach (Channels Chan in Channellist)
                 {
@@ -2982,16 +2931,14 @@ namespace IngameScript
                     int IType = Chan.InfoType;
                     int CID = Chan.ID;
                     string CName = Chan.MainChannel;
-                Echo("Ctype: " + CType);
-                Echo("CNAME: " + CName);
-                Echo("CINFOTYPE: " + IType);
+
 
                 if (CType == "Info")
                 {
-                    Echo("DEBUG SAVEMENU INFO");
+
                     if (IType == 0 || IType == 1)
                     {
-                        Echo("DEBUG SAVEMENU INFO2");
+
                         int Index24 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index24 != -1)
                         {
@@ -3001,7 +2948,8 @@ namespace IngameScript
                         int SettingCount = ReturnMaxMessages(IType);
                         int U11 = 0;
                         int U22 = 1;
-                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName , Type = CType});
+                        ChannelID++;
                         int Index22 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index22 != -1)
                         {
@@ -3082,7 +3030,6 @@ namespace IngameScript
                 }
                 else if (CType == "ScSetting")
                 {
-                    Echo("DEBUG SAVEMENU Scsetting");
                     if (CName == "ScreenSetting")
                     {
                         int Index24 = SiteValue.FindIndex(a => a.Site == CName);
@@ -3091,7 +3038,8 @@ namespace IngameScript
                             SiteValue.RemoveAt(Index24);
                         }
 
-                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName , Type = CType});
+                        ChannelID++;
                         int Index22 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index22 != -1)
                         {
@@ -3167,14 +3115,14 @@ namespace IngameScript
                     }
                     else if (CName == "ScreenInfoM")
                     {
-                        Echo("DEBUG SAVEMENU Screeninfo");
                         int Index24 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index24 != -1)
                         {
                             SiteValue.RemoveAt(Index24);
                         }
 
-                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName, Type = CType });
+                        ChannelID++;
                         int Index28 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index28 != -1)
                         {
@@ -3255,16 +3203,16 @@ namespace IngameScript
                     }
                     else if (CType == "Menu")
                     {
-                        Echo("DEBUG MENUSAVE");
-                        Echo("MENU: " + CName);
+
                         int Index24 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index24 != -1)
                         {
                             SiteValue.RemoveAt(Index24);
                         }
 
-                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
-                        int Index22 = SiteValue.FindIndex(a => a.Site == CName);
+                        SiteValue.Add(new MValue { ChannelID = CID, Site = CName, Type = CType });
+                    ChannelID++;
+                    int Index22 = SiteValue.FindIndex(a => a.Site == CName);
                         if (Index22 != -1)
                         {
 
@@ -3345,14 +3293,14 @@ namespace IngameScript
                 }
                 else if (CType == "Setting")
                 {
-                    Echo("DEBUG SAVEMENU setting");
                     int Index24 = SiteValue.FindIndex(a => a.Site == CName);
                     if (Index24 != -1)
                     {
                         SiteValue.RemoveAt(Index24);
                     }
 
-                    SiteValue.Add(new MValue { ChannelID = CID, Site = CName });
+                    SiteValue.Add(new MValue { ChannelID = CID, Site = CName, Type = CType });
+                    ChannelID++;
                     int Index22 = SiteValue.FindIndex(a => a.Site == CName);
                     if (Index22 != -1)
                     {
@@ -3437,7 +3385,6 @@ namespace IngameScript
 
 
             }
-            Echo("DEBUG SAVEMENU ENDE");
 
             return;
 
