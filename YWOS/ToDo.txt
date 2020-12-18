@@ -16,7 +16,7 @@ fehlende statusseiten noch füllen
 
 Statusseiten Anlegen:
 -Luftversorgung info und setting (Dafür Lüfter erfassen)
-
+- Sortierer erfassen, status und eisntellung
 
 Script für Cockpits funktionierend machen(mit bedienung in Cockpit)
 
@@ -134,12 +134,13 @@ Connectoren prüfen ob sie vom lokalen grid sind
 -
 
 0.233 todo:
-- System menu punkt ist doppelt
+- System menu punkt ist doppelt, eins ist leer
 - Alarm mode Menupunkt fehlt zeilenumbrüche, ausserdem funktionieren tasten back und enter nicht
 - Reset menupunkte gehen tasten ebenfalls nicht
-- Pfeil für nicht auswahlseiten entfernen in showmenu();
+- Pfeil für nicht auswahlseiten entfernen in showmenu(); zb batterie übersicht
 - info seiten in Save Menu hinzufügen(Sind bis jetzt nur info und warning seite) INFO TYP 3
-
+- verlorenes weapons info wiederfinden
+-cargo info ist falsch ist Weapons anstatt cargo
 
 
 
