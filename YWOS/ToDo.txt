@@ -5,6 +5,8 @@ MENU Inhalt Löschen bevor es wieder geadded wird!!(info/Warning menu)
 leer menus entfernen
 Checken ob Menu Aktiv ist bevor Sitvalue eingetragen wird
 
+schiff stopper
+
 Daten für Systemstatus sammeln und anzeigen
 
 fehlende statusseiten noch füllen
