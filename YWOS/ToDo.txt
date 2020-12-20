@@ -1,6 +1,7 @@
 ﻿todo list:
 
 
+Not eisnchaltung Intigrieren 
 
 Daten für Systemstatus sammeln und anzeigen
 

@@ -114,7 +114,7 @@ namespace IngameScript
 
         #region Stuff
         //Script by ywer
-        double Version = 0.232;
+        double Version = 0.234;
         int Tick = 0;
         int MyPos = 0;
         int deep = 0;
