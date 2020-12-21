@@ -114,7 +114,7 @@ namespace IngameScript
                             IMyTextPanel LCD = (IMyTextPanel)Block;
                             MainScreen = LCD;
 
-                        }
+                        } 
 
                         if (Block is IMyControlPanel)
                         {
