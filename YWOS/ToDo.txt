@@ -1,55 +1,6 @@
 ﻿todo list:
 
 
-Autoabschaltung Intigrieren
-Menu
-Infos für menu
-Infos auf anderen Bildschirmen
-Alarmmodus
-Energiesparmodus
-Not Energie Modus
-
-startup mit checken ob steuerung/bildschirm vorhanden
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-OLD
-Not eisnchaltung Intigrieren 
 
 Daten für Systemstatus sammeln und anzeigen
 
