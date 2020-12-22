@@ -47,6 +47,7 @@ namespace IngameScript
         IMyControlPanel MainControll;
         int Tick = 0;
         int Maxtick = 100;
+        IMyCubeGrid MyGrid; 
         #endregion
 
         public Program()
@@ -93,39 +94,21 @@ namespace IngameScript
         {
             if (Setup == false)
             {
-                List<IMyTerminalBlock> tmp = new List<IMyTerminalBlock>();
                 Echo("Starting Startup....");
                 WriteToLog("Starting Startup....");
                 WriteToLog("Serching for Screen and Controller..");
                 Echo("Serching for Screen and Controller..");
-                tmp.Add(GridTerminalSystem.GetBlockWithName(MainLCD));
-                tmp.Add(GridTerminalSystem.GetBlockWithName(MainLCD));
-                if (tmp.Count != 2)
+                MainScreen = (IMyTextPanel) GridTerminalSystem.GetBlockWithName(MainLCD);
+                MainControll  =(IMyControlPanel) GridTerminalSystem.GetBlockWithName(MainLCD);
+                if (MainScreen == null|| MainControll == null)
                 {
                     ErrorHandler("No MainScreen or MainController Found");
                     return;
                 }
                 else
                 {
-                    foreach (IMyTerminalBlock Block in tmp)
-                    {
-                        if(Block is IMyTextPanel)
-                        {
-                            IMyTextPanel LCD = (IMyTextPanel)Block;
-                            MainScreen = LCD;
 
-                        } 
-                         
-                        if (Block is IMyControlPanel)
-                        {
-                            IMyControlPanel myControl = (IMyControlPanel)Block;
-                            MainControll = myControl;
-
-                        }
-
-
-
-                    }
+                    MyGrid = Me.CubeGrid;
                     Echo("Setup Finished");
                     WriteToLog("Setup Finished");
                     Setup = true;
@@ -138,13 +121,238 @@ namespace IngameScript
             return;
         }
 
+        List<IMyThrust> AllThruster = new List<IMyThrust>();
+        List<IMyTextPanel> AllLCD = new List<IMyTextPanel>();
+        List<IMyReactor> AllReactors = new List<IMyReactor>();
+        List<IMyLargeMissileTurret> AllMissleTurrets = new List<IMyLargeMissileTurret>();
+        List<IMyLargeGatlingTurret> AllGattlingTurrets = new List<IMyLargeGatlingTurret>();
+        List<IMyLargeInteriorTurret> AllInteriorTurrets = new List<IMyLargeInteriorTurret>();
+        List<IMyGasTank> AllGasTanks = new List<IMyGasTank>();
+        List<IMyBatteryBlock> AllBatterys = new List<IMyBatteryBlock>();
+        List<IMySolarPanel> AllSolarPanels = new List<IMySolarPanel>();
+        List<IMyCargoContainer> AllCargoContainers = new List<IMyCargoContainer>();
+        List<IMyShipConnector> AllConnectors = new List<IMyShipConnector>();
+        List<IMyLightingBlock> ALlLights = new List<IMyLightingBlock>();
+        List<IMyDoor> AllDoors = new List<IMyDoor>();
+        List<IMyAirtightHangarDoor> AllHangarDoors = new List<IMyAirtightHangarDoor>();
+        List<IMyShipController> AllCockpits = new List<IMyShipController>();
+        List<IMyGyro> AllGyros = new List<IMyGyro>();
 
-
+        List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
         public void FindBlocks()
         {
+            allBlocks.Clear();
+
+            GridTerminalSystem.GetBlocks(allBlocks);
+
+            foreach (IMyTerminalBlock Block in allBlocks)
+                {
+
+                if(Block is IMyThrust)
+                {
+                    IMyThrust Thruster = (IMyThrust)Block;
+
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllThruster.Add(Thruster);
+                    }
+
+                }
+
+                if(Block is IMyGyro)
+                {
+                    IMyGyro Gyro = (IMyGyro)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllGyros.Add(Gyro);
+                    }
+
+                }
+
+                if (Block is IMyShipController)
+                {
+                    IMyShipController Controller = (IMyShipController)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllCockpits.Add(Controller);
+                    }
+
+                }
+
+
+
+
+
+
+                if (Block is IMyTextPanel)
+                {
+                    IMyTextPanel LCD = (IMyTextPanel)Block;
+
+                    if(Block.IsSameConstructAs(Me))
+                    {
+
+                        AllLCD.Add(LCD);
+                    }
+
+                }
+
+                if (Block is IMyReactor)
+                {
+                    IMyReactor Reactor = (IMyReactor)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllReactors.Add(Reactor);
+                    }
+
+
+
+                }
+
+                if (Block is IMyLargeMissileTurret)
+                {
+                    IMyLargeMissileTurret MTurret = (IMyLargeMissileTurret)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllMissleTurrets.Add(MTurret);
+                    }
+                }
+
+                if (Block is IMyLargeGatlingTurret)
+                {
+                    IMyLargeGatlingTurret Gatlingt = (IMyLargeGatlingTurret)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllGattlingTurrets.Add(Gatlingt);
+                    }
+                }
+
+                if (Block is IMyLargeInteriorTurret)
+                {
+                    IMyLargeInteriorTurret IntTurret = (IMyLargeInteriorTurret)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllInteriorTurrets.Add(IntTurret);
+                    }
+                }
+
+                if (Block is IMyGasTank)
+                {
+                    IMyGasTank HydrogenTank = (IMyGasTank)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllGasTanks.Add(HydrogenTank);
+                    }
+                }
+
+
+                if (Block is IMyBatteryBlock)
+                {
+                    IMyBatteryBlock Battery = (IMyBatteryBlock)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllBatterys.Add(Battery);
+                    }
+                }
+
+                if (Block is IMySolarPanel)
+                {
+                    IMySolarPanel Solar = (IMySolarPanel)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllSolarPanels.Add(Solar);
+                    }
+                }
+
+
+                if (Block is IMyCargoContainer)
+                {
+                    IMyCargoContainer Cargo = (IMyCargoContainer)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllCargoContainers.Add(Cargo);
+                    }
+
+                }
+
+                if (Block is IMyShipConnector)
+                {
+
+                    IMyShipConnector Connector = (IMyShipConnector)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllConnectors.Add(Connector);
+                    }
+                }
+
+
+                if (Block is IMyLightingBlock)
+                {
+                    IMyLightingBlock Light = (IMyLightingBlock)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        ALlLights.Add(Light);
+                    }
+                }
+
+                if (Block is IMyDoor)
+                {
+                    IMyDoor Door = (IMyDoor)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllDoors.Add(Door);
+                    }
+                }
+
+
+                if (Block is IMyAirtightHangarDoor)
+                {
+                    IMyAirtightHangarDoor Gate = (IMyAirtightHangarDoor)Block;
+                    if (Block.IsSameConstructAs(Me))
+                    {
+
+                        AllHangarDoors.Add(Gate);
+                    }
+                }
+
+
+
+            }
+
+            Echo("Blockfind Finished...");
+            WriteToLog("Blockfind Finished...");
+            WriteToLog("Blocks Found: " +allBlocks.Count);
+            WriteToLog("List of Blocks:");
+            WriteToLog("Thruster: " + AllThruster.Count);
+            WriteToLog("LCD: " + AllLCD.Count);
+            WriteToLog("Reactor: " + AllReactors.Count);
+            WriteToLog("MissleTurrets: " + AllMissleTurrets.Count);
+            WriteToLog("AllGattlingTurrets: " + AllGattlingTurrets.Count);
+            WriteToLog("AllInteriorTurrets: " + AllInteriorTurrets.Count);
+            WriteToLog("AllGasTanks: " + AllGasTanks.Count);
+            WriteToLog("AllBatterys: " + AllBatterys.Count);
+            WriteToLog("AllSolarPanels: " + AllSolarPanels.Count);
+            WriteToLog("AllCargoContainers: " + AllCargoContainers.Count);
+            WriteToLog("AllConnectors: " + AllConnectors.Count);
+            WriteToLog("ALlLights: " + ALlLights.Count);
+            WriteToLog("AllDoors: " + AllDoors.Count);
+            WriteToLog("AllHangarDoors: " + AllHangarDoors.Count);
+            WriteToLog("AllCockpits: " + AllCockpits.Count);
+            WriteToLog("AllGyros: " + AllGyros.Count);
             ö
-
-
             return;
         }
 
@@ -178,7 +386,9 @@ namespace IngameScript
                 Array.Copy(Lines, 1, NewData, 0, 49);
             }
             string TimeNow = System.DateTime.Now.ToString();
-            NewData[50] = TimeNow + ":" + Text;
+            NewData[50] = TimeNow + ":" + Text + Environment.NewLine;
+
+            Me.CustomData = NewData.ToString();
             return;
         }
 
