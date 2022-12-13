@@ -5,7 +5,7 @@
 *.zip
 
 
-MDK.paths.props
+$GIT_DIR/MDK/MDK.paths.props
 
 
 # User-specific files
