@@ -38,8 +38,8 @@ namespace IngameScript
         #endregion
 
         #region Private
-        double Version = 3.002;
-        double UVersion = 0.3;
+        double Version = 3.001;
+        double UVersion = 0.4;
         int Error = 0;
         string ErrorText = "";
         bool Setup = false;
@@ -49,6 +49,12 @@ namespace IngameScript
         int Maxtick = 100;
         IMyCubeGrid MyGrid;
         int Maxrows = 11;//max rows per page
+        bool EnergyOverride = false;
+        bool EnergySaver = false;
+        int MinBatEnergy = 0;
+        int ReactorMode = 2;
+        int BatteryMode = 4;
+        int SolarMode = 2;
         List<WarningValue> Warnings = new List<WarningValue>();
 
         class WarningValue
@@ -81,15 +87,8 @@ namespace IngameScript
         public void Main(string argument, UpdateType updateSource)
         {
             string Input = argument;
-            /*
-            Tick++;
-            if(Tick >= Maxtick)
-            {
-                Tick = -1;
-            }
-            WriteToLog("Running on Tick " + Tick);
-            */
-            if(Input != null || Input != "")
+
+            if (Input != null || Input != "")
             {
 
                 switch (Input)
@@ -109,6 +108,17 @@ namespace IngameScript
                     case "REFIND":
                         FindBlocks();
                         break;
+                    case "ENERGYOVERRIDE":
+                        if(EnergyOverride== true)
+                        {
+                            EnergyOverride = false;
+                        }
+                        else
+                        {
+                            EnergyOverride = true;
+
+                        }
+                        break;
 
                 }
 
@@ -117,13 +127,62 @@ namespace IngameScript
 
             }
 
-           ShowMenu();
+            ShowMenu();
+            
             return;
         }
 
+        #region Turnaroundaroundaroundaround
 
+        public void DoEveryTime()
+        {
+            
+        Tick++;
+        if(Tick >= Maxtick)
+        {
+        Tick = -1;
+        }
+        WriteToLog("Running on Tick " + Tick);
+            
+
+            if(Tick == 0)
+            {
+                //EnergyManager
+                if(ReactorMode != 2)
+                {
+
+
+                }
+
+                if(SolarMode != 2)
+                {
+
+
+                }
+
+                if (BatteryMode != 4)
+                {
+
+                }
+
+
+
+
+
+            }
+
+
+
+
+
+        }
+
+        #endregion
+
+
+        
         #region Startup/Findblocks
-       
+
 
         public void Startup()
         {
@@ -133,16 +192,16 @@ namespace IngameScript
                 WriteToLog("Starting Startup....");
                 WriteToLog("Serching for Screen and Controller..");
                 Echo("Serching for Screen and Controller..");
-                MainScreen = (IMyTextPanel) GridTerminalSystem.GetBlockWithName(MainLCDName);
-                MainControll  =(IMyButtonPanel) GridTerminalSystem.GetBlockWithName(MainControllerName);
-                if (MainScreen == null|| MainControll == null)
+                MainScreen = (IMyTextPanel)GridTerminalSystem.GetBlockWithName(MainLCDName);
+                MainControll = (IMyButtonPanel)GridTerminalSystem.GetBlockWithName(MainControllerName);
+                if (MainScreen == null || MainControll == null)
                 {
-                    if(MainScreen == null)
+                    if (MainScreen == null)
                     {
                         ErrorHandler("No MainScreen Found");
                     }
 
-                    if(MainControll == null)
+                    if (MainControll == null)
                     {
                         ErrorHandler("No MainController Found");
                     }
@@ -159,7 +218,7 @@ namespace IngameScript
                         {
                             Out = "Setting Up.... " + Environment.NewLine + "Please Wait";
                         }
-                        if(uff == 30)
+                        if (uff == 30)
                         {
                             Out = "Setting Up.... " + Environment.NewLine + "Please Wait" + Environment.NewLine + "..";
                         }
@@ -193,7 +252,7 @@ namespace IngameScript
                         }
 
                         MainScreen.WriteText(Out, false);
-                        uff++;              
+                        uff++;
                     } while (uff < 4);
 
                     MyGrid = Me.CubeGrid;
@@ -239,9 +298,9 @@ namespace IngameScript
             GridTerminalSystem.GetBlocks(allBlocks);
 
             foreach (IMyTerminalBlock Block in allBlocks)
-                {
+            {
 
-                if(Block is IMyThrust)
+                if (Block is IMyThrust)
                 {
                     IMyThrust Thruster = (IMyThrust)Block;
 
@@ -253,7 +312,7 @@ namespace IngameScript
 
                 }
 
-                if(Block is IMyGyro)
+                if (Block is IMyGyro)
                 {
                     IMyGyro Gyro = (IMyGyro)Block;
                     if (Block.IsSameConstructAs(Me))
@@ -284,7 +343,7 @@ namespace IngameScript
                 {
                     IMyTextPanel LCD = (IMyTextPanel)Block;
 
-                    if(Block.IsSameConstructAs(Me))
+                    if (Block.IsSameConstructAs(Me))
                     {
 
                         AllLCD.Add(LCD);
@@ -427,7 +486,7 @@ namespace IngameScript
 
             Echo("Blockfind Finished...");
             WriteToLog("Blockfind Finished...");
-            WriteToLog("Blocks Found: " +allBlocks.Count);
+            WriteToLog("Blocks Found: " + allBlocks.Count);
             WriteToLog("List of Blocks:");
             WriteToLog("Thruster: " + AllThruster.Count);
             WriteToLog("LCD: " + AllLCD.Count);
@@ -447,8 +506,8 @@ namespace IngameScript
             WriteToLog("AllGyros: " + AllGyros.Count);
 
 
-           // Menus.Add(new MenuStorage { MenuName = "Main", InfoType = "Menu", UpperChannel = "none", Subchannels = new List<Sub> { new Sub() { SubValue = "TEst1" }, new Sub() { SubValue = "TEst2" }, new Sub() { SubValue = "TEst3" }, new Sub() { SubValue = "TEst4" }, new Sub() { SubValue = "TEst4.1" }, new Sub() { SubValue = "TEst hidden " , Hidden = true }, new Sub() { SubValue = "TEst5" }, new Sub() { SubValue = "TEst6" }, new Sub() { SubValue = "TEst7" }, new Sub() { SubValue = "TEst8" } } });
-           // MenuValueStorage.Add(new MValues { MenuName = "Main", Subchannels = new List<string> { new string(t) } })
+            // Menus.Add(new MenuStorage { MenuName = "Main", InfoType = "Menu", UpperChannel = "none", Subchannels = new List<Sub> { new Sub() { SubValue = "TEst1" }, new Sub() { SubValue = "TEst2" }, new Sub() { SubValue = "TEst3" }, new Sub() { SubValue = "TEst4" }, new Sub() { SubValue = "TEst4.1" }, new Sub() { SubValue = "TEst hidden " , Hidden = true }, new Sub() { SubValue = "TEst5" }, new Sub() { SubValue = "TEst6" }, new Sub() { SubValue = "TEst7" }, new Sub() { SubValue = "TEst8" } } });
+            // MenuValueStorage.Add(new MValues { MenuName = "Main", Subchannels = new List<string> { new string(t) } })
 
 
 
@@ -491,32 +550,32 @@ namespace IngameScript
 
 
 
-            string[] NewData = new string[Lines.Length +2];
+            string[] NewData = new string[Lines.Length + 2];
             DateTime TimeNow = System.DateTime.Now;
-            if (Lines.Length >= MaxLoggerRows -1)
+            if (Lines.Length >= MaxLoggerRows - 1)
             {
-               
-                if(Lines.Length > 0)
+
+                if (Lines.Length > 0)
                 {
 
-                    Array.Copy(Lines, 1, NewData, 0, Lines.Length -1);
+                    Array.Copy(Lines, 1, NewData, 0, Lines.Length - 1);
                 }
                 NewData[MaxLoggerRows] = TimeNow + ":" + Text + Environment.NewLine;
 
             }
             else
             {
-                
+
                 if (Lines.Length > 0)
                 {
-                    
+
                     Array.Copy(Lines, 0, NewData, 0, Lines.Length);
                 }
-                NewData[Lines.Length +1] = TimeNow + ":" + Text + Environment.NewLine;
+                NewData[Lines.Length + 1] = TimeNow + ":" + Text + Environment.NewLine;
             }
 
             //NewData[49] = TimeNow + ":" + Text + Environment.NewLine;
-            
+
             Me.CustomData = string.Join(Environment.NewLine, NewData);
             return;
         }
@@ -531,8 +590,8 @@ namespace IngameScript
         int CurrentPos = 0;
         int CurrentPage = 0;
 
-        List<MenuStorage> Menus= new List<MenuStorage>();
-        List<MValues> MenuValueStorage = new List<MValues>();
+        List<MenuStorage> Menus = new List<MenuStorage>();
+        //List<MValues> MenuValueStorage = new List<MValues>();
         string[] Steps = new string[20];
 
         class MenuStorage
@@ -571,13 +630,18 @@ namespace IngameScript
         {
             public string SetName { get; set; }
 
+            public string SetText { get; set; }
+
+            public bool NOValue { get; set; }
+
             public string SValue { get; set; }
 
-            
+            public string SRange { get; set; }
 
             public int IValue { get; set; }
 
             public int IValueRange { get; set; }
+
 
             public bool BValue { get; set; }
 
@@ -589,7 +653,7 @@ namespace IngameScript
 
 
 
-
+        /*
         class MValues
         {
             public string MenuName { get; set; }
@@ -601,14 +665,14 @@ namespace IngameScript
 
 
         }
-
+        */
 
         int Deletecounter = 0;
         int Deletecounter2 = 0;
         public void MMove(string Direction)
         {
             int Index = Menus.FindIndex(a => a.MenuName == CurrentMenu);
-           // int MaxMenus = 0;
+            // int MaxMenus = 0;
             //int MaxPages = 0;
 
             if (Index != -1)
@@ -650,7 +714,7 @@ namespace IngameScript
                     Menus[Index].MaxPages = 0;
                 }
                 */
-                if(Deletecounter != 0)
+                if (Deletecounter != 0)
                 {
                     Deletecounter2 = 1;
                 }
@@ -658,48 +722,31 @@ namespace IngameScript
                 switch (Direction)
                 {
                     case "ENTER":
-                        if(IsSetting == true)
+                        if (IsSetting == true)
                         {
-                            int MaxRange = Menus[Index].Values[CurrentPos].IValueRange;
-                            if (MaxRange != 0)
+                            if (Menus[Index].Values[CurrentPos].NOValue == false)
                             {
-                                if (V1 != -1)
+                                string Range1 = Menus[Index].Values[CurrentPos].SRange;
+                                string[] Range2 = Range1.Split('|');
+                                string CurrentValue = Menus[Index].Values[CurrentPos].SValue;
+                                int temp = Array.IndexOf(Range2, CurrentValue);
+                                temp++;
+
+                                if (temp > Range2.Length - 1)
                                 {
-
-                                    if (V1 < MaxRange)
-                                    {
-                                        V1++;
-
-                                    }
-                                    else
-                                    {
-                                        V1 = 0;
-
-                                    }
-                                    Menus[Index].Values[CurrentPos].IValue = V1;
-                                    break;
+                                    temp = 0;
                                 }
+
+                                Menus[Index].Values[CurrentPos].SValue = Range2[temp];
                                 break;
                             }
                             else
                             {
-                                
-                                if (V2 == true)
-                                {
-                                    V2 = false;
-                                }
-                                else
-                                {
-                                    V2 = true;
-                                }
-
-                                Menus[Index].Values[CurrentPos].BValue = V2;
                                 break;
-
                             }
 
                         }
-                        else if(IsMenu == true)
+                        else if (IsMenu == true)
                         {
                             Steps[CurrentStage] = CurrentMenu;
                             CurrentStage++;
@@ -707,9 +754,22 @@ namespace IngameScript
                             CurrentPage = 0;
 
                             CurrentMenu = MenuPoint;
+
+                            int Index33 = Menus.FindIndex(a => a.MenuName == CurrentMenu);
+
+                            if (Index33 != -1)
+                            {
+                                if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                {
+                                    WriteToLog("DEBUG: MOVE DOWN ENTER!");
+                                    MMove("DOWN");
+
+                                }
+                            }
+
                             break;
                         }
-                        else if(CanBeDeleted == true)
+                        else if (CanBeDeleted == true)
                         {
                             Steps[CurrentStage] = CurrentMenu;
                             CurrentStage++;
@@ -738,49 +798,87 @@ namespace IngameScript
 
                         }
 
-                            break;
+                        break;
                     case "BACK":
                         if (CurrentStage > 0)
                         {
-                            WriteToLog("DEBUG: BACK");
+                            /*
                             string Type = Menus[Index].InfoType;
                             if (Type != null)
                             {
-                                WriteToLog("DEBUG: Deleted menu");
                                 Menus[Index].Values.Clear();
                             }
+                            */
                             CurrentStage--;
                             CurrentMenu = Steps[CurrentStage];
                             CurrentPos = 0;
                             CurrentPage = 0;
-                            
+
+
+                            int Index33 = Menus.FindIndex(a => a.MenuName == CurrentMenu);
+
+                            if (Index33 != -1)
+                            {
+                                if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                {
+                                    WriteToLog("DEBUG: MOVE DOWN ENTER!");
+                                    MMove("DOWN");
+
+                                }
+                            }
+
                             break;
 
                         }
 
                         break;
                     case "UP":
-                        if(CurrentPos > 0)
+                        if (CurrentPos > 0)
                         {
-                            if(IsInfoSite == false)
+                            if (IsInfoSite == false)
                             {
                                 CurrentPos--;
-                            }
 
+                                if(Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                {
+                                    WriteToLog("DEBUG: MOVE UP1!");
+                                    MMove("UP");
+                                    
+                                }
+
+                            }
+                            else
+                            {
+                                if (CurrentPage > 0)
+                                {
+                                    CurrentPage--;
+                                    CurrentPos--;
+                                }
+
+                            }
 
                             break;
                         }
-                        else if(CurrentPage > 0)
+                        else if (CurrentPage > 0)
                         {
-                            if(CurrentPos == 0)
+                            if (CurrentPos == 0)
                             {
                                 CurrentPage--;
-                                CurrentPos = 0;
+                                CurrentPos --;
+
+                                if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                {
+                                    WriteToLog("DEBUG: MOVE UP2!");
+                                    MMove("UP");
+                                }
 
                             }
 
-                            break;
+
+
+                           break;
                         }
+
                         break;
 
                     case "DOWN":
@@ -789,18 +887,31 @@ namespace IngameScript
                         if (IsInfoSite == false)
                         {
 
-                            if (CurrentPos < MaxMenus -1)
+                            if (CurrentPos < MaxMenus - 1)
                             {
 
                                 CurrentPos++;
+
+                                if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                {
+                                    WriteToLog("DEBUG: MOVE DOWN!");
+                                    MMove("DOWN");
+                                }
+
                                 break;
                             }
                             else
                             {
-                                if(CurrentPage < MaxPages -1)
+                                if (CurrentPage < MaxPages - 1)
                                 {
                                     CurrentPage++;
-                                    CurrentPos = 0;
+                                    CurrentPos++;
+
+                                    if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
+                                    {
+                                        WriteToLog("DEBUG: MOVE DOWN2!");
+                                        MMove("DOWN");
+                                    }
                                     break;
 
                                 }
@@ -809,17 +920,18 @@ namespace IngameScript
 
 
                         }
-                        else if(IsInfoSite == true)
+                        else if (IsInfoSite == true)
                         {
-                            if(CurrentPage < MaxPages)
+                            if (CurrentPage < MaxPages)
                             {
                                 CurrentPage++;
+                                CurrentPos++;
                                 break;
                             }
                             break;
                         }
 
-                       
+
 
                         break;
 
@@ -832,7 +944,7 @@ namespace IngameScript
                 WriteToLog("DEBUG: Currentstep:  " + CurrentStage);
                 WriteToLog("DEBUG: VALUES COUNT: " + Menus[Index].Values.Count);
                 WriteToLog("DEBUG:  menu: " + Steps[CurrentStage]);
-               // WriteToLog("DEBUG: forwards menu: " + Steps[CurrentStage -1]);
+                // WriteToLog("DEBUG: forwards menu: " + Steps[CurrentStage -1]);
                 //WriteToLog("DEBUG: back menu: " + Steps[CurrentStage + 1]);
 
                 ShowMenu();
@@ -856,11 +968,18 @@ namespace IngameScript
                 
 
                 string Type = Menus[Index].InfoType;
-                WriteToLog("DEBUG: Type: " + Type);
+               
+                /*
+                if(Type != null)
+                {
+                    Menus[Index].Values.Clear();
+
+                }
+                */
 
                 if (Type == "Energy")
                 {
-                    GetEnergyData();
+                    GetEnergyData(true);
                 }
                 else if (Type == "Sotrage")
                 {
@@ -876,13 +995,18 @@ namespace IngameScript
                 }
                 else if (Type == "Warning")
                 {
-                    Menus[Index].Values.Clear();
                     foreach (WarningValue Warn in Warnings)
                     {
                         Menus[Index].Values.Add(new MSettings() { SetName = Warn.From, SValue = Warn.Warning, CanBeDeleted = true }); ;
 
                     }
                 }
+                else if(Type == "EnergySetting")
+                {
+                    GetEnergySetting();
+                }
+
+
 
                 if (Menus[Index].Values.Count != 0)
                 {
@@ -921,7 +1045,7 @@ namespace IngameScript
                 if (CurrentPage == 0)
                 {
                     C1 = 0;
-                } 
+                }
                 else
                 {
                     C1 = CurrentPage * Maxrows - Maxrows;
@@ -939,7 +1063,7 @@ namespace IngameScript
                             {
                                 if (Value.Hidden == false)
                                 {
-                                    Out = Out + Environment.NewLine + Value.SetName + "<-----";
+                                        Out = Out + Environment.NewLine + Value.SetName + "<-----";   
                                 }
 
                             }
@@ -966,14 +1090,48 @@ namespace IngameScript
                             {
                                 if (Value.Hidden == false)
                                 {
-                                    Out = Out + Environment.NewLine + Value.SetName + "   " + Value.BValue + "<----";
+                                    /*
+                                    if(Value.IValueRange != 0)
+                                    {
+                                        Out = Out + Environment.NewLine + Value.SetName + "   " + Value.IValue + "<----";
+                                    }
+                                    */
+                                    if (Value.NOValue == false)
+                                    {
+
+                                    Out = Out + Environment.NewLine + Value.SetText + "   " + Value.SValue + "<----";
+                                        
+                                    }
+                                    else
+                                    {
+
+                                      Out = Out + Environment.NewLine + Value.SetText + "<----";
+                                        
+
+                                    }
+                                    /*
+                                    else
+                                    {
+                                        Out = Out + Environment.NewLine + Value.SetName + "   " + Value.BValue + "<----";
+                                    }
+                                    */
+                                    
                                 }
                             }
                             else
                             {
-                                if(Value.Hidden == false)
+                                if (Value.Hidden == false)
                                 {
-                                    Out = Out + Environment.NewLine + Value.SetName + "   " + Value.SValue;
+                                    if (Value.NOValue == false)
+                                    {
+                                        Out = Out + Environment.NewLine + Value.SetText + "   " + Value.SValue;
+                                    }
+                                    else
+                                    {
+                                        Out = Out + Environment.NewLine + Value.SetText ;
+                                    }
+
+                                    
                                 }
                             }
 
@@ -1014,7 +1172,7 @@ namespace IngameScript
             Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetName = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
             Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" }, new MSettings() { SetName = "Energy" }, new MSettings() { SetName = "Cargo" }, new MSettings() { SetName = "Connectors" }, new MSettings() { SetName = "Airlocks" }, new MSettings() { SetName = "MainSettings", Hidden = true } } });
             Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
-            Menus.Add(new MenuStorage { MenuName = "Energy" , IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "EnergyInfos"}, new MSettings() { SetName = "EnergySettings" } } });
+            Menus.Add(new MenuStorage { MenuName = "Energy", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "EnergyInfos" }, new MSettings() { SetName = "EnergySettings" } } });
             Menus.Add(new MenuStorage { MenuName = "EnergyInfos", IsInfoPage = true, InfoType = "Energy" });
             Menus.Add(new MenuStorage { MenuName = "EnergySettings", IsSetting = true, InfoType = "EnergySetting" });
         }
@@ -1073,9 +1231,28 @@ namespace IngameScript
 
 
 
+        int ReactorCount = 0;
+        int RRunning = 0;
+        float ROutput = 0;
+        float RMaxOut = 0;
+        int BRunning = 0;
+        float BOutput = 0;
+        float BMaxOutput = 0;
+        float BInput = 0;
+        float BMaxInput = 0;
+        float BLoad = 0;
+        float BMaxLoad = 0;
+        int SRunning = 0;
+        float SOutput = 0;
+        float SMaxOutput = 0;
+        int AllPowerMaxOutput = 0;
+        int AllPowerOutput = 0;
+        int ALLPercent = 0;
+        string AllIndicator = "";
+        string AllOut = "";
 
 
-        public void GetEnergyData()
+        public void GetEnergyData(bool FromMenu)
         {
 
             int Index = Menus.FindIndex(a => a.MenuName == CurrentMenu);
@@ -1085,16 +1262,16 @@ namespace IngameScript
 
 
 
-
+                
                 //Reacors
-                int ReactorCount = AllReactors.Count;
-                int RRunning = 0;
-                float ROutput = 0;
-                float RMaxOut = 0;
+                 ReactorCount = AllReactors.Count;
+                RRunning = 0;
+                ROutput = 0;
+                 RMaxOut = 0;
 
                 foreach (IMyReactor reactor in AllReactors)
                 {
-                    if (reactor.Enabled)
+                    if (reactor.Enabled == true)
                     {
                         RRunning++;
                         ROutput = ROutput + reactor.CurrentOutput;
@@ -1105,31 +1282,212 @@ namespace IngameScript
                 }
                 int RPercent = GetPercent(RMaxOut, ROutput);
                 string ROutputIndi = ReturnIndicator(RPercent);
-
-
-                Menus[Index].Values.Add(new MSettings { SetName = "Reactors Running:", SValue = RRunning.ToString() });
-                Menus[Index].Values.Add(new MSettings { SetName = "Reactor Output", SValue = ROutputIndi });
-
+                int ROutputInt = Convert.ToInt32(ROutput);
+                int RMaxOutInt = Convert.ToInt32(RMaxOut);
+                string RInfo = ROutputInt + "MW " + ROutputIndi + " " + RMaxOutInt + "MW ";
 
 
 
+                //Menus[Index].Values.Add(new MSettings { SetName = "Reactors Running:", SValue = RRunning.ToString() });
+                //Menus[Index].Values.Add(new MSettings { SetName = "Reactor Output", SValue = RInfo });
+
+                
                 //BAtterys
+                BRunning = 0;
+                BOutput = 0;
+                BMaxOutput = 0;
+                BInput = 0;
+                BMaxInput = 0;
+                BLoad = 0;
+                BMaxLoad = 0;
 
-                foreach(IMyBatteryBlock myBattery in AllBatterys)
+                foreach (IMyBatteryBlock myBattery in AllBatterys)
                 {
+                    if (myBattery.Enabled == true)
+                    {
+                        BRunning++;
+                        BOutput = BOutput + myBattery.CurrentOutput;
+                        BMaxOutput = BMaxOutput + myBattery.MaxOutput;
+                        BInput = BInput + myBattery.CurrentInput;
+                        BMaxInput = BMaxInput + myBattery.MaxInput;
+                        BLoad = BLoad + myBattery.CurrentStoredPower;
+                        BMaxLoad = BMaxLoad + myBattery.MaxStoredPower;
+
+                    }
+
+
+
+                }
+                //int BInputPercent = GetPercent(BMaxInput, BInput);
+                //int BOutputPercent = GetPercent(BMaxOutput, BOutput);
+                //string BInputIndicator = ReturnIndicator(BInputPercent);
+                //string BOutputIndicator = ReturnIndicator(BOutputPercent);
+
+                int BLoadPercent = GetPercent(BMaxLoad, BLoad);
+                string BloadIndicator = ReturnIndicator(BLoadPercent);
+                int BInputInt = Convert.ToInt32(BInput);
+                int BMaxInputInt = Convert.ToInt32(BMaxInput);
+                int BOutputInt = Convert.ToInt32(BOutput);
+                int BMaxOutputInt = Convert.ToInt32(BMaxOutput);
+
+
+                string BLoading = BLoadPercent + "% " + BLoad + "MWh " + BloadIndicator + " " + BMaxLoad + "MWh ";
+                string BIN = BInputInt + " / " + BMaxInputInt + " -- " + BOutputInt + " / " + BMaxOutputInt;
+                //string Bout = BOutput + " " + BOutputIndicator + " " + BMaxOutput;
+
+                // Menus[Index].Values.Add(new MSettings { SetName = "--------------------"});
+                //Menus[Index].Values.Add(new MSettings { SetName = "Battery Active", SValue = BRunning.ToString() });
+                //Menus[Index].Values.Add(new MSettings { SetName = "Battery Active/Load", SValue = BLoading });
+                //Menus[Index].Values.Add(new MSettings { SetName = "Battery Input -- Output", SValue =  BIN});
+                //Menus[Index].Values.Add(new MSettings { SetName = "Battery Output", SValue = Bout});
+
+                
+                //solar
+                SRunning = 0;
+                 SOutput = 0;
+                 SMaxOutput = 0;
+
+
+                foreach (IMySolarPanel Solar in AllSolarPanels)
+                {
+                    if (Solar.Enabled == true)
+                    {
+                        SRunning++;
+                        SOutput = SOutput + Solar.CurrentOutput;
+                        SMaxOutput = SMaxOutput + Solar.MaxOutput;
+
+                    }
+
+                }
+
+                int SPercent = GetPercent(SMaxOutput, SOutput);
+                string SIndocator = ReturnIndicator(SPercent);
+
+                int SOutputInt = Convert.ToInt32(SOutput);
+                int SMaxOutputInt = Convert.ToInt32(SMaxOutput);
+
+                string SOut = SOutputInt + "MW " + SIndocator + " " + SMaxOutputInt + "MW ";
+
+                // Menus[Index].Values.Add(new MSettings { SetName = "Solar: Active --- Output/MaxOutput ",SValue = SOut });
+
+                
+                AllPowerMaxOutput = BMaxOutputInt + RMaxOutInt + SMaxOutputInt;
+                AllPowerOutput = BOutputInt + ROutputInt + SOutputInt;
+                ALLPercent = GetPercent(AllPowerMaxOutput, AllPowerOutput);
+                AllIndicator = ReturnIndicator(ALLPercent);
+                AllOut = AllPowerOutput + "MW " + AllIndicator + " " + AllPowerMaxOutput + "MW ";
+
+                if (FromMenu == true)
+                {
+                    Menus[Index].Values.Clear();
+
+
+                    Menus[Index].Values.Add(new MSettings { SetName = "ALL Power Output/Max Output", SValue = AllOut });
+
+
+                    Menus[Index].Values.Add(new MSettings { SetName = "Reactor Output", SValue = RInfo });
+
+                    Menus[Index].Values.Add(new MSettings { SetName = "Battery Active", SValue = BRunning.ToString() });
+                    Menus[Index].Values.Add(new MSettings { SetName = "Stored Power", SValue = BLoading });
+                    //Menus[Index].Values.Add(new MSettings { SetName = "Battery Input -- Output", SValue = BIN });
+
+                    Menus[Index].Values.Add(new MSettings { SetName = "Solar Active", SValue = SRunning.ToString() });
+                    Menus[Index].Values.Add(new MSettings { SetName = "Solar Output/MaxOutput ", SValue = SOut });
+                }
+
+
+                return;
+            }
+        }
+
+        int SettingDone = 0;
+        public void GetEnergySetting()
+        {
+            int Index = Menus.FindIndex(a => a.MenuName == CurrentMenu);
+            if (Index != -1)
+            {
+                if (SettingDone == 0)
+                {
+                    Menus[Index].Values.Add(new MSettings { SetName = "UranSaverTExt", SetText = "test", NOValue = true });
+                    Menus[Index].Values.Add(new MSettings { SetName = "UranSaver",SetText = "Enable UranSaver", SValue = "ON", SRange = "ON|OFF" });
+
+                    //if false
+                    
+                    Menus[Index].Values.Add(new MSettings { SetName = "AllReactor", SetText = "Reactor Control" ,SValue = "NORMAL", SRange = "OFF|ON|NORMAL", Hidden = true });
+                    Menus[Index].Values.Add(new MSettings { SetName = "AllSolar",SetText = "Solar Control", SValue = "NORMAL", SRange = "OFF|ON|NORMAL", Hidden = true });
+                    Menus[Index].Values.Add(new MSettings { SetName = "ALLBattery", SetText = "Battery Control", SValue = "NORMAL", SRange = "OFF|RECHARGE|DISCHARGE|NORMAL", Hidden = true });
+
+                    //if true
+                    Menus[Index].Values.Add(new MSettings { SetName = "BatteryMin", SetText = "Battery min % befor turn on Rector", SValue = "20", SRange = "10|20|30|40|50|60|70|80|90|100|OFF", Hidden = false }); ;
+                    
+                    Menus[Index].Values.Add(new MSettings { SetName = "BatteryWarning", SetText = "Warning when Batter is under %", SValue = "10", SRange = "10|20|30|40|50|60|70|80|90|100|OFF", Hidden = false });
+                    SettingDone = 1;
+                }
+
+                int Index2 = Menus[Index].Values.FindIndex(a => a.SetName == "UranSaver");
+
+                if(Index2 != -1)
+                {
+                    int Index3 = Menus[Index].Values.FindIndex(a => a.SetName == "AllReactor");
+                    int Index4 = Menus[Index].Values.FindIndex(a => a.SetName == "AllSolar");
+                    int Index5 = Menus[Index].Values.FindIndex(a => a.SetName == "ALLBattery");
+                    int Index6 = Menus[Index].Values.FindIndex(a => a.SetName == "BatteryMin");
+                    int Index7 = Menus[Index].Values.FindIndex(a => a.SetName == "BatteryWarning");
+
+                    if (Menus[Index].Values[Index2].SValue == "ON")
+                    {
+                        EnergySaver = true;
+
+                        if(Index3 != -1)
+                        {
+                            Menus[Index].Values[Index3].Hidden = true;
+                        }
+                        if (Index4 != -1)
+                        {
+                            Menus[Index].Values[Index4].Hidden = true;
+                        }
+                        if (Index5 != -1)
+                        {
+                            Menus[Index].Values[Index5].Hidden = true;
+                        }
+                        if (Index6 != -1)
+                        {
+                            Menus[Index].Values[Index6].Hidden = false;
+                        }
+
+
+                    }
+                    else
+                    {
+                        EnergySaver = false;
+
+                        if (Index3 != -1)
+                        {
+                            Menus[Index].Values[Index3].Hidden = false;
+                        }
+                        if (Index4 != -1)
+                        {
+                            Menus[Index].Values[Index4].Hidden = false;
+                        }
+                        if (Index5 != -1)
+                        {
+                            Menus[Index].Values[Index5].Hidden = false;
+                        }
+                        if (Index6 != -1)
+                        {
+                            Menus[Index].Values[Index6].Hidden = true;
+                        }
+
+
+                    }
 
 
                 }
 
 
 
+
             }
-        }
-
-        public void GetEnergySetting()
-        {
-
-
         }
 
         public void GetStorageData()
@@ -1162,6 +1520,18 @@ namespace IngameScript
         }
 
         public void CycleAirlock(string AirLockName)
+        {
+
+        }
+
+
+        public void LockdownSector()
+        {
+
+        }
+
+
+        public void AutoDoorCloser()
         {
 
         }

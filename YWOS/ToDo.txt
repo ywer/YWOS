@@ -14,16 +14,20 @@ startup mit checken ob steuerung/bildschirm vorhanden
 
 
 
+Energy Overrride Command
+Energy override status screen
 
 
 
+option to find all blocks insteadof only ship blocks
 
+achtung, Reaktor, solar und batterie optionen nicht beachten wenn energy saver true
+programm.cs äää blocks clearen zeile 297
 
-
-
-
-
-
+3.001:
+-Redo Menu
+-Redo All Info Screens
+-Redo Settings
 
 
 
