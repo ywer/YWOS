@@ -38,15 +38,15 @@ namespace IngameScript
         #endregion
 
         #region Private
-        double Version = 3.001;
-        double UVersion = 0.4;
+        double Version = 3.002;
+        double UVersion = 0.1;
         int Error = 0;
         string ErrorText = "";
         bool Setup = false;
         IMyTextPanel MainScreen;
         IMyButtonPanel MainControll;
         int Tick = 0;
-        int Maxtick = 100;
+        int Maxtick = 2000;
         IMyCubeGrid MyGrid;
         int Maxrows = 11;//max rows per page
         bool EnergyOverride = false;
@@ -55,6 +55,7 @@ namespace IngameScript
         int ReactorMode = 2;
         int BatteryMode = 4;
         int SolarMode = 2;
+        string ModulName = "M1337";
         List<WarningValue> Warnings = new List<WarningValue>();
 
         class WarningValue
@@ -64,6 +65,34 @@ namespace IngameScript
             public string From { get; set; }
 
 
+        }
+
+        class ModulInfo
+        {
+            public string ModulName { get; set; }
+            
+            public IMyProgrammableBlock Block { get; set; }
+
+            public List<Modulsettings> Settings { get; set; } = new List<Modulsettings>();
+
+            public List<ModuleValues> Values { get; set; } = new List<ModuleValues>();
+
+        }
+
+        class Modulsettings
+        {
+            public string Name { get; set; }
+
+            public string Value { get; set; }
+
+
+        }
+
+        class ModuleValues
+        {
+            public string VName { get; set; }
+
+            public string VValue { get; set; }
         }
 
 
@@ -126,7 +155,7 @@ namespace IngameScript
 
 
             }
-
+            DoEveryTime();
             ShowMenu();
             
             return;
@@ -142,32 +171,12 @@ namespace IngameScript
         {
         Tick = -1;
         }
-        WriteToLog("Running on Tick " + Tick);
+
             
 
             if(Tick == 0)
             {
-                //EnergyManager
-                if(ReactorMode != 2)
-                {
-
-
-                }
-
-                if(SolarMode != 2)
-                {
-
-
-                }
-
-                if (BatteryMode != 4)
-                {
-
-                }
-
-
-
-
+                ReloadModulesSettings();
 
             }
 
@@ -181,7 +190,7 @@ namespace IngameScript
 
 
         
-        #region Startup/Findblocks
+        #region Startup/Findblocks/Modules
 
 
         public void Startup()
@@ -272,23 +281,8 @@ namespace IngameScript
             }
             return;
         }
+        List<ModulInfo> Modules = new List<ModulInfo>();
 
-        List<IMyThrust> AllThruster = new List<IMyThrust>();
-        List<IMyTextPanel> AllLCD = new List<IMyTextPanel>();
-        List<IMyReactor> AllReactors = new List<IMyReactor>();
-        List<IMyLargeMissileTurret> AllMissleTurrets = new List<IMyLargeMissileTurret>();
-        List<IMyLargeGatlingTurret> AllGattlingTurrets = new List<IMyLargeGatlingTurret>();
-        List<IMyLargeInteriorTurret> AllInteriorTurrets = new List<IMyLargeInteriorTurret>();
-        List<IMyGasTank> AllGasTanks = new List<IMyGasTank>();
-        List<IMyBatteryBlock> AllBatterys = new List<IMyBatteryBlock>();
-        List<IMySolarPanel> AllSolarPanels = new List<IMySolarPanel>();
-        List<IMyCargoContainer> AllCargoContainers = new List<IMyCargoContainer>();
-        List<IMyShipConnector> AllConnectors = new List<IMyShipConnector>();
-        List<IMyLightingBlock> ALlLights = new List<IMyLightingBlock>();
-        List<IMyDoor> AllDoors = new List<IMyDoor>();
-        List<IMyAirtightHangarDoor> AllHangarDoors = new List<IMyAirtightHangarDoor>();
-        List<IMyShipController> AllCockpits = new List<IMyShipController>();
-        List<IMyGyro> AllGyros = new List<IMyGyro>();
 
         List<IMyTerminalBlock> allBlocks = new List<IMyTerminalBlock>();
         public void FindBlocks()
@@ -296,215 +290,84 @@ namespace IngameScript
             allBlocks.Clear();
 
             GridTerminalSystem.GetBlocks(allBlocks);
-
             foreach (IMyTerminalBlock Block in allBlocks)
             {
 
-                if (Block is IMyThrust)
+                if(Block is IMyProgrammableBlock)
                 {
-                    IMyThrust Thruster = (IMyThrust)Block;
-
-                    if (Block.IsSameConstructAs(Me))
+                    if(Block.IsSameConstructAs(Me))
                     {
+                        if (Block.CustomName.Contains(ModulName))
+                        {
+                            string Modulname = "";
+                            string CustomDataAll = Block.CustomData;
+                            string[] Data = CustomDataAll.Split(';');
+                            if (Data.Length > 1)
+                            {
+                                foreach (string CData in Data)
+                                {
+                                    string[] Sdata = CData.Split('=');
+                                    if (Sdata.Length == 2)
+                                    {
+                                        string[] firstData = Sdata[0].Split(':');
+                                        if (firstData[1] == "ModulName")
+                                        {
+                                            Modulname = firstData[1];
+                                        }
+                                    }
 
-                        AllThruster.Add(Thruster);
+                            }
+
+                                if (Modulname != "")
+                                {
+                                    Modules.Add(new ModulInfo { Block = (IMyProgrammableBlock)Block, ModulName = Modulname });
+                                }
+
+                                int Index = Modules.FindIndex(a => a.ModulName == ModulName);
+                                if (Index != -1)
+                                {
+
+                                    if (Data.Length > 1)
+                                    {
+                                        foreach (string CData in Data)
+                                        {
+                                            //INFO:ModuleName = Energy;
+                                            string[] Sdata = CData.Split('=');
+                                            if (Sdata.Length == 2)
+                                            {
+                                                string[] TempData = Sdata[0].Split(':');
+
+                                                if(TempData[0] == "INFO")
+                                                {
+                                                    Modules[Index].Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
+                                                    return;
+                                                }
+                                                else if(TempData[0] == "SETTING")
+                                                {
+                                                    Modules[Index].Settings.Add(new Modulsettings { Name = Sdata[0], Value = Sdata[1] });
+                                                    return;
+                                                }
+                                                else
+                                                {
+                                                    WriteToLog("KatError");
+                                                    return;
+                                                }
+
+                                            }
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
                     }
 
                 }
-
-                if (Block is IMyGyro)
-                {
-                    IMyGyro Gyro = (IMyGyro)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllGyros.Add(Gyro);
-                    }
-
-                }
-
-                if (Block is IMyShipController)
-                {
-                    IMyShipController Controller = (IMyShipController)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllCockpits.Add(Controller);
-                    }
-
-                }
-
-
-
-
-
-
-                if (Block is IMyTextPanel)
-                {
-                    IMyTextPanel LCD = (IMyTextPanel)Block;
-
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllLCD.Add(LCD);
-                    }
-
-                }
-
-                if (Block is IMyReactor)
-                {
-                    IMyReactor Reactor = (IMyReactor)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllReactors.Add(Reactor);
-                    }
-
-
-
-                }
-
-                if (Block is IMyLargeMissileTurret)
-                {
-                    IMyLargeMissileTurret MTurret = (IMyLargeMissileTurret)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllMissleTurrets.Add(MTurret);
-                    }
-                }
-
-                if (Block is IMyLargeGatlingTurret)
-                {
-                    IMyLargeGatlingTurret Gatlingt = (IMyLargeGatlingTurret)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllGattlingTurrets.Add(Gatlingt);
-                    }
-                }
-
-                if (Block is IMyLargeInteriorTurret)
-                {
-                    IMyLargeInteriorTurret IntTurret = (IMyLargeInteriorTurret)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllInteriorTurrets.Add(IntTurret);
-                    }
-                }
-
-                if (Block is IMyGasTank)
-                {
-                    IMyGasTank HydrogenTank = (IMyGasTank)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllGasTanks.Add(HydrogenTank);
-                    }
-                }
-
-
-                if (Block is IMyBatteryBlock)
-                {
-                    IMyBatteryBlock Battery = (IMyBatteryBlock)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllBatterys.Add(Battery);
-                    }
-                }
-
-                if (Block is IMySolarPanel)
-                {
-                    IMySolarPanel Solar = (IMySolarPanel)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllSolarPanels.Add(Solar);
-                    }
-                }
-
-
-                if (Block is IMyCargoContainer)
-                {
-                    IMyCargoContainer Cargo = (IMyCargoContainer)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllCargoContainers.Add(Cargo);
-                    }
-
-                }
-
-                if (Block is IMyShipConnector)
-                {
-
-                    IMyShipConnector Connector = (IMyShipConnector)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllConnectors.Add(Connector);
-                    }
-                }
-
-
-                if (Block is IMyLightingBlock)
-                {
-                    IMyLightingBlock Light = (IMyLightingBlock)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        ALlLights.Add(Light);
-                    }
-                }
-
-                if (Block is IMyDoor)
-                {
-                    IMyDoor Door = (IMyDoor)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllDoors.Add(Door);
-                    }
-                }
-
-
-                if (Block is IMyAirtightHangarDoor)
-                {
-                    IMyAirtightHangarDoor Gate = (IMyAirtightHangarDoor)Block;
-                    if (Block.IsSameConstructAs(Me))
-                    {
-
-                        AllHangarDoors.Add(Gate);
-                    }
-                }
-
-
+               
 
             }
-
-            Echo("Blockfind Finished...");
-            WriteToLog("Blockfind Finished...");
-            WriteToLog("Blocks Found: " + allBlocks.Count);
-            WriteToLog("List of Blocks:");
-            WriteToLog("Thruster: " + AllThruster.Count);
-            WriteToLog("LCD: " + AllLCD.Count);
-            WriteToLog("Reactor: " + AllReactors.Count);
-            WriteToLog("MissleTurrets: " + AllMissleTurrets.Count);
-            WriteToLog("AllGattlingTurrets: " + AllGattlingTurrets.Count);
-            WriteToLog("AllInteriorTurrets: " + AllInteriorTurrets.Count);
-            WriteToLog("AllGasTanks: " + AllGasTanks.Count);
-            WriteToLog("AllBatterys: " + AllBatterys.Count);
-            WriteToLog("AllSolarPanels: " + AllSolarPanels.Count);
-            WriteToLog("AllCargoContainers: " + AllCargoContainers.Count);
-            WriteToLog("AllConnectors: " + AllConnectors.Count);
-            WriteToLog("ALlLights: " + ALlLights.Count);
-            WriteToLog("AllDoors: " + AllDoors.Count);
-            WriteToLog("AllHangarDoors: " + AllHangarDoors.Count);
-            WriteToLog("AllCockpits: " + AllCockpits.Count);
-            WriteToLog("AllGyros: " + AllGyros.Count);
-
 
             // Menus.Add(new MenuStorage { MenuName = "Main", InfoType = "Menu", UpperChannel = "none", Subchannels = new List<Sub> { new Sub() { SubValue = "TEst1" }, new Sub() { SubValue = "TEst2" }, new Sub() { SubValue = "TEst3" }, new Sub() { SubValue = "TEst4" }, new Sub() { SubValue = "TEst4.1" }, new Sub() { SubValue = "TEst hidden " , Hidden = true }, new Sub() { SubValue = "TEst5" }, new Sub() { SubValue = "TEst6" }, new Sub() { SubValue = "TEst7" }, new Sub() { SubValue = "TEst8" } } });
             // MenuValueStorage.Add(new MValues { MenuName = "Main", Subchannels = new List<string> { new string(t) } })
@@ -515,7 +378,53 @@ namespace IngameScript
             return;
         }
 
+        public void ReloadModulesSettings()
+        {
 
+
+            foreach(ModulInfo MInfo in Modules)
+            {
+                IMyProgrammableBlock Block = MInfo.Block;
+                string CustomDataAll = Block.CustomData;
+                string[] Data = CustomDataAll.Split(';');
+                if (Data.Length > 1)
+                {
+
+                    foreach (string CData in Data)
+                    {
+                        //INFO:ModuleName = Energy;
+                        string[] Sdata = CData.Split('=');
+                        if (Sdata.Length == 2)
+                        {
+                            string[] TempData = Sdata[0].Split(':');
+
+                            if (TempData[0] == "INFO")
+                            {
+                                MInfo.Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
+                                return;
+                            }
+                            else if (TempData[0] == "SETTING")
+                            {
+                                MInfo.Settings.Add(new Modulsettings { Name = Sdata[0], Value = Sdata[1] });
+                                return;
+                            }
+                            else
+                            {
+                                WriteToLog("KatError");
+                                return;
+                            }
+
+                        }
+
+                    }
+
+
+
+                }
+            }
+
+            return;
+        }
 
         #endregion
 
@@ -821,7 +730,7 @@ namespace IngameScript
                             {
                                 if (Menus[Index].Values[CurrentPos].NOValue == true || Menus[Index].Values[CurrentPos].Hidden == true)
                                 {
-                                    WriteToLog("DEBUG: MOVE DOWN ENTER!");
+                                    WriteToLog("DEBUG: MOVE DOWN back!");
                                     MMove("DOWN");
 
                                 }
@@ -962,7 +871,7 @@ namespace IngameScript
             string Out = "";
             int MaxMenus = 0;
             int MaxPages = 0;
-
+            Hier //alles neu machen dynamisch auf die module, bei modulen noch kathegorien in settings einfügen
             if (Index != -1)
             {
                 
@@ -979,19 +888,19 @@ namespace IngameScript
 
                 if (Type == "Energy")
                 {
-                    GetEnergyData(true);
+                   // GetEnergyData(true);
                 }
                 else if (Type == "Sotrage")
                 {
-                    GetStorageData();
+                   // GetStorageData();
                 }
                 else if (Type == "Connector")
                 {
-                    GetConnectorData();
+                   // GetConnectorData();
                 }
                 else if (Type == "Hydrogen")
                 {
-                    GetHydrogenData();
+                   // GetHydrogenData();
                 }
                 else if (Type == "Warning")
                 {
@@ -1003,7 +912,7 @@ namespace IngameScript
                 }
                 else if(Type == "EnergySetting")
                 {
-                    GetEnergySetting();
+                    //GetEnergySetting();
                 }
 
 
@@ -1169,6 +1078,7 @@ namespace IngameScript
 
         public void AddMenus()
         {
+            hier//menus dynamisch adden?
             Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetName = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
             Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" }, new MSettings() { SetName = "Energy" }, new MSettings() { SetName = "Cargo" }, new MSettings() { SetName = "Connectors" }, new MSettings() { SetName = "Airlocks" }, new MSettings() { SetName = "MainSettings", Hidden = true } } });
             Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
@@ -1230,7 +1140,7 @@ namespace IngameScript
 
 
 
-
+        /*
         int ReactorCount = 0;
         int RRunning = 0;
         float ROutput = 0;
@@ -1250,8 +1160,8 @@ namespace IngameScript
         int ALLPercent = 0;
         string AllIndicator = "";
         string AllOut = "";
-
-
+        */
+        /*
         public void GetEnergyData(bool FromMenu)
         {
 
@@ -1399,7 +1309,10 @@ namespace IngameScript
                 return;
             }
         }
+        */
 
+
+        /*
         int SettingDone = 0;
         public void GetEnergySetting()
         {
@@ -1504,7 +1417,7 @@ namespace IngameScript
         {
 
         }
-
+        */
 
 
 
