@@ -398,21 +398,13 @@ namespace IngameScript
                         {
                             string[] TempData = Sdata[0].Split(':');
 
-                            if (TempData[0] == "INFO")
-                            {
-                                MInfo.Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
-                                return;
-                            }
-                            else if (TempData[0] == "SETTING")
+
+                            if (TempData[0] == "SETTING")
                             {
                                 MInfo.Settings.Add(new Modulsettings { Name = Sdata[0], Value = Sdata[1] });
-                                return;
+                               
                             }
-                            else
-                            {
-                                WriteToLog("KatError");
-                                return;
-                            }
+
 
                         }
 
@@ -423,6 +415,53 @@ namespace IngameScript
                 }
             }
 
+            WriteToLog("CatData Settings Updated..");
+
+            hier //die neuen infos ins menü einbringen
+
+
+
+            return;
+        }
+
+
+
+        public void ReloadModulValues()
+        {
+
+            foreach (ModulInfo MInfo in Modules)
+            {
+                IMyProgrammableBlock Block = MInfo.Block;
+                string CustomDataAll = Block.CustomData;
+                string[] Data = CustomDataAll.Split(';');
+                if (Data.Length > 1)
+                {
+
+                    foreach (string CData in Data)
+                    {
+                        //INFO:ModuleName = Energy;
+                        string[] Sdata = CData.Split('=');
+                        if (Sdata.Length == 2)
+                        {
+                            string[] TempData = Sdata[0].Split(':');
+
+                            if (TempData[0] == "INFO")
+                            {
+                                MInfo.Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
+
+                            }
+
+
+                        }
+
+                    }
+
+
+
+                }
+            }
+            WriteToLog("CatData Values Updated..");
+            hier //die neuen infos ins menü einbringen
             return;
         }
 
