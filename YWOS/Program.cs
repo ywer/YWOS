@@ -85,6 +85,8 @@ namespace IngameScript
 
             public string Value { get; set; }
 
+            public string Range { get; set; }
+
 
         }
 
@@ -99,6 +101,8 @@ namespace IngameScript
 
         #endregion
 
+
+        #region Main
         public Program()
         {
             Runtime.UpdateFrequency = UpdateFrequency.Update100;
@@ -111,7 +115,7 @@ namespace IngameScript
         {
 
         }
-
+      
 
         public void Main(string argument, UpdateType updateSource)
         {
@@ -137,21 +141,10 @@ namespace IngameScript
                     case "REFIND":
                         FindBlocks();
                         break;
-                    case "ENERGYOVERRIDE":
-                        if(EnergyOverride== true)
-                        {
-                            EnergyOverride = false;
-                        }
-                        else
-                        {
-                            EnergyOverride = true;
-
-                        }
-                        break;
 
                 }
 
-
+                
 
 
             }
@@ -160,6 +153,9 @@ namespace IngameScript
             
             return;
         }
+
+
+        #endregion
 
         #region Turnaroundaroundaroundaround
 
@@ -177,6 +173,7 @@ namespace IngameScript
             if(Tick == 0)
             {
                 ReloadModulesSettings();
+                ReloadModulValues();
 
             }
 
@@ -332,27 +329,40 @@ namespace IngameScript
                                         foreach (string CData in Data)
                                         {
                                             //INFO:ModuleName = Energy;
+                                            //SETTING:Blala = 20:10|20|30;
                                             string[] Sdata = CData.Split('=');
                                             if (Sdata.Length == 2)
                                             {
                                                 string[] TempData = Sdata[0].Split(':');
-
-                                                if(TempData[0] == "INFO")
+                                                if (TempData.Length > 1)
                                                 {
-                                                    Modules[Index].Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
-                                                    return;
+                                                    if (TempData[0] == "INFO")
+                                                    {
+                                                        Modules[Index].Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
+                                                        return;
+                                                    }
+                                                    else if (TempData[0] == "SETTING")
+                                                    {
+                                                        string[] TempData2 = Sdata[1].Split(':');
+                                                        if (TempData2.Length > 2)
+                                                        {
+                                                            if (TempData2.Length > 1)
+                                                            {
+                                                                Modules[Index].Settings.Add(new Modulsettings { Name = TempData[1], Value = TempData2[0], Range = TempData2[1] });
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            WriteToLog("Wrong Setting Lenght!");
+                                                        }
+                                                        return;
+                                                    }
+                                                    else
+                                                    {
+                                                        WriteToLog("KatError");
+                                                        return;
+                                                    }
                                                 }
-                                                else if(TempData[0] == "SETTING")
-                                                {
-                                                    Modules[Index].Settings.Add(new Modulsettings { Name = Sdata[0], Value = Sdata[1] });
-                                                    return;
-                                                }
-                                                else
-                                                {
-                                                    WriteToLog("KatError");
-                                                    return;
-                                                }
-
                                             }
 
                                         }
@@ -372,7 +382,7 @@ namespace IngameScript
             // Menus.Add(new MenuStorage { MenuName = "Main", InfoType = "Menu", UpperChannel = "none", Subchannels = new List<Sub> { new Sub() { SubValue = "TEst1" }, new Sub() { SubValue = "TEst2" }, new Sub() { SubValue = "TEst3" }, new Sub() { SubValue = "TEst4" }, new Sub() { SubValue = "TEst4.1" }, new Sub() { SubValue = "TEst hidden " , Hidden = true }, new Sub() { SubValue = "TEst5" }, new Sub() { SubValue = "TEst6" }, new Sub() { SubValue = "TEst7" }, new Sub() { SubValue = "TEst8" } } });
             // MenuValueStorage.Add(new MValues { MenuName = "Main", Subchannels = new List<string> { new string(t) } })
 
-
+            AddMenus();
 
 
             return;
@@ -380,9 +390,9 @@ namespace IngameScript
 
         public void ReloadModulesSettings()
         {
+            //SETTING:Blala = 20:10|20|30;
 
-
-            foreach(ModulInfo MInfo in Modules)
+            foreach (ModulInfo MInfo in Modules)
             {
                 IMyProgrammableBlock Block = MInfo.Block;
                 string CustomDataAll = Block.CustomData;
@@ -397,12 +407,14 @@ namespace IngameScript
                         if (Sdata.Length == 2)
                         {
                             string[] TempData = Sdata[0].Split(':');
-
+                            string[] TempData2 = Sdata[1].Split(':');
 
                             if (TempData[0] == "SETTING")
                             {
-                                MInfo.Settings.Add(new Modulsettings { Name = Sdata[0], Value = Sdata[1] });
-                               
+                                if (TempData2.Length > 1)
+                                {
+                                    MInfo.Settings.Add(new Modulsettings { Name = TempData[1], Value = TempData2[0], Range = TempData2[1] });
+                                }
                             }
 
 
@@ -428,7 +440,7 @@ namespace IngameScript
 
         public void ReloadModulValues()
         {
-
+            //INFO:ModuleName = Energy;
             foreach (ModulInfo MInfo in Modules)
             {
                 IMyProgrammableBlock Block = MInfo.Block;
@@ -1121,9 +1133,76 @@ namespace IngameScript
             Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetName = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
             Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" }, new MSettings() { SetName = "Energy" }, new MSettings() { SetName = "Cargo" }, new MSettings() { SetName = "Connectors" }, new MSettings() { SetName = "Airlocks" }, new MSettings() { SetName = "MainSettings", Hidden = true } } });
             Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
-            Menus.Add(new MenuStorage { MenuName = "Energy", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "EnergyInfos" }, new MSettings() { SetName = "EnergySettings" } } });
-            Menus.Add(new MenuStorage { MenuName = "EnergyInfos", IsInfoPage = true, InfoType = "Energy" });
-            Menus.Add(new MenuStorage { MenuName = "EnergySettings", IsSetting = true, InfoType = "EnergySetting" });
+            
+            int Index = Menus.FindIndex(a => a.MenuName == "Main");
+            if (Index != -1)
+            {
+                foreach (ModulInfo Modul in Modules)
+                {
+                    string Modulname = Modul.ModulName;
+                    Menus[Index].Values = new List<MSettings> { new MSettings() { SetName = Modulname } };
+
+
+
+                }
+            }
+            else
+            {
+                WriteToLog("Something went Wrong whit Menu adding");
+                return;
+            }
+
+            foreach(MSettings Menu in Menus[Index].Values)
+            {
+                string SettingName = Menu.SetName + " Settings";
+                string ValueName = Menu.SetName + " Data";
+                Menus.Add(new MenuStorage { MenuName = Menu.SetName, IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = ValueName }, new MSettings() { SetName = SettingName } } });
+
+                Menus.Add(new MenuStorage { MenuName = ValueName, IsInfoPage = true });
+                Menus.Add(new MenuStorage { MenuName = SettingName, IsSetting = true});
+                int Index4 = Modules.FindIndex(a => a.ModulName == Menu.SetName);
+                int Index2 = Menus.FindIndex(a => a.MenuName == ValueName);
+                if(Index2 != -1)
+                {
+                   if(Index4 != -1)
+                    {
+                        //Menus[Index].Values.Add(new MSettings { SetName = "UranSaver", SetText = "Enable UranSaver", SValue = "ON", SRange = "ON|OFF" });
+                        foreach (ModuleValues Value in  Modules[Index4].Values)
+                        {
+                            Menus[Index4].Values.Add(new MSettings { SetName = Value.VName, SValue = Value.VValue });
+
+                        }
+
+
+                    }
+                }
+                int Index3 = Menus.FindIndex(a => a.MenuName == SettingName);
+                if(Index3 != -1)
+                {
+                    if (Index4 != -1)
+                    {
+                        foreach (Modulsettings Setting in Modules[Index4].Settings)
+                        {
+                            Menus[Index4].Values.Add(new MSettings { SetName = Setting.Name, SValue = Setting.Value, SRange = Setting.Range });
+
+                        }
+
+
+                    }
+                }
+
+
+
+            }
+
+
+
+
+           // Menus.Add(new MenuStorage { MenuName = "Energy", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "EnergyInfos" }, new MSettings() { SetName = "EnergySettings" } } });
+           // Menus.Add(new MenuStorage { MenuName = "EnergyInfos", IsInfoPage = true, InfoType = "Energy" });
+           // Menus.Add(new MenuStorage { MenuName = "EnergySettings", IsSetting = true, InfoType = "EnergySetting" });
+
+            return;
         }
 
 
@@ -1465,35 +1544,7 @@ namespace IngameScript
         #endregion
 
 
-        #region Arirlock
-        public void FindAirLock()
-        {
 
-        }
-
-        public void CycleAirlock(string AirLockName)
-        {
-
-        }
-
-
-        public void LockdownSector()
-        {
-
-        }
-
-
-        public void AutoDoorCloser()
-        {
-
-        }
-
-        #endregion
-
-        public void EmergStartThruster()
-        {
-
-        }
 
 
 
