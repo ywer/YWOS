@@ -353,16 +353,17 @@ namespace IngameScript
                                                 string[] TempData = Sdata[0].Split(':');
                                                 if (TempData.Length > 1)
                                                 {
-                                                    if (TempData[0] == "INFO")
+                                                    WriteToLog("DEBUG:Katdata " + TempData[0]);
+                                                    if (TempData[0].Contains("INFO"))
                                                     {
                                                         Modules[Index].Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
                                                         WriteToLog("DEBUG: values Count: " + Modules[Index].Values.Count);
 
                                                     }
-                                                    else if (TempData[0] == "SETTING")
+                                                    else if (TempData[0].Contains("SETTING"))
                                                     {
                                                         string[] TempData2 = Sdata[1].Split(':');
-                                                        if (TempData2.Length > 2)
+                                                        if (TempData2.Length > 1)
                                                         {
                                                             if (TempData2.Length > 1)
                                                             {
@@ -381,7 +382,7 @@ namespace IngameScript
                                                     else
                                                     {
                                                         WriteToLog("KatError");
-                                                        hier //Rausfinden warum wir hier landen
+                                                        //hier //Rausfinden warum wir hier landen
                                                         return;
                                                     }
                                                 }
