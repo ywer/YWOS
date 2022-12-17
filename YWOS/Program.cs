@@ -395,6 +395,12 @@ namespace IngameScript
             foreach (ModulInfo MInfo in Modules)
             {
                 IMyProgrammableBlock Block = MInfo.Block;
+                string SettingName = MInfo.ModulName + " Settings";
+                int Index3 = Menus.FindIndex(a => a.MenuName == SettingName);
+                if(Index3 != -1)
+                {
+                    Menus[Index3].Values.Clear();
+                }
                 string CustomDataAll = Block.CustomData;
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
@@ -407,13 +413,23 @@ namespace IngameScript
                         if (Sdata.Length == 2)
                         {
                             string[] TempData = Sdata[0].Split(':');
-                            string[] TempData2 = Sdata[1].Split(':');
+
 
                             if (TempData[0] == "SETTING")
                             {
+                                string[] TempData2 = Sdata[1].Split(':');
                                 if (TempData2.Length > 1)
                                 {
                                     MInfo.Settings.Add(new Modulsettings { Name = TempData[1], Value = TempData2[0], Range = TempData2[1] });
+
+
+                                   Menus[Index3].Values.Add(new MSettings { SetName = TempData[1], SValue = TempData2[0], SRange = TempData2[1] });
+
+                                    
+
+
+
+
                                 }
                             }
 
@@ -429,7 +445,7 @@ namespace IngameScript
 
             WriteToLog("CatData Settings Updated..");
 
-            hier //die neuen infos ins menü einbringen
+
 
 
 
@@ -443,6 +459,13 @@ namespace IngameScript
             //INFO:ModuleName = Energy;
             foreach (ModulInfo MInfo in Modules)
             {
+                string ValueName = MInfo + " Data";
+                int Index3 = Menus.FindIndex(a => a.MenuName == ValueName);
+                if(Index3 != -1)
+                {
+                    Menus[Index3].Values.Clear();
+                }
+
                 IMyProgrammableBlock Block = MInfo.Block;
                 string CustomDataAll = Block.CustomData;
                 string[] Data = CustomDataAll.Split(';');
@@ -457,12 +480,17 @@ namespace IngameScript
                         {
                             string[] TempData = Sdata[0].Split(':');
 
-                            if (TempData[0] == "INFO")
+                            if (TempData.Length > 1)
                             {
-                                MInfo.Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
+                                if (TempData[0] == "INFO")
+                                {
 
+                                    MInfo.Values.Add(new ModuleValues { VName = TempData[1], VValue = Sdata[1] });
+
+                                    Menus[Index3].Values.Add(new MSettings { SetName = TempData[1], SValue = Sdata[1] });
+
+                                }
                             }
-
 
                         }
 
@@ -473,7 +501,7 @@ namespace IngameScript
                 }
             }
             WriteToLog("CatData Values Updated..");
-            hier //die neuen infos ins menü einbringen
+
             return;
         }
 
@@ -936,7 +964,7 @@ namespace IngameScript
 
                 }
                 */
-
+                /*
                 if (Type == "Energy")
                 {
                    // GetEnergyData(true);
@@ -953,7 +981,8 @@ namespace IngameScript
                 {
                    // GetHydrogenData();
                 }
-                else if (Type == "Warning")
+                */
+                if (Type == "Warning")
                 {
                     foreach (WarningValue Warn in Warnings)
                     {
@@ -961,11 +990,12 @@ namespace IngameScript
 
                     }
                 }
+                /*
                 else if(Type == "EnergySetting")
                 {
                     //GetEnergySetting();
                 }
-
+                */
 
 
                 if (Menus[Index].Values.Count != 0)
@@ -1129,7 +1159,7 @@ namespace IngameScript
 
         public void AddMenus()
         {
-            hier//menus dynamisch adden?
+
             Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetName = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
             Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" }, new MSettings() { SetName = "Energy" }, new MSettings() { SetName = "Cargo" }, new MSettings() { SetName = "Connectors" }, new MSettings() { SetName = "Airlocks" }, new MSettings() { SetName = "MainSettings", Hidden = true } } });
             Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
@@ -1166,10 +1196,12 @@ namespace IngameScript
                 {
                    if(Index4 != -1)
                     {
+                        //VALUE!!!
+
                         //Menus[Index].Values.Add(new MSettings { SetName = "UranSaver", SetText = "Enable UranSaver", SValue = "ON", SRange = "ON|OFF" });
                         foreach (ModuleValues Value in  Modules[Index4].Values)
                         {
-                            Menus[Index4].Values.Add(new MSettings { SetName = Value.VName, SValue = Value.VValue });
+                            Menus[Index2].Values.Add(new MSettings { SetName = Value.VName, SValue = Value.VValue });
 
                         }
 
@@ -1181,9 +1213,11 @@ namespace IngameScript
                 {
                     if (Index4 != -1)
                     {
+                        //SETTINGS!!
+
                         foreach (Modulsettings Setting in Modules[Index4].Settings)
                         {
-                            Menus[Index4].Values.Add(new MSettings { SetName = Setting.Name, SValue = Setting.Value, SRange = Setting.Range });
+                            Menus[Index3].Values.Add(new MSettings { SetName = Setting.Name, SValue = Setting.Value, SRange = Setting.Range });
 
                         }
 
