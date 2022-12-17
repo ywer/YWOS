@@ -28,6 +28,10 @@ namespace IngameScript
     {
         //Script By Ywer
 
+        //INFO:ModulName = Energy;
+        //SETTING:Blala = 20:10|20|30;
+        //INFO:EnergyUse = 20;
+
 
         #region settings
         //settings
@@ -55,7 +59,7 @@ namespace IngameScript
         int ReactorMode = 2;
         int BatteryMode = 4;
         int SolarMode = 2;
-        string ModulName = "M1337";
+        string ModulBlockName = "M1337";
         List<WarningValue> Warnings = new List<WarningValue>();
 
         class WarningValue
@@ -294,22 +298,33 @@ namespace IngameScript
                 {
                     if(Block.IsSameConstructAs(Me))
                     {
-                        if (Block.CustomName.Contains(ModulName))
+                        if (Block.CustomName.Contains(ModulBlockName))
                         {
+                            WriteToLog("Debug: Modul Found!");
                             string Modulname = "";
-                            string CustomDataAll = Block.CustomData;
+                            string CustomData = Block.CustomData;
+                            string CustomDataAll = CustomData.Replace(" ", "");
                             string[] Data = CustomDataAll.Split(';');
                             if (Data.Length > 1)
                             {
+                               
                                 foreach (string CData in Data)
                                 {
+                                    WriteToLog("DEBUG: Data: " + CData);
+
                                     string[] Sdata = CData.Split('=');
                                     if (Sdata.Length == 2)
                                     {
+                                        WriteToLog("DEBUG: SData = " + Sdata[0]);
+                                        WriteToLog("DEBUG: SData2 = " + Sdata[1]);
                                         string[] firstData = Sdata[0].Split(':');
-                                        if (firstData[1] == "ModulName")
+                                        WriteToLog("DEBUG: Firstdata1 " + firstData[1]);
+                                        if (firstData[1].Contains("ModulName"))
                                         {
-                                            Modulname = firstData[1];
+                                            WriteToLog("Debug: Modulname found!");
+                                            Modulname = Sdata[1];
+                                            WriteToLog("Modulname: " + Modulname);
+                                            break;
                                         }
                                     }
 
@@ -319,11 +334,13 @@ namespace IngameScript
                                 {
                                     Modules.Add(new ModulInfo { Block = (IMyProgrammableBlock)Block, ModulName = Modulname });
                                 }
-
-                                int Index = Modules.FindIndex(a => a.ModulName == ModulName);
+                                WriteToLog("DEBUG: Modules1: " + Modules.Count);
+                                WriteToLog("DEBUG: MODULANE: " + Modules[0].ModulName);
+                                int Index = Modules.FindIndex(a => a.ModulName == Modulname);
+                                WriteToLog("DEBUG: Indes: " + Index);
                                 if (Index != -1)
                                 {
-
+                                    WriteToLog("DEBUG: NameFound!");
                                     if (Data.Length > 1)
                                     {
                                         foreach (string CData in Data)
@@ -339,7 +356,8 @@ namespace IngameScript
                                                     if (TempData[0] == "INFO")
                                                     {
                                                         Modules[Index].Values.Add(new ModuleValues { VName = Sdata[0], VValue = Sdata[1] });
-                                                        return;
+                                                        WriteToLog("DEBUG: values Count: " + Modules[Index].Values.Count);
+
                                                     }
                                                     else if (TempData[0] == "SETTING")
                                                     {
@@ -349,17 +367,21 @@ namespace IngameScript
                                                             if (TempData2.Length > 1)
                                                             {
                                                                 Modules[Index].Settings.Add(new Modulsettings { Name = TempData[1], Value = TempData2[0], Range = TempData2[1] });
+                                                                WriteToLog("DEBUG: Setting Count: " + Modules[Index].Settings.Count);
+                                                                
                                                             }
                                                         }
                                                         else
                                                         {
                                                             WriteToLog("Wrong Setting Lenght!");
+                                                            return;
                                                         }
-                                                        return;
+                                                        
                                                     }
                                                     else
                                                     {
                                                         WriteToLog("KatError");
+                                                        hier //Rausfinden warum wir hier landen
                                                         return;
                                                     }
                                                 }
@@ -367,6 +389,10 @@ namespace IngameScript
 
                                         }
                                     }
+                                }
+                                else
+                                {
+                                    WriteToLog("Modulname not found!");
                                 }
                             }
                         }
@@ -383,6 +409,7 @@ namespace IngameScript
             // MenuValueStorage.Add(new MValues { MenuName = "Main", Subchannels = new List<string> { new string(t) } })
 
             AddMenus();
+            WriteToLog("DEBUG: Modul Count: " + Modules.Count);
 
 
             return;
@@ -456,7 +483,7 @@ namespace IngameScript
 
         public void ReloadModulValues()
         {
-            //INFO:ModuleName = Energy;
+            //INFO:EnergyUse = 20;
             foreach (ModulInfo MInfo in Modules)
             {
                 string ValueName = MInfo + " Data";
@@ -950,7 +977,6 @@ namespace IngameScript
             string Out = "";
             int MaxMenus = 0;
             int MaxPages = 0;
-            Hier //alles neu machen dynamisch auf die module, bei modulen noch kathegorien in settings einfügen
             if (Index != -1)
             {
                 
@@ -984,11 +1010,13 @@ namespace IngameScript
                 */
                 if (Type == "Warning")
                 {
-                    foreach (WarningValue Warn in Warnings)
-                    {
-                        Menus[Index].Values.Add(new MSettings() { SetName = Warn.From, SValue = Warn.Warning, CanBeDeleted = true }); ;
 
-                    }
+                        foreach (WarningValue Warn in Warnings)
+                        {
+                            Menus[Index].Values.Add(new MSettings() { SetName = Warn.From, SValue = Warn.Warning, CanBeDeleted = true }); ;
+
+                        }
+
                 }
                 /*
                 else if(Type == "EnergySetting")
@@ -1143,6 +1171,9 @@ namespace IngameScript
                 else
                 {
                     ErrorHandler("Menu is Empty!");
+                    Out = Out + Environment.NewLine + "Menu is Empty!";
+                    MainScreen.WriteText(Out, false);
+                    MMove("BACK");
                 }
 
             }
@@ -1161,7 +1192,7 @@ namespace IngameScript
         {
 
             Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetName = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
-            Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" }, new MSettings() { SetName = "Energy" }, new MSettings() { SetName = "Cargo" }, new MSettings() { SetName = "Connectors" }, new MSettings() { SetName = "Airlocks" }, new MSettings() { SetName = "MainSettings", Hidden = true } } });
+            Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = new List<MSettings> { new MSettings() { SetName = "Warnings" } } });
             Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
             
             int Index = Menus.FindIndex(a => a.MenuName == "Main");
