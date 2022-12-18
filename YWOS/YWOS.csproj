@@ -135,6 +135,7 @@
     <AdditionalFiles Include="MDK\whitelist.cache" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="log.txt" />
     <Content Include="ToDo.txt" />
   </ItemGroup>
   <ItemGroup>
