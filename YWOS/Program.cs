@@ -856,7 +856,7 @@ namespace IngameScript
                         {
                             if (Value.Hidden == false)
                             {
-                                Out = Out + Environment.NewLine + Value.SetName  + Value.SValue;
+                                Out = Out + Environment.NewLine + Value.SetName  + "  " + Value.SValue;
                             }
 
                         }
