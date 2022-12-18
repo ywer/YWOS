@@ -588,7 +588,78 @@ namespace IngameScript
                                     temp = 0;
                                 }
 
+
+
                                 Menus[Index].Values[CurrentPos].SValue = Range2[temp];
+
+                                string MenuName = Menus[Index].MenuName;
+                                string[] Temp1 = MenuName.Split(' ');
+
+                                int Index1 = Modules.FindIndex(a=> a.ModulName == Temp1[0]);
+                                if(Index1 != -1)
+                                {
+                                   string CD = Modules[Index1].Block.CustomData;
+                                    //string CD2 = CD.Replace(" ", "");
+                                    WriteToLog("DEBUG CD: " + CD);
+                                    string[] Data = CD.Split(';');
+                                    int DLenght = Data.Length;
+                                    WriteToLog("DEbug: Last " + Data[DLenght - 1]);
+                                  string replace = Data[DLenght - 1].Replace(";", "");
+                                    Data[DLenght - 1] = replace;
+                                    WriteToLog("DEbug: Last2 " + Data[DLenght - 1]);
+                                    //SETTING:Blala = 20:10|20|30;
+                                    int I = 0;
+                                    WriteToLog("DEBUG: Settext = " + Menus[Index].Values[CurrentPos].SetText);
+                                    foreach (string Custom in Data)
+                                    {
+                                        WriteToLog("DEBUG CUSTOM1 " + Custom);
+                                        if(Custom.Contains(Menus[Index].Values[CurrentPos].SetText))
+                                        {
+                                            WriteToLog("DEBUG Custom choosen " + Custom);
+                                            string[] Split1 = Custom.Split('=');
+                                            if(Split1.Length > 1)
+                                            {
+                                                string[] Split2 = Split1[1].Split(':');
+                                                if(Split2.Length > 1)
+                                                {
+                                                    Split2[0] = Range2[temp];
+
+                                                    string Tempo = Split1[0] + "= " + Split2[0] + ":" + Split2[1];
+                                                    Data[I] = Tempo;
+                                                    string TmpCD = "";
+                                                    /*
+                                                    foreach(string PS  in Data)
+                                                    {
+                                                        TmpCD = TmpCD + PS + ";";
+                                                    }
+                                                    */
+                                                    int i2 = 0;
+                                                    do
+                                                    {
+                                                        if(i2 != Data.Length -1)
+                                                        {
+                                                            TmpCD = TmpCD + Data[i2] + ";";
+                                                        }
+                                                        else
+                                                        {
+                                                            TmpCD = TmpCD + Data[i2];
+                                                        }
+
+                                                        i2++;
+                                                    } while (i2 < Data.Length);
+                                                    Modules[Index1].Block.CustomData = TmpCD;
+                                                    WriteToLog("DEBUG: Out: " + TmpCD);
+                                                    break;
+                                                }
+
+
+                                            }
+                                        }
+                                        I++;
+                                    }
+
+                                }
+
                                 break;
                             }
                             else
