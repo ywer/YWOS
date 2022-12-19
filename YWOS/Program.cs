@@ -31,7 +31,7 @@ namespace IngameScript
         //INFO:ModulName = Energy;
         //SETTING:Blala = 20:10|20|30;
         //INFO:EnergyUse = 20;
-        //WARNING:ENERGY = Low Battery!;
+        //WARNING:Energy = Low Battery!:1;
 
 
         #region settings
@@ -49,8 +49,8 @@ namespace IngameScript
         bool Setup = false;
         IMyTextPanel MainScreen;
         IMyButtonPanel MainControll;
-        int Tick = 0;
-        int Maxtick = 2000;
+        int Tick = 2;
+        int Maxtick = 100;
         IMyCubeGrid MyGrid;
         int Maxrows = 11;//max rows per page
 
@@ -63,6 +63,7 @@ namespace IngameScript
 
             public string From { get; set; }
 
+            public int ID { get; set; }
 
         }
 
@@ -159,16 +160,51 @@ namespace IngameScript
         #region Turnaroundaroundaroundaround
 
         public void DoEveryTime()
-        { 
-        Tick++;
-        if(Tick >= Maxtick)
         {
-        Tick = -1;
-        }
-            if(Tick == 1000)
+            if (Setup == true)
             {
-                ReloadModulesSettings();
-                ReloadModulValues();
+
+                if (Tick >= Maxtick)
+                {
+                    Tick = 0;
+                    WriteToLog("Debug Tick reset");
+                }
+                if (Tick == 5)
+                {
+                    WriteToLog("DEBUG RUN UPDATE");
+                    ReloadModulesSettings();
+                    ReloadModulValues();
+                    hier//Rausfinden warum nicht geupdatet wird
+                }
+
+
+                Tick++;
+                if (Warnings.Count == 0)
+                {
+                    int ind = Menus.FindIndex(a=> a.MenuName == "Main");
+                    if(ind != -1)
+                    {
+                        int ind2 = Menus[ind].Values.FindIndex(a=> a.SetName == "Warnings");
+
+                        if(ind2 != -1)
+                        {
+                            Menus[ind].Values[ind2].Hidden = true;
+                        }
+                    }
+                }
+                else
+                {
+                    int ind = Menus.FindIndex(a => a.MenuName == "Main");
+                    if (ind != -1)
+                    {
+                        int ind2 = Menus[ind].Values.FindIndex(a => a.SetName == "Warnings");
+
+                        if (ind2 != -1)
+                        {
+                            Menus[ind].Values[ind2].Hidden = false;
+                        }
+                    }
+                }
 
             }
         }
@@ -305,7 +341,31 @@ namespace IngameScript
                                                     }
                                                     else if(TempData[0].Contains("WARNING"))
                                                     {
-                                                            Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1] });
+                                                        string[] TempData2 = Sdata[1].Split(':');
+                                                        int IDN = 0;
+                                                        //WriteToLog("DEBUG Warning from: " + TempData[1]);
+                                                        if (TempData2.Length > 1)
+                                                        {
+                                                            try
+                                                            {
+                                                                IDN = Convert.ToInt32(TempData2[1]);
+
+                                                            }
+                                                            catch (FormatException E)
+                                                            {
+                                                                WriteToLog("Wrong data Forma for Warning!");
+                                                                Error = 1;
+                                                                return;
+                                                            }
+                                                            if (Error == 0)
+                                                            {
+                                                                Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            // Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1] });
+                                                        }
                                                     }
                                                     else
                                                     {
@@ -332,6 +392,7 @@ namespace IngameScript
 
         public void ReloadModulesSettings()
         {
+
             //SETTING:Blala = 20:10|20|30;
             foreach (ModulInfo MInfo in Modules)
             {
@@ -394,8 +455,9 @@ namespace IngameScript
                 {
                     foreach (string CData in Data)
                     {
+                        int Error = 0;
                         //INFO:ModuleName = Energy;
-                        //WARNING:ENERGY = Low Battery!;
+                        //WARNING:Energy = Low Battery!;
                         string[] Sdata = CData.Split('=');
                         if (Sdata.Length == 2)
                         {
@@ -405,16 +467,42 @@ namespace IngameScript
                             {
                                 if (TempData[0] == "INFO")
                                 {
-                                    
+
                                     MInfo.Values.Add(new ModuleValues { VName = TempData[1], VValue = Sdata[1] });
                                     if (!TempData[1].Contains("ModulName"))
                                     {
                                         Menus[Index3].Values.Add(new MSettings { SetName = TempData[1], SValue = Sdata[1] });
                                     }
                                 }
-                                else if(TempData[0] == "WARNING")
+                                else if (TempData[0] == "WARNING")
                                 {
-                                        Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1] });
+                                   // WriteToLog("DEBUG Warning from2: " + TempData[1]);
+                                    string[] TempData2 = Sdata[1].Split(':');
+                                    int IDN = 0;
+                                    if (TempData2.Length > 1)
+                                    {
+                                        try
+                                        {
+                                            IDN = Convert.ToInt32(TempData2[1]);
+
+                                        }
+                                        catch (FormatException E)
+                                        {
+                                            WriteToLog("Wrong data Forma for Warning!");
+                                            Error = 1;
+                                            return;
+                                        }
+                                        if (Error == 0)
+                                        {
+                                            Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1] });
+                                    }
+
+
                                 }
                             }
 
@@ -599,23 +687,15 @@ namespace IngameScript
                                 if(Index1 != -1)
                                 {
                                    string CD = Modules[Index1].Block.CustomData;
-                                    //string CD2 = CD.Replace(" ", "");
-                                    WriteToLog("DEBUG CD: " + CD);
                                     string[] Data = CD.Split(';');
                                     int DLenght = Data.Length;
-                                    WriteToLog("DEbug: Last " + Data[DLenght - 1]);
                                   string replace = Data[DLenght - 1].Replace(";", "");
-                                    Data[DLenght - 1] = replace;
-                                    WriteToLog("DEbug: Last2 " + Data[DLenght - 1]);
                                     //SETTING:Blala = 20:10|20|30;
                                     int I = 0;
-                                    WriteToLog("DEBUG: Settext = " + Menus[Index].Values[CurrentPos].SetText);
                                     foreach (string Custom in Data)
                                     {
-                                        WriteToLog("DEBUG CUSTOM1 " + Custom);
                                         if(Custom.Contains(Menus[Index].Values[CurrentPos].SetText))
                                         {
-                                            WriteToLog("DEBUG Custom choosen " + Custom);
                                             string[] Split1 = Custom.Split('=');
                                             if(Split1.Length > 1)
                                             {
@@ -627,12 +707,7 @@ namespace IngameScript
                                                     string Tempo = Split1[0] + "= " + Split2[0] + ":" + Split2[1];
                                                     Data[I] = Tempo;
                                                     string TmpCD = "";
-                                                    /*
-                                                    foreach(string PS  in Data)
-                                                    {
-                                                        TmpCD = TmpCD + PS + ";";
-                                                    }
-                                                    */
+
                                                     int i2 = 0;
                                                     do
                                                     {
@@ -648,7 +723,6 @@ namespace IngameScript
                                                         i2++;
                                                     } while (i2 < Data.Length);
                                                     Modules[Index1].Block.CustomData = TmpCD;
-                                                    WriteToLog("DEBUG: Out: " + TmpCD);
                                                     break;
                                                 }
 
@@ -707,18 +781,92 @@ namespace IngameScript
                             {
                                 if (Deletecounter != 0)
                                 {
+                                    //WARNING:ENERGY = Low Battery!:1;
                                     Deletecounter = 0;
                                     Deletecounter2 = 0;
-                                    Warnings.RemoveAt(CurrentPos);
-                                    CurrentMenu = "Main";
-                                    CurrentPage = 0;
-                                    CurrentPos = 0;
+                                    int ID =Warnings[CurrentPos].ID;
+                                    string From = Warnings[CurrentPos].From;
+                                   int Index2 = Modules.FindIndex(a=> a.ModulName == From);
+                                    if(Index2 != -1)
+                                    {
+
+                                        string CDBlock = Modules[Index2].Block.CustomData;
+                                        string[] CDRows = CDBlock.Split(';');
+                                        int i = 0;
+                                        foreach(string Row in CDRows)
+                                        {
+                                            string[] Rowsplit = Row.Split('=');
+                                            if(Rowsplit.Length > 1)
+                                            {
+                                                string[] RowRowSplit1 = Rowsplit[0].Split(':');
+                                                if (RowRowSplit1.Length > 1)
+                                                {
+                                                    if (RowRowSplit1[0].Contains("WARNING"))
+                                                    {
+
+                                                        string[] RowRowSplit = Rowsplit[1].Split(':');
+                                                        if (RowRowSplit.Length > 1)
+                                                        {
+                                                            int RowID = -1;
+                                                            try
+                                                            {
+                                                                RowID = Convert.ToInt32(RowRowSplit[1]);
+                                                            }
+                                                            catch (FormatException e)
+                                                            {
+                                                                WriteToLog("Wrong Warning Format!! USE: WARNING:YOURMODUL = TEXT:ID(1);");
+                                                            }
+                                                            if (RowID != -1)
+                                                            {
+                                                                if (RowID == ID)
+                                                                {
+                                                                    break;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+
+
+                                            }
+                                            i++;
+                                        }                                     
+                                        string TmpCD = "";
+                                        int i2 = 0;
+                                        do
+                                        {
+                                            if (i2 != i)
+                                            {
+                                                if (i2 != CDRows.Length - 1)
+                                                {
+                                                    TmpCD = TmpCD + CDRows[i2] + ";";
+                                                }
+                                                else
+                                                {
+                                                    TmpCD = TmpCD + CDRows[i2];
+                                                }
+                                            }
+
+                                            i2++;
+                                        } while (i2 < CDRows.Length);
+                                        Modules[Index2].Block.CustomData = TmpCD;
+                                        Warnings.RemoveAt(CurrentPos);
+                                        CurrentMenu = "Main";
+                                        CurrentPage = 0;
+                                        CurrentPos = 0;
+                                        break;
+                                    }
+
+
+                                }
+
                                     break;
                                 }
 
                             }
 
-                        }
+                        
+
 
                         break;
                     case "BACK":
@@ -848,7 +996,6 @@ namespace IngameScript
 
                 if (Type == "Warning")
                 {
-                    WriteToLog("Warning menu clear");
                     Menus[Index].Values.Clear();
                         foreach (WarningValue Warn in Warnings)
                         {
@@ -1007,7 +1154,7 @@ namespace IngameScript
                 Running = true;
                 Menus.Clear();
                 Menus.Add(new MenuStorage { MenuName = "Delete", IsInfoPage = true, Values = new List<MSettings> { new MSettings() { SetText = "DELETE?", SValue = "ENTER to Delete, BACK to go back" } } });
-                Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values =  { new MSettings() {  SetName = "Warnings" } } });
+                Menus.Add(new MenuStorage { MenuName = "Main", IsMenu = true, Values = { new MSettings() { SetName = "Warnings", Hidden = false } } }); ;
 
                 Menus.Add(new MenuStorage { MenuName = "Warnings", IsInfoPage = true, InfoType = "Warning" });
 

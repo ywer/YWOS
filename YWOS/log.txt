@@ -1,105 +1,37 @@
-﻿
+﻿12/19/2022 01:11:15:First Startup
+12/19/2022 01:11:15:Starting Startup....
+12/19/2022 01:11:15:Serching for Screen and Controller..
+12/19/2022 01:11:15:DEBUG Warning from: Energy
+12/19/2022 01:11:15:Setup Finished
+12/19/2022 01:11:19:Warning menu clear
+12/19/2022 01:11:19:Warning menu clear
+12/19/2022 01:11:20:Debug: From: Energy
+12/19/2022 01:11:20:Debug: Index0
+12/19/2022 01:11:20:Debug test1
+12/19/2022 01:11:20:Debug Rowid: 1
+12/19/2022 01:11:20:Debug ID 1
 
-12/18/2022 23:31:33:First Startup
-12/18/2022 23:31:33:Starting Startup....
-12/18/2022 23:31:33:Serching for Screen and Controller..
-12/18/2022 23:31:33:Setup Finished
-12/18/2022 23:31:52:First Startup
-12/18/2022 23:31:52:Starting Startup....
-12/18/2022 23:31:52:Serching for Screen and Controller..
-12/18/2022 23:31:52:Setup Finished
-12/18/2022 23:32:02:DEBUG CD: INFO:ModulName = Energy;
-SETTING:Blala = 20:10|20|30;
-INFO:EnergyUse = 20;
-WARNING:ENERGY = Low Battery!;
-12/18/2022 23:32:02:DEBUG: Out: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:32:04:DEBUG CD: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
+12/19/2022 01:11:20:Debug RemoveRow
 
-12/18/2022 23:32:04:DEBUG: Out: INFO:ModulName  = 10:Blala  ;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
+12/19/2022 01:11:51:First Startup
+12/19/2022 01:11:51:Starting Startup....
+12/19/2022 01:11:51:Serching for Screen and Controller..
+12/19/2022 01:11:51:DEBUG Warning from: Energy
+12/19/2022 01:11:51:Setup Finished
+12/19/2022 01:11:55:Warning menu clear
+12/19/2022 01:11:55:Warning menu clear
+12/19/2022 01:11:56:Warning menu clear
+12/19/2022 01:11:58:Warning menu clear
 
+12/19/2022 01:11:58:Warning menu clear
 
+12/19/2022 01:12:07:Warning menu clear
+12/19/2022 01:12:07:Warning menu clear
+12/19/2022 01:12:08:Warning menu clear
+12/19/2022 01:12:08:Debug: From: Energy
+12/19/2022 01:12:08:Debug: Index0
+12/19/2022 01:12:08:Debug test1
+12/19/2022 01:12:08:Debug Rowid: 1
+12/19/2022 01:12:08:Debug ID 1
 
-
-
-
-
-
-12/18/2022 23:39:06:First Startup
-12/18/2022 23:39:06:Starting Startup....
-12/18/2022 23:39:06:Serching for Screen and Controller..
-12/18/2022 23:39:06:Setup Finished
-12/18/2022 23:39:12:DEBUG CD: INFO:ModulName = Energy;
-SETTING:Blala = 20:10|20|30;
-INFO:EnergyUse = 20;
-WARNING:ENERGY = Low Battery!;
-12/18/2022 23:39:12:DEBUG: Settext = Blala
-12/18/2022 23:39:12:DEBUG Custom 
-SETTING:Blala = 20:10|20|30
-12/18/2022 23:39:12:DEBUG: Out: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:39:13:DEBUG CD: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:39:13:DEBUG: Settext = Blala
-12/18/2022 23:39:13:DEBUG Custom INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30
-12/18/2022 23:39:13:DEBUG: Out: INFO:ModulName  = 10:Blala  ;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:39:13:DEBUG CD: INFO:ModulName  = 10:Blala  ;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:39:13:DEBUG: Settext = Blala
-12/18/2022 23:39:13:DEBUG Custom INFO:ModulName  = 10:Blala  
-
-12/18/2022 23:39:13:DEBUG: Out: INFO:ModulName   = 20:Blala  ;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-
-
-12/18/2022 23:44:28:First Startup
-12/18/2022 23:44:28:Starting Startup....
-12/18/2022 23:44:28:Serching for Screen and Controller..
-12/18/2022 23:44:28:Setup Finished
-12/18/2022 23:44:45:First Startup
-12/18/2022 23:44:45:Starting Startup....
-12/18/2022 23:44:45:Serching for Screen and Controller..
-12/18/2022 23:44:45:Setup Finished
-12/18/2022 23:44:51:DEBUG CD: INFO:ModulName = Energy;
-SETTING:Blala = 20:10|20|30;
-INFO:EnergyUse = 20;
-WARNING:ENERGY = Low Battery!;
-12/18/2022 23:44:51:DEBUG: Settext = Blala
-12/18/2022 23:44:51:DEBUG CUSTOM1 INFO:ModulName = Energy
-12/18/2022 23:44:51:DEBUG CUSTOM1 
-SETTING:Blala = 20:10|20|30
-12/18/2022 23:44:51:DEBUG Custom choosen 
-SETTING:Blala = 20:10|20|30
-12/18/2022 23:44:51:DEBUG: Out: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:44:51:DEBUG CD: INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
-12/18/2022 23:44:51:DEBUG: Settext = Blala
-12/18/2022 23:44:51:DEBUG CUSTOM1 INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30
-12/18/2022 23:44:51:DEBUG Custom choosen INFO:ModulName = Energy
-SETTING:Blala  = 30:10|20|30
-
-12/18/2022 23:44:51:DEBUG: Out: INFO:ModulName  = 10:Blala  ;
-INFO:EnergyUse = 20
-WARNING:ENERGY = Low Battery!
+12/19/2022 01:12:08:Debug RemoveRow
