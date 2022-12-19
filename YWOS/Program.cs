@@ -50,7 +50,7 @@ namespace IngameScript
         IMyTextPanel MainScreen;
         IMyButtonPanel MainControll;
         int Tick = 2;
-        int Maxtick = 100;
+        int Maxtick = 10;
         IMyCubeGrid MyGrid;
         int Maxrows = 11;//max rows per page
 
@@ -174,7 +174,7 @@ namespace IngameScript
                     WriteToLog("DEBUG RUN UPDATE");
                     ReloadModulesSettings();
                     ReloadModulValues();
-                    hier//Rausfinden warum nicht geupdatet wird
+                    WriteToLog("DEBUG  UPDATEd");
                 }
 
 
@@ -401,10 +401,16 @@ namespace IngameScript
                 int Index3 = Menus.FindIndex(a => a.MenuName == SettingName);
                 if(Index3 != -1)
                 {
-                    WriteToLog("modul Update Clear1");
+                    WriteToLog("modul  Setting Update Clear1");
                     Menus[Index3].Values.Clear();
                 }
+                else
+                {
+                    WriteToLog("Modulsetting in Menu not found!1");
+                    return;
+                }
                 string CustomDataAll = Block.CustomData;
+                WriteToLog("DEBUGH CD setting " + CustomDataAll);
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
                 {
@@ -417,8 +423,9 @@ namespace IngameScript
                             string[] TempData = Sdata[0].Split(':');
 
 
-                            if (TempData[0] == "SETTING")
+                            if (TempData[0].Contains("SETTING"))
                             {
+                                WriteToLog("Debug: Setting found!");
                                 string[] TempData2 = Sdata[1].Split(':');
                                 if (TempData2.Length > 1)
                                 {
@@ -439,17 +446,24 @@ namespace IngameScript
         public void ReloadModulValues()
         {
             //INFO:EnergyUse = 20;
+            WriteToLog("DEBUG MODULE VALUE UPDATE");
             foreach (ModulInfo MInfo in Modules)
             {
-                string ValueName = MInfo + " Data";
+                string ValueName = MInfo.ModulName + " Data";
                 int Index3 = Menus.FindIndex(a => a.MenuName == ValueName);
                 if(Index3 != -1)
                 {
                     WriteToLog("modul Update Clear1");
                     Menus[Index3].Values.Clear();
                 }
+                else
+                {
+                    WriteToLog("Modulvalue in Menu not found!1");
+                    return;
+                }
                 IMyProgrammableBlock Block = MInfo.Block;
                 string CustomDataAll = Block.CustomData;
+                WriteToLog("DEBUGH CD Value " + CustomDataAll);
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
                 {
@@ -465,18 +479,19 @@ namespace IngameScript
                             //string[] TempData2 = Sdata[1].Split(':');
                             if (TempData.Length > 1)
                             {
-                                if (TempData[0] == "INFO")
+                                if (TempData[0].Contains("INFO"))
                                 {
-
+                                    WriteToLog("Debug: info found!");
                                     MInfo.Values.Add(new ModuleValues { VName = TempData[1], VValue = Sdata[1] });
                                     if (!TempData[1].Contains("ModulName"))
                                     {
                                         Menus[Index3].Values.Add(new MSettings { SetName = TempData[1], SValue = Sdata[1] });
                                     }
                                 }
-                                else if (TempData[0] == "WARNING")
+                                else if (TempData[0].Contains("WARNING"))
                                 {
-                                   // WriteToLog("DEBUG Warning from2: " + TempData[1]);
+                                    WriteToLog("Debug: warning found!");
+                                    // WriteToLog("DEBUG Warning from2: " + TempData[1]);
                                     string[] TempData2 = Sdata[1].Split(':');
                                     int IDN = 0;
                                     if (TempData2.Length > 1)
