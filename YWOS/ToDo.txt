@@ -12,10 +12,7 @@ Not Energie Modus
 startup mit checken ob steuerung/bildschirm vorhanden
 
 
-
-
-Energy Overrride Command
-Energy override status screen
+wiederholend module finder 
 
 
 

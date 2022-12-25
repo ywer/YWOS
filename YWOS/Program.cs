@@ -167,14 +167,12 @@ namespace IngameScript
                 if (Tick >= Maxtick)
                 {
                     Tick = 0;
-                    WriteToLog("Debug Tick reset");
                 }
                 if (Tick == 5)
                 {
-                    WriteToLog("DEBUG RUN UPDATE");
                     ReloadModulesSettings();
                     ReloadModulValues();
-                    WriteToLog("DEBUG  UPDATEd");
+                    FindBlocks();
                 }
 
 
@@ -401,16 +399,16 @@ namespace IngameScript
                 int Index3 = Menus.FindIndex(a => a.MenuName == SettingName);
                 if(Index3 != -1)
                 {
-                    WriteToLog("modul  Setting Update Clear1");
+
                     Menus[Index3].Values.Clear();
                 }
                 else
                 {
-                    WriteToLog("Modulsetting in Menu not found!1");
+
                     return;
                 }
                 string CustomDataAll = Block.CustomData;
-                WriteToLog("DEBUGH CD setting " + CustomDataAll);
+
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
                 {
@@ -425,7 +423,7 @@ namespace IngameScript
 
                             if (TempData[0].Contains("SETTING"))
                             {
-                                WriteToLog("Debug: Setting found!");
+
                                 string[] TempData2 = Sdata[1].Split(':');
                                 if (TempData2.Length > 1)
                                 {
@@ -437,7 +435,7 @@ namespace IngameScript
                     }
                 }
             }
-            WriteToLog("CatData Settings Updated..");
+
             return;
         }
 
@@ -446,24 +444,24 @@ namespace IngameScript
         public void ReloadModulValues()
         {
             //INFO:EnergyUse = 20;
-            WriteToLog("DEBUG MODULE VALUE UPDATE");
+
             foreach (ModulInfo MInfo in Modules)
             {
                 string ValueName = MInfo.ModulName + " Data";
                 int Index3 = Menus.FindIndex(a => a.MenuName == ValueName);
                 if(Index3 != -1)
                 {
-                    WriteToLog("modul Update Clear1");
+
                     Menus[Index3].Values.Clear();
                 }
                 else
                 {
-                    WriteToLog("Modulvalue in Menu not found!1");
+
                     return;
                 }
                 IMyProgrammableBlock Block = MInfo.Block;
                 string CustomDataAll = Block.CustomData;
-                WriteToLog("DEBUGH CD Value " + CustomDataAll);
+
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
                 {
@@ -481,7 +479,7 @@ namespace IngameScript
                             {
                                 if (TempData[0].Contains("INFO"))
                                 {
-                                    WriteToLog("Debug: info found!");
+
                                     MInfo.Values.Add(new ModuleValues { VName = TempData[1], VValue = Sdata[1] });
                                     if (!TempData[1].Contains("ModulName"))
                                     {
@@ -490,7 +488,6 @@ namespace IngameScript
                                 }
                                 else if (TempData[0].Contains("WARNING"))
                                 {
-                                    WriteToLog("Debug: warning found!");
                                     // WriteToLog("DEBUG Warning from2: " + TempData[1]);
                                     string[] TempData2 = Sdata[1].Split(':');
                                     int IDN = 0;
@@ -503,7 +500,7 @@ namespace IngameScript
                                         }
                                         catch (FormatException E)
                                         {
-                                            WriteToLog("Wrong data Forma for Warning!");
+
                                             Error = 1;
                                             return;
                                         }
@@ -526,7 +523,7 @@ namespace IngameScript
                     }
                 }
             }
-            WriteToLog("CatData Values Updated..");
+
             return;
         }
 
