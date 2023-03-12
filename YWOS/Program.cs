@@ -105,10 +105,12 @@ namespace IngameScript
         #region Main
         public Program()
         {
+            
             Runtime.UpdateFrequency = UpdateFrequency.None;
             WriteToLog("First Startup");
 
             Startup();
+            return;
         }
 
         public void Save()
@@ -119,38 +121,42 @@ namespace IngameScript
 
         public void Main(string argument, UpdateType updateSource)
         {
-            string Input = argument;
 
-            if (Input != null || Input != "")
+            if (Setup)
             {
+                string Input = argument;
 
-                switch (Input)
+                if (Input != null || Input != "")
                 {
-                    case "UP":
-                        MMove(Input);
-                        break;
-                    case "DOWN":
-                        MMove(Input);
-                        break;
-                    case "ENTER":
-                        MMove(Input);
-                        break;
-                    case "BACK":
-                        MMove(Input);
-                        break;
-                    case "REFIND":
-                        FindBlocks();
-                        break;
+
+                    switch (Input)
+                    {
+                        case "UP":
+                            MMove(Input);
+                            break;
+                        case "DOWN":
+                            MMove(Input);
+                            break;
+                        case "ENTER":
+                            MMove(Input);
+                            break;
+                        case "BACK":
+                            MMove(Input);
+                            break;
+                        case "REFIND":
+                            FindBlocks();
+                            break;
+
+                    }
+
+
+
 
                 }
 
-                
-
-
+                DoEveryTime();
+                ShowMenu();
             }
-            DoEveryTime();
-            ShowMenu();
-            
             return;
         }
 
@@ -177,6 +183,7 @@ namespace IngameScript
 
 
                 Tick++;
+                /*
                 if (Warnings.Count == 0)
                 {
                     int ind = Menus.FindIndex(a=> a.MenuName == "Main");
@@ -192,6 +199,8 @@ namespace IngameScript
                 }
                 else
                 {
+                    //TODO: Warning menü immer sichtbar machen?
+
                     int ind = Menus.FindIndex(a => a.MenuName == "Main");
                     if (ind != -1)
                     {
@@ -203,7 +212,7 @@ namespace IngameScript
                         }
                     }
                 }
-
+                */
             }
         }
 
@@ -224,16 +233,14 @@ namespace IngameScript
                 Echo("Serching for Screen and Controller..");
                 MainScreen = (IMyTextPanel)GridTerminalSystem.GetBlockWithName(MainLCDName);
                 MainControll = (IMyButtonPanel)GridTerminalSystem.GetBlockWithName(MainControllerName);
-                if (MainScreen == null || MainControll == null)
+
+                if (MainScreen == null )
                 {
                     if (MainScreen == null)
                     {
                         ErrorHandler("No MainScreen Found");
                     }
-                    if (MainControll == null)
-                    {
-                        ErrorHandler("No MainController Found");
-                    }
+                    Startup();
                     return;
                 }
                 else
@@ -246,6 +253,7 @@ namespace IngameScript
                     WriteToLog("Setup Finished");
                     Runtime.UpdateFrequency = UpdateFrequency.Update100;
                     ShowMenu();
+
                     return;
                 }
             }
@@ -276,28 +284,35 @@ namespace IngameScript
                             string[] Data = CustomDataAll.Split(';');
                             if (Data.Length > 1)
                             {
-                               
                                 foreach (string CData in Data)
                                 {
-                                    
+
 
                                     string[] Sdata = CData.Split('=');
                                     if (Sdata.Length == 2)
                                     {
 
+
                                         string[] firstData = Sdata[0].Split(':');
                                         if (firstData[1].Contains("ModulName"))
                                         {
+
                                             Modulname = Sdata[1];
                                             break;
                                         }
                                     }
 
+                                }
                             }
-
                                 if (Modulname != "")
                                 {
                                     Modules.Add(new ModulInfo { Block = (IMyProgrammableBlock)Block, ModulName = Modulname });
+
+                                }
+                                else
+                                {
+                                    WriteToLog("Modulname not found!2");
+                                    return;
                                 }
 
                                 int Index = Modules.FindIndex(a => a.ModulName == Modulname);
@@ -339,6 +354,7 @@ namespace IngameScript
                                                     }
                                                     else if(TempData[0].Contains("WARNING"))
                                                     {
+                                                    string ModName = null;
                                                         string[] TempData2 = Sdata[1].Split(':');
                                                         int IDN = 0;
                                                         //WriteToLog("DEBUG Warning from: " + TempData[1]);
@@ -357,7 +373,32 @@ namespace IngameScript
                                                             }
                                                             if (Error == 0)
                                                             {
+                                                            ModName = TempData[1];
+                                                            int Index10 = Warnings.FindIndex(a => a.From == ModName);
+
+                                                            if (Index10 != -1)
+                                                            {
+
+
+                                                                int Index22 = Warnings.FindIndex(a => a.ID == IDN);
+                                                                if (Index22 != -1)
+                                                                {
+
+                                                                    return;
+                                                                }
+                                                                else
+                                                                {
+
+                                                                    Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                                                    return;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+
                                                                 Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                                                return;
+                                                            }
                                                             }
                                                         }
                                                         else
@@ -374,15 +415,18 @@ namespace IngameScript
                                                 }
                                             }
                                         }
+                                        return;
                                     }
+                                    return;
                                 }
                                 else
                                 {
                                     WriteToLog("Modulname not found!");
+                                    return;
                                 }
                             }
                         }
-                    }
+                    
                 }
             }
             return;
@@ -460,11 +504,12 @@ namespace IngameScript
                     return;
                 }
                 IMyProgrammableBlock Block = MInfo.Block;
-                string CustomDataAll = Block.CustomData;
-
+                string CustomData = Block.CustomData;
+                string CustomDataAll = CustomData.Replace(" ", "");
                 string[] Data = CustomDataAll.Split(';');
                 if (Data.Length > 1)
                 {
+                    string ModName = null;
                     foreach (string CData in Data)
                     {
                         int Error = 0;
@@ -473,7 +518,7 @@ namespace IngameScript
                         string[] Sdata = CData.Split('=');
                         if (Sdata.Length == 2)
                         {
-                            string[] TempData = Sdata[0].Split(':');
+                            string[] TempData = Sdata[0].Split(':');//vor =
                             //string[] TempData2 = Sdata[1].Split(':');
                             if (TempData.Length > 1)
                             {
@@ -489,7 +534,7 @@ namespace IngameScript
                                 else if (TempData[0].Contains("WARNING"))
                                 {
                                     // WriteToLog("DEBUG Warning from2: " + TempData[1]);
-                                    string[] TempData2 = Sdata[1].Split(':');
+                                    string[] TempData2 = Sdata[1].Split(':'); //hinter =
                                     int IDN = 0;
                                     if (TempData2.Length > 1)
                                     {
@@ -506,12 +551,29 @@ namespace IngameScript
                                         }
                                         if (Error == 0)
                                         {
-                                            Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                            ModName = TempData[1];
+                                            int Index10 = Warnings.FindIndex(a => a.From == ModName);
+
+                                            if (Index10 != -1)
+                                            {
+
+                                                int Index = Warnings.FindIndex(a => a.ID == IDN);
+                                                if (Index != -1)
+                                                {
+                                                    return;
+                                                }
+                                                else
+                                                {
+                                                    Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                                    return;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1], ID = IDN });
+                                                return;
+                                            }
                                         }
-                                    }
-                                    else
-                                    {
-                                        // Warnings.Add(new WarningValue { From = TempData[1], Warning = Sdata[1] });
                                     }
 
 
@@ -544,7 +606,7 @@ namespace IngameScript
             CurrentPage = 0;
             CurrentPos = 0;
             CurrentStage = 0;
-            ShowMenu();
+           // ShowMenu();
             return;
         }
 
@@ -779,6 +841,7 @@ namespace IngameScript
                         }
                         else if (CanBeDeleted == true)
                         {
+                            //TODO: Löschen von warnings funktioniert nicht
                             Steps[CurrentStage] = CurrentMenu;
                             CurrentStage++;
                             Deletecounter++;
@@ -1065,20 +1128,26 @@ namespace IngameScript
                         MSettings Value = Menus[Index].Values[C1];
                         if (IsMenu == true)
                         {
+
                             if (C1 == CurrentPos)
                             {
                                 if (Value.Hidden == false)
                                 {
-                                        Out = Out + Environment.NewLine + Value.SetName + "<-----";   
+                                        Out = Out + Environment.NewLine + Value.SetName + "<-----";
                                 }
+
+
 
                             }
                             else
                             {
                                 if (Value.Hidden == false)
                                 {
+
                                     Out = Out + Environment.NewLine + Value.SetName;
                                 }
+  
+
 
                             }
                         }
@@ -1089,6 +1158,7 @@ namespace IngameScript
                                 Out = Out + Environment.NewLine + Value.SetName  + "  " + Value.SValue;
                             }
 
+                           
                         }
                         else if (IsSetting == true)
                         {
@@ -1107,8 +1177,9 @@ namespace IngameScript
                                       Out = Out + Environment.NewLine + Value.SetText + "<----";
 
 
-                                    } 
+                                    }
                                 }
+
                             }
                             else
                             {
@@ -1125,8 +1196,9 @@ namespace IngameScript
 
                                     }
 
-                                    
+
                                 }
+
                             }
 
                         }
@@ -1286,8 +1358,6 @@ namespace IngameScript
         }
 
         #endregion
-
-
 
 
 
