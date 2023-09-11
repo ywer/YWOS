@@ -238,9 +238,9 @@ namespace IngameScript
                 {
                     if (MainScreen == null)
                     {
-                        ErrorHandler("No MainScreen Found");
+                        ErrorHandler("No MainScreen Found,Please add a LCD Whit Name MainLCD and restart the Script");
                     }
-                    Startup();
+                    //Startup();
                     return;
                 }
                 else
@@ -718,6 +718,7 @@ namespace IngameScript
             if (Index != -1)
             {
 
+
                 int V1 = Menus[Index].Values[CurrentPos].IValue;
                 bool V2 = Menus[Index].Values[CurrentPos].BValue;
                 bool IsMenu = Menus[Index].IsMenu;
@@ -731,6 +732,7 @@ namespace IngameScript
                 {
                     Deletecounter2 = 1;
                 }
+
 
                 switch (Direction)
                 {
@@ -1317,15 +1319,27 @@ namespace IngameScript
 
         #region GetData
 
-        public int GetPercent(float Max, float Current)
+        public int ReturnPercent(decimal Max, decimal Current)
         {
-            int Out = 0;
-            float One = Max / 100;
-            float two = (Current / One);
+            if (Current == Max)
+            {
 
-            Out = Convert.ToInt32(two);
+                return 100;
+            }
+            decimal Percent = 0;
 
-            return Out;
+            decimal Math = (Max / 100);
+            int PercentInt = 0;
+
+            if (Math != 0)
+            {
+
+                Percent = (Current / Math);
+
+                PercentInt = Convert.ToInt32(Percent);
+            }
+
+            return PercentInt;
         }
 
 

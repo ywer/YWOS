@@ -4,7 +4,7 @@ YWOS is just a simple script to manage things in Space Engineers(for Ships/Space
 
 
 How to Use:
-1. Screen: Name a Screen "MenuLCD"
+1. Screen: Name a Screen "MainLCD"
 2. Place a ButtonPanel in front of the Screen Whit follow Buttons:
 Link the Button to the Programming Block on Run whit follow Argmunents:
 -UP: Argument: UP
