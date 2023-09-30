@@ -43,7 +43,7 @@ namespace IngameScript
         #endregion
 
         #region Private
-        double Version = 3.002;
+        double Version = 3.003;
         int Error = 0;
         string ErrorText = "";
         bool Setup = false;
