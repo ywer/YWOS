@@ -1,6 +1,67 @@
 ﻿todo list:
 
 
+Autoabschaltung Intigrieren
+Menu
+Infos für menu
+Infos auf anderen Bildschirmen
+Alarmmodus
+Energiesparmodus
+Not Energie Modus
+
+
+startup mit checken ob steuerung/bildschirm vorhanden
+
+
+wiederholend module finder -
+
+
+
+option to find all blocks insteadof only ship blocks
+
+achtung, Reaktor, solar und batterie optionen nicht beachten wenn energy saver true
+programm.cs äää blocks clearen zeile 297
+
+
+
+Module: 
+Mining Modul mit erfassung  wo ressurcenfelder sind (min 200-500 m abstand zur selben ressurce um doppelung zu verhindenrn?)
+Jump modul,bekommt auch jump points vom mining modul um zu den vorkommen zu springen?
+
+
+
+
+3.001:
+-Redo Menu
+-Redo All Info Screens
+-Redo Settings
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+OLD
+Not eisnchaltung Intigrieren 
+
 
 Daten für Systemstatus sammeln und anzeigen
 

@@ -1,0 +1,23 @@
+﻿
+12/19/2022 13:41:39:Debug Tick reset
+
+12/19/2022 13:41:48:DEBUG RUN UPDATE
+12/19/2022 13:41:48:modul Update Clear1
+12/19/2022 13:41:48:DEBUGH CD setting INFO:ModulName = Energy;
+SETTING:Blala = 50:10|20|50;
+INFO:EnergyUse = 10;
+WARNING:Energy = Low Battery!:1;
+12/19/2022 13:41:48:CatData Settings Updated..
+
+12/19/2022 13:41:48:Modulvalue in Menu not found!1
+
+12/19/2022 13:43:08:Debug Tick reset
+12/19/2022 13:43:16:DEBUG RUN UPDATE
+12/19/2022 13:43:16:modul Update Clear1
+12/19/2022 13:43:16:DEBUGH CD setting INFO:ModulName = Energy;
+SETTING:Blala = 50:10|20|50;
+INFO:EnergyUse = 10;
+WARNING:Energy = Low Battery!:1;
+12/19/2022 13:43:16:CatData Settings Updated..
+
+12/19/2022 13:43:16:Modulvalue in Menu not found!1

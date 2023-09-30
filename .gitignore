@@ -5,6 +5,9 @@
 *.zip
 
 
+MDK/MDK.paths.props
+
+
 # User-specific files
 *.rsuser
 *.suo
