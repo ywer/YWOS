@@ -8,7 +8,7 @@
     <MDKVersion>1.4.14</MDKVersion>
     <MDKUseGameBinPath>no</MDKUseGameBinPath>
     <MDKGameBinPath>d:\program files (x86)\steam\SteamApps\common\SpaceEngineers\Bin64</MDKGameBinPath>
-    <MDKInstallPath>c:\users\ywer\appdata\local\microsoft\visualstudio\17.0_38db2ca2\extensions\4i4f42ed.rtr</MDKInstallPath>
+    <MDKInstallPath>c:\users\ywer\appdata\local\microsoft\visualstudio\17.0_38db2ca2\extensions\eu4y5d24.1nm</MDKInstallPath>
     <MDKOutputPath>C:\Users\ywer\AppData\Roaming\SpaceEngineers\IngameScripts\local</MDKOutputPath>
   </PropertyGroup>
   <ItemGroup>
