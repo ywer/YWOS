@@ -30,3 +30,8 @@ Connectoren prüfen ob sie vom lokalen grid sind
 -Fixxed Range of Missle Turrets not changed (Alarm Mode)
 -Fixxed AI of Missle Turrets not Aktivated (Alarm mode)
 
+3.002 U 0.3
+-Fixxed Menu: No more Out of Range Exceptions i hope
+-Removed Botton Panel to be there at Setup,so Script can used from control seat too
+-Fully remaked  how Menus and Infos are done
+-Changed logger to Work whit MEssageTypes and whit Debug Screen

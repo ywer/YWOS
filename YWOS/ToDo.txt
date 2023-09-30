@@ -62,6 +62,7 @@ Jump modul,bekommt auch jump points vom mining modul um zu den vorkommen zu spri
 OLD
 Not eisnchaltung Intigrieren 
 
+
 Daten für Systemstatus sammeln und anzeigen
 
 fehlende statusseiten noch füllen
